@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Hugh Parsonage" />
+
+<meta name="date" content="2017-01-18" />
+
+<title>Performance of project</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Performance of project</h1>
+<h4 class="author"><em>Hugh Parsonage</em></h4>
+<h4 class="date"><em>2017-01-18</em></h4>
+
+
+
+<div id="how-well-does-the-project-function-work-one-year-in-advance" class="section level2">
+<h2>How well does the project function work one year in advance?</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(knitr)
+<span class="kw">library</span>(data.table)
+if (<span class="kw">requireNamespace</span>(<span class="st">&quot;taxstats&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)){
+  <span class="kw">library</span>(taxstats)
+  sample_files_all &lt;-<span class="st"> </span><span class="kw">get_sample_files_all</span>()
+} else {
+  <span class="kw">install.packages</span>(<span class="st">&quot;taxstats&quot;</span>, <span class="dt">repos =</span> <span class="st">&quot;https://hughparsonage.github.io/drat/&quot;</span>, <span class="dt">type =</span> <span class="st">&quot;source&quot;</span>)
+  <span class="kw">library</span>(taxstats)
+  sample_files_all &lt;-<span class="st"> </span><span class="kw">get_sample_files_all</span>()
+}
+<span class="kw">library</span>(grattan)
+<span class="kw">library</span>(dtplyr)
+<span class="kw">library</span>(dplyr)
+<span class="kw">library</span>(magrittr)
+<span class="kw">library</span>(ggplot2)
+<span class="kw">library</span>(scales)
+<span class="kw">library</span>(broom)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sample_file_1314_projected &lt;-<span class="st"> </span>
+<span class="st">  </span>sample_file_1213 %&gt;%
+<span class="st">  </span>copy %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">WEIGHT =</span> <span class="dv">50</span>) %&gt;%
+<span class="st">  </span><span class="kw">project</span>(<span class="dt">h =</span> 1L, <span class="dt">fy.year.of.sample.file =</span> <span class="st">&quot;2012-13&quot;</span>, <span class="dt">.recalculate.inflators =</span> <span class="ot">TRUE</span>) %&gt;%<span class="st"> </span>.[]</code></pre></div>
+<p>This should be pretty damn close!</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data.table</span>(<span class="dt">the_source =</span> <span class="kw">c</span>(<span class="st">&quot;Actual&quot;</span>, <span class="st">&quot;Projected&quot;</span>),
+           <span class="dt">n_persons =</span> <span class="kw">c</span>(<span class="kw">nrow</span>(sample_file_1314) *<span class="st"> </span><span class="dv">50</span>, <span class="kw">sum</span>(sample_file_1314_projected$WEIGHT)), 
+           <span class="dt">avg_Taxable_Income =</span> <span class="kw">c</span>(<span class="kw">mean</span>(sample_file_1314$Taxable_Income), <span class="kw">mean</span>(sample_file_1314_projected$Taxable_Income)),
+           <span class="dt">avg_Sw =</span> <span class="kw">c</span>(<span class="kw">mean</span>(sample_file_1314$Sw_amt), <span class="kw">mean</span>(sample_file_1314_projected$Sw_amt))
+) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">melt.data.table</span>(<span class="dt">id.vars =</span> <span class="st">&quot;the_source&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(variable) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">value_rel =</span> value /<span class="st"> </span><span class="kw">first</span>(value)) %&gt;%
+<span class="st">  </span><span class="co"># dcast.data.table(variable ~ the_source) %&gt;%</span>
+<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> variable, <span class="dt">y =</span> value_rel, <span class="dt">fill =</span> the_source)) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>, <span class="dt">position =</span> <span class="st">&quot;dodge&quot;</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">label =</span> <span class="kw">comma</span>(<span class="kw">round</span>(value))), <span class="dt">position =</span> <span class="kw">position_dodge</span>(<span class="dt">width =</span> <span class="fl">0.9</span>), <span class="dt">hjust =</span> <span class="fl">1.02</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">coord_flip</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;top&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAkAAAAEgCAMAAABrWDzDAAABoVBMVEUAAAAAABgAACwAADoAAE4AAGYAGxgAGz0AKwAAKywAK24AME0AOmYAOpAATAAATE4ATIwAZrYAaywAa6gAiE4AiMQApG4ApMQAv4wAv6gAv8QzMzM4AAA4ABg4ACw4Gxg4Q146AAA6ADo6AGY6OmY6OpA6kJA6kNtNTU1NTW5NTY5Nbo5NbqtNjqtNjshjAABjABhjQ15jVG1mAABmADpmAGZmOgBmOpBmZmZmtrZmtv9uTU1uTW5uTY5ubo5ubqtujshuq+SMGwCMVD2MZW2OTU2OTW6OTY6Obk2Obm6Ojm6Ojo6Oq6uOyOSOyP+QOgCQOjqQOmaQkDqQkGaQtpCQ27aQ2/+rbk2rbm6rbo6rjk2rq26rq46ryKur5Mir5OSr5P+xMACxMCyxZT2xdm22ZgC225C22/+2///Ijk3Ijm7I5KvI/8jI/+TI///VQxjVdm3bkDrb25Db/7bb/9vb///kq27k/+Tk///r6+vy8vL4VCz4ZT34dk34dl74dm3/tmb/yI7/25D/27b/29v/5Kv//7b//8j//9v//+T///+NnoTIAAAACXBIWXMAAA7DAAAOwwHHb6hkAAASIUlEQVR4nO2djV8cRxnHtyGxJBgKhCCkrUKjcmlSYkNaLWlFYkhaX45abYLaKtRQudomPTUUS5KDU972r3aeed+7vZdl9u5mb3/fT7ndfWZumNx9mZmdwj1BCIADQa87ALINBAJOQCDgBAQCTkAg4AQEAk5AIOAEBAJOQCDgBAQCTkAg4AQEAk5AIOAEBAJOQKC0qMTybZvPvhRHu0/uJRAoLSAQcAICAScgEHACAgEnIBBwAgLljv/+Pay+dj+t1iBQ3iB5uiPQwU39XaqXN2t6IQINBarOBIxZ+ylHH96Pa0KVriyk9U9qBwiUVnNNBNr9mRYguUBUbhkY9w+BQL2AfrRnq6/9nv18L9DLHgRnNqOlKj4qZKOH6uWPWDUZjD6psUBHH3780yfMgvlg4OP54Mzn7P2m95y+xUJ7AjEpqj98+8wma4J9PxqBxJluc9Ncf/dtCNQd+Ag0c/5JWCYlmBBldm6VscIFitOXFmhmNOSBg/mFMPqkxgJVf/RkY4GPDLvn/3l5syoEolGlKq7CVgLx78y82JhlTTwhgdhZedS0Ka95hQACdQch0AI/2RU/vvqlV7MCj7MHI9BCqOe96JMaC1Rm7+qobLKqBaLnHLzVWiC+BhIjFatOsxkTiOzTT5Y2smuqgCmsW+g1EHsoB0F0rbohJqldGl9IHCUQHXfltBV9UkOBaKJj8wsbh8KoQBs83M4IJI/0xewhgeZZmwP3dZvqmjcLgbpDRCAzeyn4qqK5QJEnNRSIv8sbC7UjEA1d7U5h8miNQG9thrqQGntLjWgYgbqGLdDuQMxtDnuLedyewuSRl0ef1FCgMr2hu6P0xlYvfy6mm7IYeviyvH2BomsgOlNtymusgboJHwKkEEcr7NW3hOCDDI+PyjXzLDsOCIFUMPqkRgId/Y4MYNbQHRNr8Mwmm/p+zIYKdmB3TIkEityF0TfWbcprNl3iLqxrbASjekShhYo9oOwGgXpH+GKI1rLv3BQChfZtvH5S40V0OzQUKIbmu0JdJs8CpUvXBCoH9Qu23gGB0qJ7I5BXQCAbsekSnczaBQIBJ76Nx+nZHe1wOkAg4AQEAk5AIOAEBAJOQCDgBAQCTkAg4AQEAk5AIOAEBAJOQCDgBAQCTkAg4AQEAk5AIOAEBAJOQCDgBAQCTkAg4AQEAk5AIOAEBAJOQCDghKcC/aeeuFgTMlzdp740rK7eKQjkX3Wf+gKBMljdp75AoAxW96kvECiD1X3qCwTKYHWf+gKBMljdp75AoAxW96kvECiD1X3qSx8JFPsZXqArQCDgBAQCTkAg4AQEAk5AIOAEBAJOQCDgBAQCcUyc+h57oI/mPxeNTQ0GwQW6GhZFEAjEMDVIsoyfq48Nj1yaJIPGzrHACAQCsYydJVnGRupifBRi8kwGF5lgpyEQiGPiNBdl+EJ9jGAC8XOyCAKBOqYGL5Igk8HZIDgdjRHkDQ0+EAjEw6YukmWC1joTpyMxMokWz1KgCxAI1EHO6OmKL3ZqYswejECgIWMitR4XRwlUG8MaCDSFBBGjjBp27FhwEXdhoCkkC1s3R/aCIrFh7AOBJsgpiu82Tw1eMDHaieZODQcBbRNBINCSiQuNyyAQaMk4BAIuvNSkzGOBDpcLhdcf1YUhkFf4K9DhcjEMt65t18YhkFf0XKD9W4VCcX9xOzxeXWNjztUP1lTBe2z0Obz71wfFcP/dtXBPqQSBvKLXAh3eXWOqfLXKHhe3S0vh3hUl0PEDoczWUrhVKNIhDF9mxDRSAb2g1XvbtSns8N4jsmSJHWkc0vG9QuEKF+uLT+ZMPEb5Xr+SOcWTP20u0VJ5f/Gb1TU5kdmFbPI6vPflvX+89+U9tZyGQL7ghUC0VGarnePVTxe3oyPQ3hzXqxiWfvOL49VP5tQzIJAveCEQLZVpjbxVYGucyBqI34XREmmvIFZBEMgzvBCIqVG4+r640aKdnzfMFEb7QKQTvwczG0IQyBf8EKgGfvPeFAjkC94JdPyAhhzaGCqIsScWCOQL3gnUHhDIFyAQiOPpq3cix8rz20Hw4tcs8ErAT+h6ugKBQCzPb79wxz6yEybNOvvaIYsY60OVZ9enIRCI5fF3xMijjmIkoofHQ+b6MZMJAoF6nn7/b1wcdbQEWp821SAQiOX57RtcGHWsmCns2fUfBMGphzz27PoNTGEgBjZNiSlqyCyiK+t87fz0lWkamB7yVTUthyAQqIX8IHHUkXh2fYgpYw89jB12DYFALY/FH6DeUEeKkSuWTTf0EQKBOGr3gZRA/PjsJ/IIgUADagWiKYwW0WxdXaG9IHWEQCAWW6Dnt6fJILETrY5qZxoCgZY8fbNxGQQCLdmZblwGgUBLPnvYuAwCAScgEHACAgEn+kegTGQSTaW6T33po5ypmXhZU6nuU18gUAar+9QXCJTB6j71BQJlsLpPfekjgXr9GTl5BQIBJxIJVA6ChfL5J133pQ4I5A1JBNo4/6/5haOV0e4LUwsE8oYEAh3ML7D/wt0zmz1QJgoE8gYIBJxIMoWVaQo7mJ/tvjC1QCBvSCJQuEu/pe+BPxDIHxIJ5A0QyBsgEKhjIuA5nsbtDIUyplM9qet2BTqYDxRYRPc7VoI5Sipnx6YGRaI5XQcjEKhjbESfjus88SLGE87Rg6oDgUAdwzo3GM9oace0QKpOIoH4XdhC13WpBwJ1ksngbBCIVPHjJvO3iKkpTNdJIlCZVj/YB+p7JoILIkk8U2WkLjbM1876OoFAtA3NwE50LuA5vWXCeCs2GYywUei0qQOBQCw6KXw0xiMTcmJLKJBQR2rUWyBQJ+GSTJIkY+dqY0ogXaddgbAPlB+mBi/KfR69BNIxmsJoEa3rJBmB/AECdZRJscnMLOH36vygYrVHCARaMpEsZ3xDgaozmMJyyXg6Ah2tzB6tLGARnT9ealKWQCBSZ2M23G31W/WUsYlRn+095Nkrw5iEYK0zhEEgT0koUHm0rX2ghkJAoH4jgUDhBrdH/10PZYUryizLh8uFqx+Y9HBCCF6BkqBuzcnzsPRrOlAxe4ZJYckC+4t/4jVY/MqaLD1e/aRQWNorUC7VSH0I5A1JBGKLoHAjGLgvrigX7v57X63yrO6RVLlSIFHhEaXsfiTPw9K1bZKFzrhXlkC3WBPXto8fFOlQkhdk3lwYqf8yI2ZQ6vUH5eSUVnNFi9v4w3uPttgbuxRN1m1NSVTAkzHLc5rCSkXSihl1qPPAS6nkQVRlNahJ+mKn0foxyvf6lcwpTn8bXyqwWWV/8ZvVNTmR1QrEK4hkzPL8izUl0LKdE9USaHFbPp+1ZwsUqQ+BfKFtgfgfhUX+VwbldGdv9PHqp4vbsSOQrMDWPXPmvMhu0rhA9+xlcxsjUKQ+BPIFhxGIv+NscOEzVNwaSFYQQ5SsXJoLzRpoT9/pG4FoDcQOcg1kBIrWh0C+kESgo5XoFuJWoXD1/aKYodgM80bdFMYr/FasimVldhd2ZU3dhRnjjEA1d2FGoEh9COQLSQRqsQeddC/HBQjkC4mmsMaf7EKbz1fWaK/HXuq2JvkzIJBfJBuBfP59oF6/kn2EzA2/YyWc4+FX71TsGM/o0z8fcde717vvULnhiXV9rnPIy5i4hkCgDpkbnthR0lg55GVMXCcSyOvfB+r2q9zHmNzwz29rl3QOeRmT18lu433+faDuv879ipUb3gxAJoe8iKnrpLfx7fw+UBeAQB3E5IavrOsByOSQFzF1nVSgNn8fqNNAoE7DU3ur/N4VK4e8iOnrRGugmt8H6iEQqNNwT3ZOqVyFJoe8iOnrRAJFfx+ol0CgDqJywzNNrPt5lcnZxLAPBGLROeGtJRAhBDIxCATiMbnh+f28PAhh1EXlBAJ58cEuAgjUTVLLG1/25OOlIFB3STNv/EaARXTuSDlv/Ab2gYDmBCOQB/5AIG9ItpHox/wVQiB/SPFXWrtJXI8b/Esa/QOzW92nvvRRztRMvKypVPepLxAog9V96gsEymB1n/oCgTJY3ae+QKAMVvepL30kUK8/JyePQCDgBAQCTkAg4AQEAk5AIOAEBAJOQCDgBAQCTkCgvMKzyfGMTSol4dSgyN4UV3ZJ5CgcF39MeNGUQaC8MkySqNxxhErGHFfGi1X25uFzVhkEyidsBCEfxlUK+EtWOviYMsbYWXlKcVMGgfLJ+IhRo1agmDJK7y1PpwZH7DIIlFeMJPVTWF0Z5UeVwfFoGQTKK1qSMWOEWkTXl42NqKBOwivKIFBeUZKMUXJ4ghbGU4OnY8smTqvgpArJMgiUV9SAoscflQ4+rmxM3b6LWlYZBMorQpIxs9FTJ5BVZj1BTHK6DALlFX3TpbD2ferKdFAugUwZBMor3AE1NU0NXhA7z+calKmgvDBTGgQCxESTtPDNyiAQ4Iw3kaRZGQQCnJdOWAaBgBs9EkhliBcc3vszzxcmchTu//z91x/t8fy8KiJryyAE8oheCXTLTn96uHxte+91lRd+/1ZRpAqfC2WWVFlbBZE33i9avdkdEUhmRxVQPufjVZUXnmdNvcsTGMrMzbK2DEpilO/1K5lTejICRQW6y1PJy7zwIt3zLZWZ93hVCSSDEMgz/BCIRiCRF17F5aRlRiAZhECe4YFAy3PcDLniYXG6ikbYlwpCIL/wQKC7v1J3YXLeCkuRuzBZu9TiLqzXr2RO6f0+UHR13CYQyBd6J5BKGf8XCJRlej8CnQgI5AsQKLfwlHI8tZPKS0jnlFfl+W1zlOnldnTGwnUZk0cIlFvWKfvys+tD7ExY8vz2i1/zdGDrQyw+za9VmXgGO39MdYYq+giBcgobbUggnsPbzue9c+ohv2SC8KMsU+UqlapOqQqBcsrOkFFDCURTmYrWC8QHHH7J7FFHCJRfjBpymhIjUMAzfZMbNVOYGqB4oTpCoPyiBXr8gjih9RBbN9/gq2d7oSzg2XalONPqCIHyi56sxJhTEeuiX8ooX+eQUOYW7UYFIxAwSIHWX7gTE9WS6HGKX2ENBDRCjcdqhJEBtniOjDJmouOTGe7CgKL2Lp3fZj19hRbPJMeLX9t7RHIJxK/57dg69oHyjhhw5A4z30CknWha6KgdaLpmR17GHwi2sB6yjhAIcJ6+ebIyCAQ4O9MnK4NAgPPZw5OVQSDgBAQCTkAg4ET/CJSJTKKpVPepL3304QqZeFlTqe5TXyBQBqv71BcIlMHqPvUFAmWwuk99gUAZrO5TXyBQBqv71BcIlMHqPvUlqwLFEPepZWi90423bB0CZb51CNQeGX6LIZAPZPgthkAANAACAScgEHACAgEnIBBwwnOBDpcL8qN/5ZkJpNo6faBjMQy3CvZHxabWumw2zb7rtrb4J1EW0+26+Tzvli+73wIdPyjKBBryzARSbZ0+SXb/3bWwVGz1nJO0LptNs+/RtviHbqfYdcp8I2Rs/bL7LRB9mL34WZBnJpBq63v04pSKx6sn+EDZ1q3LZtPse6QtmQsglYYFpSufisZbv+x+C7S/uC0/Z1qemUCqrRPsjOfzSOsn2bQum02z75G2aGxIteuhnsJav+x+C0Rjs+i4PDOBVFsPabBe4rNYaj/KpnXZbJp9t9vix1S7HoZ29pLmL7vfAnVvBDpcXpLRtBYTNV0tFTs1ApkMIymug/pkBOrWGojnwZOk9S7UdLVU7NQaqKTU74BAWV8D0byi7sKWxO3AUpp3Yaox6Q/9LB//MSU9Teuy2TT7brUlJq5Uux5qgVq/7H4LJPcfeJrDju0DsdatzZQrqa0jTN9ls+nvA1n5H1Ptusm4lPF9IOA9EAg4AYGAExAIOAGBgBMQCDgBgYATEAg4AYE6RfW1+6nW8xQI1CkgEHACAoFEHK3Mssfymc3qTBAEsyQGd4MejlaC4Mymrlq9/BG7lEEIBATl80/IooP5BeGREehoZVQUS6ozoyScCEIgICAT2Nf/nohzS6BdGn24WLLmDDtVQQgEBDSH8WFml01hA7ZAZZFzaVbV5HEVhEBAsnv+38yhg/mB+zUjkDV7cYRAMgiBgOTg5h8ubzKNaBCKjEDsKlKRx1UQAgHFRjAqxKjOcIEO5mfZxDbAFtFMKssi7owKQiCg2A1onbzBVkAfi8Ux3dG/c1PcxlujkHBGBiEQyDMQCDgBgboH36IOIpNZ9oFAwAkIBJyAQMAJCAScgEDACQgEnIBAwIn/A1BvSIpC04Q1AAAAAElFTkSuQmCC" /><!-- --></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">conf_int_of_t.test &lt;-<span class="st"> </span>function(variable){
+  t_test &lt;-<span class="st"> </span><span class="kw">t.test</span>(sample_file_1314[[variable]], sample_file_1314_projected[[variable]])
+  t_test %&gt;%
+<span class="st">    </span><span class="kw">tidy</span>(.) %&gt;%
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">var =</span> variable) %&gt;%
+<span class="st">    </span>as.data.table
+}
+
+<span class="kw">lapply</span>(<span class="kw">c</span>(<span class="st">&quot;Sw_amt&quot;</span>, <span class="st">&quot;Net_rent_amt&quot;</span>, <span class="st">&quot;Net_CG_amt&quot;</span>, <span class="st">&quot;Tot_inc_amt&quot;</span>, <span class="st">&quot;Tot_ded_amt&quot;</span>, <span class="st">&quot;Taxable_Income&quot;</span>), 
+       conf_int_of_t.test) %&gt;%
+<span class="st">  </span>rbindlist %&gt;%
+<span class="st">  </span><span class="kw">select</span>(var, conf.low, conf.high, p.value) %&gt;%
+<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> var, <span class="dt">ymin =</span> conf.low, <span class="dt">ymax =</span> conf.high, <span class="dt">color =</span> p.value &gt;<span class="st"> </span><span class="fl">0.05</span>)) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_errorbar</span>() +<span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> <span class="dv">0</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="years-not-in-sample-files" class="section level2">
+<h2>Years not in sample files</h2>
+<p>Other tests can be found in the <code>tests/</code> folder to compare the tax collections in those years.</p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

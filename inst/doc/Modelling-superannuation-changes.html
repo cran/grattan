@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Hugh Parsonage" />
+
+<meta name="date" content="2017-01-18" />
+
+<title>Simple modelling of superannuation changes</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Simple modelling of superannuation changes</h1>
+<h4 class="author"><em>Hugh Parsonage</em></h4>
+<h4 class="date"><em>2017-01-18</em></h4>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>Australia’s superannuation system offers a number of tax breaks. Relative to most methods of savings, less tax is paid on money contributed to a super fund, and less tax is paid on the earnings. The functions described here attempt to model changes to tax breaks on money contributed to a super fund.</p>
+</div>
+<div id="modelling" class="section level2">
+<h2>Modelling</h2>
+<div id="the-basic-functions" class="section level3">
+<h3>The basic functions</h3>
+<p>The two tax methods modelled are <strong>Superannuation contributions tax concessions</strong> and <strong>Division 293 tax</strong>. The two main outputs are: the extra tax payable by a particular individual (and the symmetric extra revenue), and the number of individuals affected.</p>
+<p>To obtain these results (say for 2017-18)</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(grattan)
+<span class="kw">library</span>(data.table)
+if (<span class="kw">requireNamespace</span>(<span class="st">&quot;taxstats&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)){
+  <span class="kw">library</span>(taxstats)
+  sample_files_all &lt;-<span class="st"> </span><span class="kw">get_sample_files_all</span>()
+} else {
+  <span class="kw">install.packages</span>(<span class="st">&quot;taxstats&quot;</span>, <span class="dt">repos =</span> <span class="st">&quot;https://hughparsonage.github.io/drat/&quot;</span>, <span class="dt">type =</span> <span class="st">&quot;source&quot;</span>)
+  <span class="kw">library</span>(taxstats)
+  sample_files_all &lt;-<span class="st"> </span><span class="kw">get_sample_files_all</span>()
+}
+<span class="kw">library</span>(magrittr)
+<span class="co">#' dollar scales</span>
+<span class="co">#' </span>
+<span class="co">#' @name grattan_dollar</span>
+<span class="co">#' @param x A numeric vector</span>
+<span class="co">#' @param digits Minimum number of digits after the decimal point. (\code{nsmall} in \code{base::format}).</span>
+<span class="co">#' @details Makes negative numbers appear as \eqn{-\$10,000} instead of \eqn{\$-10,000} in \code{scales::dollar}.</span>
+<span class="co">#' @export</span>
+<span class="co"># from scales</span>
+
+grattan_dollar &lt;-<span class="st"> </span>function (x, <span class="dt">digits =</span> <span class="dv">0</span>) {
+  <span class="co">#</span>
+  nsmall &lt;-<span class="st"> </span>digits
+  commaz &lt;-<span class="st"> </span><span class="kw">format</span>(<span class="kw">abs</span>(x), <span class="dt">nsmall =</span> nsmall, <span class="dt">trim =</span> <span class="ot">TRUE</span>, <span class="dt">big.mark =</span> <span class="st">&quot;,&quot;</span>, 
+                   <span class="dt">scientific =</span> <span class="ot">FALSE</span>, <span class="dt">digits =</span> 1L)
+  
+  dplyr::<span class="kw">if_else</span>(x &lt;<span class="st"> </span><span class="dv">0</span>, 
+          <span class="kw">paste0</span>(<span class="st">&quot;\U2212&quot;</span>,<span class="st">&quot;$&quot;</span>, commaz),
+          <span class="kw">paste0</span>(<span class="st">&quot;$&quot;</span>, commaz))
+}
+
+(new_revenue &lt;-<span class="st"> </span>
+<span class="st">  </span>sample_file_1314 %&gt;%
+<span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) %&gt;%
+<span class="st">  </span>as.data.table %&gt;%
+<span class="st">  </span><span class="kw">revenue_from_new_cap_and_div293</span>(<span class="dt">new_cap =</span> <span class="fl">25e3</span>, <span class="dt">fy.year =</span> <span class="st">&quot;2016-17&quot;</span>, <span class="dt">new_age_based_cap =</span> <span class="ot">FALSE</span>, <span class="dt">new_div293_threshold =</span> <span class="fl">250e3</span>))</code></pre></div>
+<pre><code>## [1] 1107592292</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">paste</span>(<span class="kw">grattan_dollar</span>(new_revenue /<span class="st"> </span><span class="fl">1e9</span>), <span class="st">&quot;bn&quot;</span>)</code></pre></div>
+<pre><code>## [1] &quot;$1 bn&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">(n_affected &lt;-
+<span class="st">  </span>sample_file_1314 %&gt;%
+<span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) %&gt;%
+<span class="st">  </span>as.data.table %&gt;%
+<span class="st">  </span><span class="kw">n_affected_from_new_cap_and_div293</span>(<span class="dt">new_cap =</span> <span class="fl">25e3</span>, <span class="dt">fy.year =</span> <span class="st">&quot;2016-17&quot;</span>, <span class="dt">new_age_based_cap =</span> <span class="ot">FALSE</span>, <span class="dt">new_div293_threshold =</span> <span class="fl">250e3</span>))</code></pre></div>
+<pre><code>## [1] 512074.8</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prettyNum</span>(<span class="kw">round</span>(n_affected), <span class="dt">big.mark =</span> <span class="st">&quot;,&quot;</span>)</code></pre></div>
+<pre><code>## [1] &quot;512,075&quot;</code></pre>
+<p>Notes:</p>
+<ol style="list-style-type: decimal">
+<li><code>fy.year</code> refers to the year the function takes the tax scales from, not the forecast year. Because we don’t have tax scales for 2017-18 yet, we model using the most recent (<code>2017-18</code>).</li>
+<li>The functions require their inputs to be <code>data.table</code>s. Sorry if you don’t like <code>data.table</code>s.</li>
+<li>You must use <code>sample_file_1314</code> (because they have superannuation contributions variables).</li>
+</ol>
+</div>
+<div id="distributional-analysis" class="section level3">
+<h3>Distributional analysis</h3>
+<div id="by-taxable-income-decile" class="section level4">
+<h4>By taxable income decile</h4>
+<p>Let’s create an object for <code>sample_file_1718</code> avoid recreating it every time:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sample_file_1718 &lt;-
+<span class="st">  </span>sample_file_1314 %&gt;%
+<span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) %&gt;%
+<span class="st">  </span>as.data.table</code></pre></div>
+<p>The functions mentioned earlier return single values. In contrast, <code>model_new_caps_and_div293</code> returns the sample file with extra variables, which can then be analyzed as a standard sample file. The variables of note are <code>prv_revenue</code> which is the tax payable under the old system, and <code>new_revenue</code> which is the tax payable under the proposed system. Thus:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">new_sample_file_1718 &lt;-<span class="st"> </span>
+<span class="st">  </span>sample_file_1718 %&gt;%
+<span class="st">  </span><span class="kw">model_new_caps_and_div293</span>(<span class="dt">new_cap =</span> <span class="fl">25e3</span>, <span class="dt">fy.year =</span> <span class="st">&quot;2016-17&quot;</span>, <span class="dt">new_age_based_cap =</span> <span class="ot">FALSE</span>, <span class="dt">new_div293_threshold =</span> <span class="fl">250e3</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(knitr)
+<span class="kw">library</span>(dplyr)
+<span class="kw">library</span>(dtplyr)  <span class="co"># for data.table</span>
+
+new_sample_file_1718 %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(<span class="dt">Taxable_Income_decile =</span> <span class="kw">ntile</span>(Taxable_Income, <span class="dv">10</span>)) %&gt;%
+<span class="st">  </span><span class="kw">summarise</span>(<span class="st">`</span><span class="dt">Average increase in tax</span><span class="st">`</span> =<span class="st"> </span><span class="kw">round</span>(<span class="kw">mean</span>(new_revenue -<span class="st"> </span>prv_revenue), <span class="dv">2</span>)) %&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(Taxable_Income_decile) %&gt;%
+<span class="st">  </span>kable</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Taxable_Income_decile</th>
+<th align="right">Average increase in tax</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1.89</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">4.39</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">12.04</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">23.79</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">32.28</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="right">32.94</td>
+</tr>
+<tr class="odd">
+<td align="right">7</td>
+<td align="right">39.25</td>
+</tr>
+<tr class="even">
+<td align="right">8</td>
+<td align="right">61.04</td>
+</tr>
+<tr class="odd">
+<td align="right">9</td>
+<td align="right">96.11</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">470.35</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
+new_sample_file_1718 %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(<span class="dt">Taxable_Income_decile =</span> <span class="kw">ntile</span>(Taxable_Income, <span class="dv">10</span>)) %&gt;%
+<span class="st">  </span><span class="kw">summarise</span>(<span class="st">`</span><span class="dt">Average increase in tax</span><span class="st">`</span> =<span class="st"> </span><span class="kw">mean</span>(new_revenue -<span class="st"> </span>prv_revenue)) %&gt;%
+<span class="st">  </span><span class="kw">arrange</span>(Taxable_Income_decile) %&gt;%
+<span class="st">  </span><span class="co">#</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="st">`</span><span class="dt">Taxable income decile</span><span class="st">`</span> =<span class="st"> </span><span class="kw">factor</span>(Taxable_Income_decile)) %&gt;%
+<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="st">`</span><span class="dt">Taxable income decile</span><span class="st">`</span>, <span class="dt">y =</span> <span class="st">`</span><span class="dt">Average increase in tax</span><span class="st">`</span>)) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>) +<span class="st"> </span>
+<span class="st">  </span>
+<span class="st">  </span><span class="co"># cosmetic:</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">label =</span> grattan_dollar) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.title.y =</span> <span class="kw">element_text</span>(<span class="dt">face =</span> <span class="st">&quot;bold&quot;</span>, <span class="dt">angle =</span> <span class="dv">90</span>, <span class="dt">margin =</span> <span class="kw">margin</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="st">&quot;lines&quot;</span>)))</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,38 +1,30 @@
-#' Seniors and Pensioner Tax Offset
+#' SAPTO with user-defined thresholds
 #' 
-#' @name sapto
 #' @param rebate_income The rebate income of the individual.
-#' @param fy.year The financial year in which sapto is to be calculated.
+#' @param new_sapto_tbl Having the same columns as \code{grattan:::sapto_tbl}, keyed on family_status.
 #' @param fill If SAPTO was not applicable, what value should be used?
 #' @param sapto.eligible Is the individual eligible for sapto?
 #' @param Spouse_income Spouse income whose unutilized SAPTO may be added to the current taxpayer. Must match \code{family_status}; i.e. can only be nonzero when \code{family_status != "single"}.
 #' @param family_status Family status of the individual. 
 #' @export
 
-sapto <- function(rebate_income,
-                  fy.year,
-                  fill = 0,
-                  sapto.eligible = TRUE,
-                  Spouse_income = 0,
-                  family_status = "single"){
+new_sapto <- function(rebate_income,
+                      new_sapto_tbl, 
+                      sapto.eligible = TRUE,
+                      Spouse_income = 0,
+                      fill = 0,
+                      family_status = "single"){
+  stopifnot(all(family_status %chin% c("single", "married")))
+  
   upper_threshold <- taper_rate <- max_offset <- NULL
-  input <- data.table(fy_year = fy.year, 
-                      family_status = family_status, 
+  input <- data.table(family_status = family_status, 
                       sapto.eligible = sapto.eligible,
                       rebate_income = rebate_income,
                       Spouse_income = Spouse_income)
-  
-  stopifnot(all(family_status %chin% c("single", "married")))
-  
-  if (any(Spouse_income > 0 & family_status == "single")){
-    stop("family_status may be 'single' if and only if Spouse_income > 0.")
-  }
-  
   ordering <- NULL
   input[, ordering := 1:.N]
   
-  setkeyv(input, c("fy_year", "family_status"))
-  
+  setkeyv(input, "family_status")
   
   partner_sapto <- sapto_value <- 
     sapto_income <- partner_unused_sapto <-
@@ -40,7 +32,7 @@ sapto <- function(rebate_income,
     GG <- HH <- II <- JJ <- NULL
   
   out <- 
-    sapto_tbl[input] %>%
+    new_sapto_tbl[input] %>%
     .[, sapto_income := if_else(family_status == "married",
                                 rebate_income + Spouse_income, 
                                 rebate_income)] %>%
@@ -71,7 +63,6 @@ sapto <- function(rebate_income,
                                if_else(rebate_income < GG, CC, JJ))] %>%
     setkey(ordering) %>%
     unique(by = key(.)) %>%
-    # my_printer %>%
     .[["sapto_value"]]
   
   # Eligibility for SAPTO

@@ -2,8 +2,8 @@ Package: grattan
 Type: Package
 Title: Perform Common Quantitative Tasks for Australian Analysts and to
         Support Grattan Institute Analysis
-Version: 1.4.1.2
-Date: 2017-03-02
+Version: 1.5.0.0
+Date: 2017-05-09
 Authors@R: c(person("Hugh", "Parsonage", role = c("aut", "cre"), email = "hugh.parsonage@gmail.com"),
               person("Tim", "Cameron", role = "aut"),
               person("Brendan", "Coates", role = "aut"), 
@@ -25,11 +25,11 @@ Additional_repositories: https://hughparsonage.github.io/drat/
 LazyData: true
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2017-03-02 23:59:44 UTC; hughp
+Packaged: 2017-05-09 11:15:25 UTC; hughp
 Author: Hugh Parsonage [aut, cre],
   Tim Cameron [aut],
   Brendan Coates [aut],
   William Young [aut],
   Ittima Cherastidtham [dtc]
 Repository: CRAN
-Date/Publication: 2017-03-04 08:21:45
+Date/Publication: 2017-05-09 21:24:59 UTC

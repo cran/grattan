@@ -12,7 +12,7 @@
 
 <meta name="author" content="Hugh Parsonage" />
 
-<meta name="date" content="2017-03-03" />
+<meta name="date" content="2017-05-09" />
 
 <title>Simple modelling of superannuation changes</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Simple modelling of superannuation changes</h1>
 <h4 class="author"><em>Hugh Parsonage</em></h4>
-<h4 class="date"><em>2017-03-03</em></h4>
+<h4 class="date"><em>2017-05-09</em></h4>
 
 
 
@@ -120,7 +120,7 @@ grattan_dollar &lt;-<span class="st"> </span>function (x, <span class="dt">digit
 <span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) %&gt;%
 <span class="st">  </span>as.data.table %&gt;%
 <span class="st">  </span><span class="kw">revenue_from_new_cap_and_div293</span>(<span class="dt">new_cap =</span> <span class="fl">25e3</span>, <span class="dt">fy.year =</span> <span class="st">&quot;2016-17&quot;</span>, <span class="dt">new_age_based_cap =</span> <span class="ot">FALSE</span>, <span class="dt">new_div293_threshold =</span> <span class="fl">250e3</span>))</code></pre></div>
-<pre><code>## [1] 1142555190</code></pre>
+<pre><code>## [1] 1147559216</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">paste</span>(<span class="kw">grattan_dollar</span>(new_revenue /<span class="st"> </span><span class="fl">1e9</span>), <span class="st">&quot;bn&quot;</span>)</code></pre></div>
 <pre><code>## [1] &quot;$1 bn&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">(n_affected &lt;-
@@ -128,9 +128,9 @@ grattan_dollar &lt;-<span class="st"> </span>function (x, <span class="dt">digit
 <span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) %&gt;%
 <span class="st">  </span>as.data.table %&gt;%
 <span class="st">  </span><span class="kw">n_affected_from_new_cap_and_div293</span>(<span class="dt">new_cap =</span> <span class="fl">25e3</span>, <span class="dt">fy.year =</span> <span class="st">&quot;2016-17&quot;</span>, <span class="dt">new_age_based_cap =</span> <span class="ot">FALSE</span>, <span class="dt">new_div293_threshold =</span> <span class="fl">250e3</span>))</code></pre></div>
-<pre><code>## [1] 531007.6</code></pre>
+<pre><code>## [1] 533383.6</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prettyNum</span>(<span class="kw">round</span>(n_affected), <span class="dt">big.mark =</span> <span class="st">&quot;,&quot;</span>)</code></pre></div>
-<pre><code>## [1] &quot;531,008&quot;</code></pre>
+<pre><code>## [1] &quot;533,384&quot;</code></pre>
 <p>Notes:</p>
 <ol style="list-style-type: decimal">
 <li><code>fy.year</code> refers to the year the function takes the tax scales from, not the forecast year. Because we don’t have tax scales for 2017-18 yet, we model using the most recent (<code>2017-18</code>).</li>
@@ -170,7 +170,7 @@ new_sample_file_1718 %&gt;%
 <tbody>
 <tr class="odd">
 <td align="right">1</td>
-<td align="right">2.04</td>
+<td align="right">2.03</td>
 </tr>
 <tr class="even">
 <td align="right">2</td>
@@ -182,7 +182,7 @@ new_sample_file_1718 %&gt;%
 </tr>
 <tr class="even">
 <td align="right">4</td>
-<td align="right">24.52</td>
+<td align="right">24.51</td>
 </tr>
 <tr class="odd">
 <td align="right">5</td>
@@ -194,11 +194,11 @@ new_sample_file_1718 %&gt;%
 </tr>
 <tr class="odd">
 <td align="right">7</td>
-<td align="right">40.31</td>
+<td align="right">40.32</td>
 </tr>
 <tr class="even">
 <td align="right">8</td>
-<td align="right">62.61</td>
+<td align="right">62.60</td>
 </tr>
 <tr class="odd">
 <td align="right">9</td>
@@ -206,7 +206,7 @@ new_sample_file_1718 %&gt;%
 </tr>
 <tr class="even">
 <td align="right">10</td>
-<td align="right">484.97</td>
+<td align="right">484.91</td>
 </tr>
 </tbody>
 </table>

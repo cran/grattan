@@ -12,7 +12,7 @@
 
 <meta name="author" content="Hugh Parsonage" />
 
-<meta name="date" content="2017-07-02" />
+<meta name="date" content="2017-08-30" />
 
 <title>Simple modelling of superannuation changes</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Simple modelling of superannuation changes</h1>
 <h4 class="author"><em>Hugh Parsonage</em></h4>
-<h4 class="date"><em>2017-07-02</em></h4>
+<h4 class="date"><em>2017-08-30</em></h4>
 
 
 
@@ -85,8 +85,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The two tax methods modelled are <strong>Superannuation contributions tax concessions</strong> and <strong>Division 293 tax</strong>. The two main outputs are: the extra tax payable by a particular individual (and the symmetric extra revenue), and the number of individuals affected.</p>
 <p>To obtain these results (say for 2017-18)</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(grattan)
-<span class="kw">library</span>(data.table)
-if (<span class="kw">requireNamespace</span>(<span class="st">&quot;taxstats&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)){
+<span class="kw">library</span>(data.table)</code></pre></div>
+<pre><code>## Warning: package 'data.table' was built under R version 3.4.1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw">requireNamespace</span>(<span class="st">&quot;taxstats&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)){
   <span class="kw">library</span>(taxstats)
   sample_files_all &lt;-<span class="st"> </span><span class="kw">get_sample_files_all</span>()
 } else {
@@ -120,7 +121,8 @@ grattan_dollar &lt;-<span class="st"> </span>function (x, <span class="dt">digit
 <span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) %&gt;%
 <span class="st">  </span>as.data.table %&gt;%
 <span class="st">  </span><span class="kw">revenue_from_new_cap_and_div293</span>(<span class="dt">new_cap =</span> <span class="fl">25e3</span>, <span class="dt">fy.year =</span> <span class="st">&quot;2016-17&quot;</span>, <span class="dt">new_age_based_cap =</span> <span class="ot">FALSE</span>, <span class="dt">new_div293_threshold =</span> <span class="fl">250e3</span>))</code></pre></div>
-<pre><code>## [1] 1157303653</code></pre>
+<pre><code>## Warning: package 'bindrcpp' was built under R version 3.4.1</code></pre>
+<pre><code>## [1] 1038168082</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">paste</span>(<span class="kw">grattan_dollar</span>(new_revenue /<span class="st"> </span><span class="fl">1e9</span>), <span class="st">&quot;bn&quot;</span>)</code></pre></div>
 <pre><code>## [1] &quot;$1 bn&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">(n_affected &lt;-
@@ -128,9 +130,9 @@ grattan_dollar &lt;-<span class="st"> </span>function (x, <span class="dt">digit
 <span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) %&gt;%
 <span class="st">  </span>as.data.table %&gt;%
 <span class="st">  </span><span class="kw">n_affected_from_new_cap_and_div293</span>(<span class="dt">new_cap =</span> <span class="fl">25e3</span>, <span class="dt">fy.year =</span> <span class="st">&quot;2016-17&quot;</span>, <span class="dt">new_age_based_cap =</span> <span class="ot">FALSE</span>, <span class="dt">new_div293_threshold =</span> <span class="fl">250e3</span>))</code></pre></div>
-<pre><code>## [1] 538366.3</code></pre>
+<pre><code>## [1] 474774.7</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prettyNum</span>(<span class="kw">round</span>(n_affected), <span class="dt">big.mark =</span> <span class="st">&quot;,&quot;</span>)</code></pre></div>
-<pre><code>## [1] &quot;538,366&quot;</code></pre>
+<pre><code>## [1] &quot;474,775&quot;</code></pre>
 <p>Notes:</p>
 <ol style="list-style-type: decimal">
 <li><code>fy.year</code> refers to the year the function takes the tax scales from, not the forecast year. Because we don’t have tax scales for 2017-18 yet, we model using the most recent (<code>2017-18</code>).</li>
@@ -152,8 +154,9 @@ grattan_dollar &lt;-<span class="st"> </span>function (x, <span class="dt">digit
 <span class="st">  </span>sample_file_1718 %&gt;%
 <span class="st">  </span><span class="kw">model_new_caps_and_div293</span>(<span class="dt">new_cap =</span> <span class="fl">25e3</span>, <span class="dt">fy.year =</span> <span class="st">&quot;2016-17&quot;</span>, <span class="dt">new_age_based_cap =</span> <span class="ot">FALSE</span>, <span class="dt">new_div293_threshold =</span> <span class="fl">250e3</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(knitr)
-<span class="kw">library</span>(dplyr)
-<span class="kw">library</span>(dtplyr)  <span class="co"># for data.table</span>
+<span class="kw">library</span>(dplyr)</code></pre></div>
+<pre><code>## Warning: package 'dplyr' was built under R version 3.4.1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dtplyr)  <span class="co"># for data.table</span>
 
 new_sample_file_1718 %&gt;%
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Taxable_Income_decile =</span> <span class="kw">ntile</span>(Taxable_Income, <span class="dv">10</span>)) %&gt;%
@@ -171,43 +174,43 @@ new_sample_file_1718 %&gt;%
 <tbody>
 <tr class="odd">
 <td align="right">1</td>
-<td align="right">2.04</td>
+<td align="right">1.84</td>
 </tr>
 <tr class="even">
 <td align="right">2</td>
-<td align="right">4.72</td>
+<td align="right">3.84</td>
 </tr>
 <tr class="odd">
 <td align="right">3</td>
-<td align="right">12.21</td>
+<td align="right">11.22</td>
 </tr>
 <tr class="even">
 <td align="right">4</td>
-<td align="right">24.56</td>
+<td align="right">21.56</td>
 </tr>
 <tr class="odd">
 <td align="right">5</td>
-<td align="right">33.34</td>
+<td align="right">30.43</td>
 </tr>
 <tr class="even">
 <td align="right">6</td>
-<td align="right">33.23</td>
+<td align="right">30.92</td>
 </tr>
 <tr class="odd">
 <td align="right">7</td>
-<td align="right">40.40</td>
+<td align="right">37.00</td>
 </tr>
 <tr class="even">
 <td align="right">8</td>
-<td align="right">63.06</td>
+<td align="right">54.98</td>
 </tr>
 <tr class="odd">
 <td align="right">9</td>
-<td align="right">99.09</td>
+<td align="right">90.24</td>
 </tr>
 <tr class="even">
 <td align="right">10</td>
-<td align="right">487.66</td>
+<td align="right">432.43</td>
 </tr>
 </tbody>
 </table>
@@ -225,7 +228,7 @@ new_sample_file_1718 %&gt;%
 <span class="st">  </span><span class="co"># cosmetic:</span>
 <span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">label =</span> grattan_dollar) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.title.y =</span> <span class="kw">element_text</span>(<span class="dt">face =</span> <span class="st">&quot;bold&quot;</span>, <span class="dt">angle =</span> <span class="dv">90</span>, <span class="dt">margin =</span> <span class="kw">margin</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="st">&quot;lines&quot;</span>)))</code></pre></div>
-<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAA0lBMVEUAAAAAADoAAGYAOpAAZrYzMzM6AAA6ADo6AGY6kNtNTU1NTW5NTY5NbqtNjshZWVlmAABmtv9uTU1uTW5uTY5ubo5ubqtuq8huq+SOTU2OTW6OTY6Obk2ObquOyOSOyP+QOgCQkGaQtpCQ27aQ2/+rbk2rbm6rbo6rjk2rjquryKur5OSr5P+2ZgC2tma2/7a2///Ijk3I///bkDrbkJDbtmbb///kq27k/8jk/+Tk///r6+v/tmb/yI7/25D/29v/5Kv//7b//8j//9v//+T///8zxi4RAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAKQElEQVR4nO2dDVfbNhSGw0dpE9oV6NpB1y10C3SsZAWyQQdJFiD+/39purKUyJJsObKUxPH7np46keVIepCuZFtXaiVQoVqrzsC6C4AcAiCHAMghAHIIgByKAehhLvVzQVi5oLDRHFcCUDRAo06n002SO3Z4fZM8nXTe3CfyAEBJMnn39eL7zzfJdZe+Tc+6yd0P8gBABOjDvxesrkzPL+nbE0M1+fFGHACIkJz8epG2KWppkw/3ydPHS3Fgp18wLfqTay0PI33d6RyzlnZJtWj0hpMRBxFhGX/g6AlUADS9+H7STVF1jRoEQKMfphf318cCEGyQoaePrBdLG9X0y8307DjtxY7Ri0lNjuQ4aP8ywTjIounFfXGEZeQ/aAJvdT3gVgOAFgkCIACqlgAAAVC1BAAIgKolAEAAVC0BAAKgagkAEABVSwCA1gxQ7WQAUs6hBj2giTmDAAiAqiUAQABULQEAAqBqCQAQAFVLAIBiAHo8aNOhv30FQDmAWttXw1YLgHLVbzG1F8bTMECHAJQj1sS2emhiRYB26QAjvXDxASirv/UaJHw1UjeEzZij6AdovEdG2rBB0leDpnF2N8RXwwvQ8ynnY3RjwleDfXj/qbshvhq+RprsdH/nNhsufDWS6fnXs03x1TAAKecKbzUYnYHZi3FfjeTumNrVZvhq+NkgRocNg1p6DRK+GqzOTG01qEGAnk/bzA5t9bRg4atBDoesJjXYBuVJ+GokaTe/Gb4avkaaVyOjiQlfjcaPg/JvNeCrwTRsSeFezCo5TPR6IBQ6/3GiBWpiPgqd/zjRYvViAARAAKQHARAAVUvAD1DOAzMAEpIjIQDK0eOB+aADgBQ9n/q8VG0QoGTo0biaBOjxADYIgIQwDlozQLWTAUg5Zwf0eLD9DU0MgKRggwCoWgIABEDVEgAgAKqWgCegYavVHvg88wid/zjRKgMa0FvDQcvj7Vjo/MeJVv1mdee238Y0YAeg51MAytMA7+aLAaUzPODM4gEAgACoDKDn00PuVAdAOeq32n3rNGAA4uIz7bevzHGQcGYZ8X1Hmj2Jc8iqjwFIOLPQrOi5F0tjnVlYI9NvNWbOLIkyg7yRE8nHe6wCmTer0pmFidWZBjuz5Ct1ZkkmR/uXjXZmETI8Ducbj8yrTiOdWXImUG3ixiP+RtricahsPMLqTLOdWaweh5u48YgnoDyPQzizpMr1OHQqdP7jRAtws2r1OASg6gqd/zjRAKh8kCcgvBcrBoT3YsWA8F6sFCC8F8N7sQe8F3MGoZuPdDfvswJecwDRKw0AKjbSvv5QofMfJ1r1GoSJ5LEA1U4GIOUcerEHdPPOID9Az6e7niuchM5/nGiVAfVbO7fjPdzN55VSLtGFXiwXED0r8xouhs5/nGgBBoq4my8EhLt5FyBvhc5/nGgAVD7IDxCWxykGhOVxHICwPI4DEJbHcQDC8jgOQHhgBkAzYRy0VEDCV0NMVWzoHMWC1V+ErwbNip68u2yqr0YRoNRXY0Q4Gj1POk+Kr4Ztpj18NWa+Gnz2OHw1LBK+Gk8nx0mjNx7JkfTVmByRQwtskCHhq5HyafLGI7lKB0Dp1jXdpo6DuPKmAcNXIxWmARcDwjTgUoDwZhUvDh/w4tAZFLabByAAWuiRa2vxjj50/uNECwdoYUKh8x8nWuUmxl/7jF/2Fu/pQ+c/TrTqNYh3YHbPcACSc8vGe7Y1lgCIJAaKu4vfjoXOf5xo1bv5QTpQXLiFNQaQt0LnP060UIDM9YM2TwYg5RxmmD0EXj8IgIRy1w8CIAkob/0gAEqF9YMcgLB+kAOQv0LnP060AL0Y/OaLAMFv3gEIfvMOQJjlCkAzoRcDoGoJeALCKnjFgDD9pRgQpr+UAoTpL4tPfxG+Gkk6rbXhcxQtfISvBoF6fdPkfTXyJPfVuN7/k9WgBs+TZiNpawc299UgIg321eC3GtbHZdJXgwDV0FfDUl18mxg3QuZIUe6rYa1BjQKUUFeWv6/GpJ42KHQN0g2R8NUQgGroqxEKUK4NEs6qtR0HBQSU80Sx5r4aYW2Ql4IUE4CCl7xkNABaLqDNe9wREBCfAQNAORJvNTbPmSUIoJTOzj9+7w6DFHPtARGaIQAV1qDtvwAINqjZvZhRcjsNX0Ckeo+DlgDIRwAEQAAUFdD6yARkfYVhCZoJNQhNDIAACICWdg8BQAAEQCVK/ta75AAEQAAEQCFMLQABEAABEABFB+RfTAACoKYAEq4tJSZxBsx/jQAJ15YyziwB818nQKlrizGRPG7+awRIuLbU3JmlSJWNNHdtqZMzS8krgwHiri11cmYpeWUgQMK1pU7OLCWvDARIuLbUyZml5JWBAGn7sAGQKYtryzLyHz2BYIAsWkb+oycAQABU7cqYgBS9KBdWLihstJJXApAjDIAcYQDkCNvsSZwBBEAOAZBDAOQQADkUF9D8GdEsRC5sMdeoQ2tZaaLXAFnRxqVavOlZZ//SjKWnwNLUE7AFKSttKIoKaGTkQuzCrmds/ixJ6k7HmFzrATxo9MZcJ0MLozTvtKCTrh6krjimKiagdBWvjMQu7HpMo6ZN3n/SIk3PtbqSvkuxaP7sV/wWPQ/ORs0+Ip7nNftklGvZTSwxC8Ck16Dp+Ve9ibHKbzSdD38YTczyY5YaZALKrBelBi8fED2e1WIdGZbk2LBB1DC1WkT7TVORsjL5m4aFN7F9E1D27QzX0gHxXdiNwGymWKlNI03KNk5bPTAsUIp2pBlDZqR/Ol/LGiR2GdeVLXnaFVlAZqM9/WIDdK1fZ6kW/GrNgk3WwgZZ+Njzb9Qgijb9kv25a0sTM425pQZxs6SZKmXFMVVLBmQbprAw09Rax0F6NGZcjBGUpa6MzCtZkNESVzAO2gQBkEMA5BAAOQRADgGQQwDkEAA5tExAcl/J3K0oxi97maMWvLCG5to+7LcW+7ll16DC3OUA8pYF0MK/DkAOrQgQ3+W2nQy2enw7TvF1/PIzXwKdIlF7FOXjzeK3Pb7nKwVTCxXHNLw9np+UTB4PWluf2RcZNrugp/26Q6sB9HjAikM7lPZ36Z/8Ot7buX0+3aVIdEjEzkJUKHaGYlAwxaYjj8nDW/OT8hrCTpvsyTB5YQpIjenQagD9dys+shrw6mr2dbx3KP/GvHVwcPoZ/jP89JCQUrg4qV7DPzNoMkxpvVpMh1Zlg4ZivfNButVk+nX8alYadV8YCUaWjOLTX18J5/+p1/DqwX5Phg3V5trL23XGolU1sa1e+rFPhkF+VQEp9b80IOWaGSARpgEqvyvYagDx8g0ZleH2N1bR5VdZUiKhLKevgJhVQDpNTUwFpF4j26AM05pY+f11VwSIaszeVo/MgCgFfc0YaQZNlEMBJI3zzEirgNRraCPv1EinYcoFWkyHVmSD+szk/H5wSHuRU7bFV97Np30x74i31L/6PDjTzSuA1Gsy3TyFmd18uVqEezGHAMghAHIIgBwCIIcAyCEAcuh/1//QdwGA4LgAAAAASUVORK5CYII=" /><!-- --></p>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 </div>
 </div>
 </div>

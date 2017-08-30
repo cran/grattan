@@ -13,14 +13,13 @@
 #' @param cap2_age The age above which \code{cap2} applies.
 #' @param ecc (logical) Should an excess concessional contributions charge be calculated? (Not implemented.)
 #' @param use_other_contr Make a (poor) assumption that all 'Other contributions' (\code{MCS_Othr_Contr}) are concessional contributions. This may be a useful upper bound should such contributions be considered important.
-#' @param scale_contr_match_ato (logical) Should concessional contributions be inflated to match aggregates in 2013-14? That is, should concessional contributions by multipled by \code{grattan:::super_contribution_inflator_1314}, which was defined to be: \deqn{\frac{\textrm{Total assessable contributions in SMSF and funds}}{\textrm{Total contributions in 2013-14 sample file}}}{Total assessable contributions in SMSF and funds / Total contributions in 2013-14 sample file.}. 
+#' @param scale_contr_match_ato (logical) Should concessional contributions be inflated to match aggregates in 2013-14? That is, should concessional contributions by multiplied by \code{grattan:::super_contribution_inflator_1314}, which was defined to be: \deqn{\frac{\textrm{Total assessable contributions in SMSF and funds}}{\textrm{Total contributions in 2013-14 sample file}}}{Total assessable contributions in SMSF and funds / Total contributions in 2013-14 sample file.}. 
 #' @param .lambda Scalar weight applied to \code{concessional contributions}. \eqn{\lambda = 0} means no (extra) weight. \eqn{\lambda = 1} means contributions are inflated by the ratio of aggregates to the sample file's total. For \eqn{R = \textrm{actual} / \textrm{apparent}} then the contributions are scaled by \eqn{1 + \lambda(R - 1)}.
 #' @param reweight_late_lodgers (logical) Should WEIGHT be inflated to account for late lodgers?
 #' @param .mu Scalar weight for WEIGHT. (\eqn{w' = \mu w}) No effect if \code{reweight_late_lodgers} is \code{FALSE}.
 #' @param impute_zero_concess_contr Should zero concessional contributions be imputed using salary?
 #' @param .min.Sw.for.SG The minimum salary required for super guarantee to be imputed.
 #' @param .SG_rate The super guarantee rate for imputation.
-#' @param div293 (logical) Should Division 293 tax be calculated? If FALSE, \code{.sample.file} is returned immediately, with a warning (that you're using this function pointlessly!).
 #' @param warn_if_colnames_overwritten (logical) Issue a warning if the construction of helper columns will overwrite existing column names in \code{.sample.file}.
 #' @param drop_helpers (logical) Should columns used in the calculation be dropped before the sample file is returned?
 #' @param copyDT (logical) Should the data table be \code{copy()}d? If the action of this data table is being compared, possibly useful.
@@ -45,7 +44,6 @@ apply_super_caps_and_div293 <- function(.sample.file,
                                         impute_zero_concess_contr = FALSE,
                                         .min.Sw.for.SG = 450 * 12,
                                         .SG_rate = 0.0925,
-                                        div293 = TRUE, 
                                         warn_if_colnames_overwritten = TRUE, 
                                         drop_helpers = FALSE, 
                                         copyDT = TRUE){

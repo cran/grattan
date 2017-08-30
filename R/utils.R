@@ -4,9 +4,9 @@
 select_which_ <- function(.data, Which, .and.dots){
   Which <- match.fun(Which)
   if (!missing(.and.dots)){
-    dplyr::select_(.data, .dots = c(names(.data)[sapply(.data, Which)], .and.dots))
+    dplyr::select_(.data, .dots = c(names(.data)[vapply(.data, Which, logical(1))], .and.dots))
   } else {
-    dplyr::select_(.data, .dots = names(.data)[sapply(.data, Which)])
+    dplyr::select_(.data, .dots = names(.data)[vapply(.data, Which, logical(1))])
   }
 }
 
@@ -81,6 +81,21 @@ is.nonnegative <- function(vec){
 
 are_zero <- function(x){
   x < .Machine$double.eps ^ 0.5
+}
+
+qtrs_ahead <- function(x, y) {
+  stopifnot(y > x)
+  x_year <- as.integer(substr(x, 0, 4))
+  y_year <- as.integer(substr(y, 0, 4))
+  x_qtr <- as.integer(substr(x, 7, 7))
+  y_qtr <- as.integer(substr(y, 7, 7))
+  
+  if (x_year == y_year) {
+    qtrs_ahead <- y_qtr - x_qtr
+  } else {
+    qtrs_ahead <- 4 - x_qtr + y_qtr + 4 * (y_year - x_year - 1)
+  }
+  qtrs_ahead
 }
 
 

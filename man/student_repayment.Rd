@@ -12,7 +12,11 @@ student_repayment(repayment_income, fy.year, debt)
 }
 \arguments{
 \item{repayment_income}{The repayment income of the individual, equal to 
-\deqn{{Taxable Income} + {Total net investment loss (incl Net rental loss)} + {reportable fringe benefits amounts} + {Reportable super contributions} + {exempt foreign income}}}
+{Taxable Income} +
+{Total net investment loss (incl Net rental loss)} +
+ {reportable fringe benefits amounts} +
+ {Reportable super contributions} +
+ {exempt foreign income}}
 
 \item{fy.year}{The financial year \code{repayment_income} was earned.}
 

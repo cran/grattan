@@ -1,5 +1,23 @@
 ## ---- echo=FALSE---------------------------------------------------------
-knitr::opts_chunk$set(message = FALSE)
+
+required_packages <-
+  c("testthat", 
+    "taxstats",
+    "dplyr",
+    "rmarkdown", 
+    "dtplyr",
+    "ggplot2",
+    "scales", 
+    "broom", 
+    "knitr",
+    "survey", 
+    "viridis",
+    "ggrepel")
+
+required_packages_present <-
+  all(vapply(required_packages, requireNamespace, quietly = TRUE, FALSE))
+knitr::opts_chunk$set(message = FALSE, 
+                      eval = required_packages_present)
 
 ## ------------------------------------------------------------------------
 library(grattan)

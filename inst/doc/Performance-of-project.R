@@ -1,6 +1,28 @@
 ## ----echo=FALSE----------------------------------------------------------
 knitr::opts_chunk$set(fig.width = 6)
 
+## ---- echo=FALSE---------------------------------------------------------
+
+required_packages <-
+  c("testthat", 
+    "taxstats",
+    "dplyr",
+    "rmarkdown", 
+    "dtplyr",
+    "ggplot2",
+    "scales", 
+    "broom", 
+    "knitr",
+    "survey", 
+    "viridis",
+    "ggrepel")
+
+required_packages_present <-
+  all(vapply(required_packages, requireNamespace, quietly = TRUE, FALSE))
+
+knitr::opts_chunk$set(message = FALSE, 
+                      eval = required_packages_present)
+
 ## ----message=FALSE-------------------------------------------------------
 library(knitr)
 library(data.table)
@@ -25,13 +47,20 @@ sample_file_1314_projected <-
   sample_file_1213 %>%
   copy %>%
   mutate(WEIGHT = 50) %>%
-  project(h = 1L, fy.year.of.sample.file = "2012-13", .recalculate.inflators = TRUE) %>% .[]
+  project(h = 1L,
+          fy.year.of.sample.file = "2012-13",
+          .recalculate.inflators = TRUE) %>%
+  .[]
 
 ## ------------------------------------------------------------------------
-data.table(the_source = c("Actual", "Projected"),
-           n_persons = c(nrow(sample_file_1314) * 50, sum(sample_file_1314_projected$WEIGHT)), 
-           avg_Taxable_Income = c(mean(sample_file_1314$Taxable_Income), mean(sample_file_1314_projected$Taxable_Income)),
-           avg_Sw = c(mean(sample_file_1314$Sw_amt), mean(sample_file_1314_projected$Sw_amt))
+data.table(the_source = c("Actual",
+                          "Projected"),
+           n_persons = c(nrow(sample_file_1314) * 50,
+                         sum(sample_file_1314_projected$WEIGHT)), 
+           avg_Taxable_Income = c(mean(sample_file_1314$Taxable_Income),
+                                  mean(sample_file_1314_projected$Taxable_Income)),
+           avg_Sw = c(mean(sample_file_1314$Sw_amt),
+                      mean(sample_file_1314_projected$Sw_amt))
 ) %>% 
   melt.data.table(id.vars = "the_source") %>%
   group_by(variable) %>%
@@ -39,24 +68,35 @@ data.table(the_source = c("Actual", "Projected"),
   # dcast.data.table(variable ~ the_source) %>%
   ggplot(aes(x = variable, y = value_rel, fill = the_source)) + 
   geom_bar(stat = "identity", position = "dodge") + 
-  geom_text(aes(label = comma(round(value))), position = position_dodge(width = 0.9), hjust = 1.02) + 
+  geom_text(aes(label = comma(round(value))),
+            position = position_dodge(width = 0.9),
+            hjust = 1.02) + 
   coord_flip() + 
   theme(legend.position = "top")
 
 ## ------------------------------------------------------------------------
 conf_int_of_t.test <- function(variable){
-  t_test <- t.test(sample_file_1314[[variable]], sample_file_1314_projected[[variable]])
+  t_test <- t.test(sample_file_1314[[variable]],
+                   sample_file_1314_projected[[variable]])
   t_test %>%
     tidy(.) %>%
     mutate(var = variable) %>%
     as.data.table
 }
 
-lapply(c("Sw_amt", "Net_rent_amt", "Net_CG_amt", "Tot_inc_amt", "Tot_ded_amt", "Taxable_Income"), 
-       conf_int_of_t.test) %>%
+c("Sw_amt",
+  "Net_rent_amt",
+  "Net_CG_amt",
+  "Tot_inc_amt",
+  "Tot_ded_amt",
+  "Taxable_Income") %>%
+  lapply(conf_int_of_t.test) %>%
   rbindlist %>%
-  select(var, conf.low, conf.high, p.value) %>%
-  ggplot(aes(x = var, ymin = conf.low, ymax = conf.high, color = p.value > 0.05)) + 
+  .[, list(var, conf.low, conf.high, p.value)] %>%
+  ggplot(aes(x = var,
+             ymin = conf.low,
+             ymax = conf.high,
+             color = p.value > 0.05)) + 
   geom_errorbar() + 
   geom_hline(yintercept = 0)
 

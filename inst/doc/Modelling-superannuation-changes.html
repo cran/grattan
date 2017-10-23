@@ -12,7 +12,7 @@
 
 <meta name="author" content="Hugh Parsonage" />
 
-<meta name="date" content="2017-08-30" />
+<meta name="date" content="2017-10-23" />
 
 <title>Simple modelling of superannuation changes</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Simple modelling of superannuation changes</h1>
 <h4 class="author"><em>Hugh Parsonage</em></h4>
-<h4 class="date"><em>2017-08-30</em></h4>
+<h4 class="date"><em>2017-10-23</em></h4>
 
 
 
@@ -85,12 +85,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The two tax methods modelled are <strong>Superannuation contributions tax concessions</strong> and <strong>Division 293 tax</strong>. The two main outputs are: the extra tax payable by a particular individual (and the symmetric extra revenue), and the number of individuals affected.</p>
 <p>To obtain these results (say for 2017-18)</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(grattan)
-<span class="kw">library</span>(data.table)</code></pre></div>
-<pre><code>## Warning: package 'data.table' was built under R version 3.4.1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw">requireNamespace</span>(<span class="st">&quot;taxstats&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)){
+<span class="kw">library</span>(data.table)
+<span class="cf">if</span> (<span class="kw">requireNamespace</span>(<span class="st">&quot;taxstats&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)){
   <span class="kw">library</span>(taxstats)
   sample_files_all &lt;-<span class="st"> </span><span class="kw">get_sample_files_all</span>()
-} else {
+} <span class="cf">else</span> {
   <span class="kw">install.packages</span>(<span class="st">&quot;taxstats&quot;</span>, <span class="dt">repos =</span> <span class="st">&quot;https://hughparsonage.github.io/drat/&quot;</span>, <span class="dt">type =</span> <span class="st">&quot;source&quot;</span>)
   <span class="kw">library</span>(taxstats)
   sample_files_all &lt;-<span class="st"> </span><span class="kw">get_sample_files_all</span>()
@@ -105,34 +104,33 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="co">#' @export</span>
 <span class="co"># from scales</span>
 
-grattan_dollar &lt;-<span class="st"> </span>function (x, <span class="dt">digits =</span> <span class="dv">0</span>) {
+grattan_dollar &lt;-<span class="st"> </span><span class="cf">function</span> (x, <span class="dt">digits =</span> <span class="dv">0</span>) {
   <span class="co">#</span>
   nsmall &lt;-<span class="st"> </span>digits
   commaz &lt;-<span class="st"> </span><span class="kw">format</span>(<span class="kw">abs</span>(x), <span class="dt">nsmall =</span> nsmall, <span class="dt">trim =</span> <span class="ot">TRUE</span>, <span class="dt">big.mark =</span> <span class="st">&quot;,&quot;</span>, 
                    <span class="dt">scientific =</span> <span class="ot">FALSE</span>, <span class="dt">digits =</span> 1L)
   
-  dplyr::<span class="kw">if_else</span>(x &lt;<span class="st"> </span><span class="dv">0</span>, 
+  dplyr<span class="op">::</span><span class="kw">if_else</span>(x <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>, 
           <span class="kw">paste0</span>(<span class="st">&quot;\U2212&quot;</span>,<span class="st">&quot;$&quot;</span>, commaz),
           <span class="kw">paste0</span>(<span class="st">&quot;$&quot;</span>, commaz))
 }
 
 (new_revenue &lt;-<span class="st"> </span>
-<span class="st">  </span>sample_file_1314 %&gt;%
-<span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) %&gt;%
-<span class="st">  </span>as.data.table %&gt;%
+<span class="st">  </span>sample_file_<span class="dv">1314</span> <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span>as.data.table <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">revenue_from_new_cap_and_div293</span>(<span class="dt">new_cap =</span> <span class="fl">25e3</span>, <span class="dt">fy.year =</span> <span class="st">&quot;2016-17&quot;</span>, <span class="dt">new_age_based_cap =</span> <span class="ot">FALSE</span>, <span class="dt">new_div293_threshold =</span> <span class="fl">250e3</span>))</code></pre></div>
-<pre><code>## Warning: package 'bindrcpp' was built under R version 3.4.1</code></pre>
-<pre><code>## [1] 1038168082</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">paste</span>(<span class="kw">grattan_dollar</span>(new_revenue /<span class="st"> </span><span class="fl">1e9</span>), <span class="st">&quot;bn&quot;</span>)</code></pre></div>
+<pre><code>## [1] 1041238688</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">paste</span>(<span class="kw">grattan_dollar</span>(new_revenue <span class="op">/</span><span class="st"> </span><span class="fl">1e9</span>), <span class="st">&quot;bn&quot;</span>)</code></pre></div>
 <pre><code>## [1] &quot;$1 bn&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">(n_affected &lt;-
-<span class="st">  </span>sample_file_1314 %&gt;%
-<span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) %&gt;%
-<span class="st">  </span>as.data.table %&gt;%
+<span class="st">  </span>sample_file_<span class="dv">1314</span> <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span>as.data.table <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">n_affected_from_new_cap_and_div293</span>(<span class="dt">new_cap =</span> <span class="fl">25e3</span>, <span class="dt">fy.year =</span> <span class="st">&quot;2016-17&quot;</span>, <span class="dt">new_age_based_cap =</span> <span class="ot">FALSE</span>, <span class="dt">new_div293_threshold =</span> <span class="fl">250e3</span>))</code></pre></div>
-<pre><code>## [1] 474774.7</code></pre>
+<pre><code>## [1] 476179</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prettyNum</span>(<span class="kw">round</span>(n_affected), <span class="dt">big.mark =</span> <span class="st">&quot;,&quot;</span>)</code></pre></div>
-<pre><code>## [1] &quot;474,775&quot;</code></pre>
+<pre><code>## [1] &quot;476,179&quot;</code></pre>
 <p>Notes:</p>
 <ol style="list-style-type: decimal">
 <li><code>fy.year</code> refers to the year the function takes the tax scales from, not the forecast year. Because we don’t have tax scales for 2017-18 yet, we model using the most recent (<code>2017-18</code>).</li>
@@ -145,24 +143,23 @@ grattan_dollar &lt;-<span class="st"> </span>function (x, <span class="dt">digit
 <div id="by-taxable-income-decile" class="section level4">
 <h4>By taxable income decile</h4>
 <p>Let’s create an object for <code>sample_file_1718</code> avoid recreating it every time:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sample_file_1718 &lt;-
-<span class="st">  </span>sample_file_1314 %&gt;%
-<span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sample_file_<span class="dv">1718</span> &lt;-
+<span class="st">  </span>sample_file_<span class="dv">1314</span> <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span>as.data.table</code></pre></div>
 <p>The functions mentioned earlier return single values. In contrast, <code>model_new_caps_and_div293</code> returns the sample file with extra variables, which can then be analyzed as a standard sample file. The variables of note are <code>prv_revenue</code> which is the tax payable under the old system, and <code>new_revenue</code> which is the tax payable under the proposed system. Thus:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">new_sample_file_1718 &lt;-<span class="st"> </span>
-<span class="st">  </span>sample_file_1718 %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">new_sample_file_<span class="dv">1718</span> &lt;-<span class="st"> </span>
+<span class="st">  </span>sample_file_<span class="dv">1718</span> <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">model_new_caps_and_div293</span>(<span class="dt">new_cap =</span> <span class="fl">25e3</span>, <span class="dt">fy.year =</span> <span class="st">&quot;2016-17&quot;</span>, <span class="dt">new_age_based_cap =</span> <span class="ot">FALSE</span>, <span class="dt">new_div293_threshold =</span> <span class="fl">250e3</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(knitr)
-<span class="kw">library</span>(dplyr)</code></pre></div>
-<pre><code>## Warning: package 'dplyr' was built under R version 3.4.1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dtplyr)  <span class="co"># for data.table</span>
+<span class="kw">library</span>(dplyr)
+<span class="kw">library</span>(dtplyr)  <span class="co"># for data.table</span>
 
-new_sample_file_1718 %&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Taxable_Income_decile =</span> <span class="kw">ntile</span>(Taxable_Income, <span class="dv">10</span>)) %&gt;%
-<span class="st">  </span><span class="kw">group_by</span>(Taxable_Income_decile) %&gt;%
-<span class="st">  </span><span class="kw">summarise</span>(<span class="st">`</span><span class="dt">Average increase in tax</span><span class="st">`</span> =<span class="st"> </span><span class="kw">round</span>(<span class="kw">mean</span>(new_revenue -<span class="st"> </span>prv_revenue), <span class="dv">2</span>)) %&gt;%
-<span class="st">  </span><span class="kw">arrange</span>(Taxable_Income_decile) %&gt;%
+new_sample_file_<span class="dv">1718</span> <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Taxable_Income_decile =</span> <span class="kw">ntile</span>(Taxable_Income, <span class="dv">10</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">group_by</span>(Taxable_Income_decile) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">summarise</span>(<span class="st">`</span><span class="dt">Average increase in tax</span><span class="st">`</span> =<span class="st"> </span><span class="kw">round</span>(<span class="kw">mean</span>(new_revenue <span class="op">-</span><span class="st"> </span>prv_revenue), <span class="dv">2</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">arrange</span>(Taxable_Income_decile) <span class="op">%&gt;%</span>
 <span class="st">  </span>kable</code></pre></div>
 <table>
 <thead>
@@ -215,18 +212,18 @@ new_sample_file_1718 %&gt;%
 </tbody>
 </table>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
-new_sample_file_1718 %&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Taxable_Income_decile =</span> <span class="kw">ntile</span>(Taxable_Income, <span class="dv">10</span>)) %&gt;%
-<span class="st">  </span><span class="kw">group_by</span>(Taxable_Income_decile) %&gt;%
-<span class="st">  </span><span class="kw">summarise</span>(<span class="st">`</span><span class="dt">Average increase in tax</span><span class="st">`</span> =<span class="st"> </span><span class="kw">mean</span>(new_revenue -<span class="st"> </span>prv_revenue)) %&gt;%
-<span class="st">  </span><span class="kw">arrange</span>(Taxable_Income_decile) %&gt;%
+new_sample_file_<span class="dv">1718</span> <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Taxable_Income_decile =</span> <span class="kw">ntile</span>(Taxable_Income, <span class="dv">10</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">group_by</span>(Taxable_Income_decile) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">summarise</span>(<span class="st">`</span><span class="dt">Average increase in tax</span><span class="st">`</span> =<span class="st"> </span><span class="kw">mean</span>(new_revenue <span class="op">-</span><span class="st"> </span>prv_revenue)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">arrange</span>(Taxable_Income_decile) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co">#</span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="st">`</span><span class="dt">Taxable income decile</span><span class="st">`</span> =<span class="st"> </span><span class="kw">factor</span>(Taxable_Income_decile)) %&gt;%
-<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="st">`</span><span class="dt">Taxable income decile</span><span class="st">`</span>, <span class="dt">y =</span> <span class="st">`</span><span class="dt">Average increase in tax</span><span class="st">`</span>)) +<span class="st"> </span>
-<span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="st">`</span><span class="dt">Taxable income decile</span><span class="st">`</span> =<span class="st"> </span><span class="kw">factor</span>(Taxable_Income_decile)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="st">`</span><span class="dt">Taxable income decile</span><span class="st">`</span>, <span class="dt">y =</span> <span class="st">`</span><span class="dt">Average increase in tax</span><span class="st">`</span>)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">  </span>
 <span class="st">  </span><span class="co"># cosmetic:</span>
-<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">label =</span> grattan_dollar) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">label =</span> grattan_dollar) <span class="op">+</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.title.y =</span> <span class="kw">element_text</span>(<span class="dt">face =</span> <span class="st">&quot;bold&quot;</span>, <span class="dt">angle =</span> <span class="dv">90</span>, <span class="dt">margin =</span> <span class="kw">margin</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="st">&quot;lines&quot;</span>)))</code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
 </div>

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Hugh Parsonage" />
 
-<meta name="date" content="2017-10-23" />
+<meta name="date" content="2017-11-16" />
 
 <title>Simple modelling of superannuation changes</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Simple modelling of superannuation changes</h1>
 <h4 class="author"><em>Hugh Parsonage</em></h4>
-<h4 class="date"><em>2017-10-23</em></h4>
+<h4 class="date"><em>2017-11-16</em></h4>
 
 
 
@@ -90,8 +90,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <span class="kw">library</span>(taxstats)
   sample_files_all &lt;-<span class="st"> </span><span class="kw">get_sample_files_all</span>()
 } <span class="cf">else</span> {
-  <span class="kw">install.packages</span>(<span class="st">&quot;taxstats&quot;</span>, <span class="dt">repos =</span> <span class="st">&quot;https://hughparsonage.github.io/drat/&quot;</span>, <span class="dt">type =</span> <span class="st">&quot;source&quot;</span>)
-  <span class="kw">library</span>(taxstats)
+  templib &lt;-<span class="st"> </span><span class="kw">tempfile</span>()
+  hutils<span class="op">::</span><span class="kw">provide.dir</span>(templib)
+  <span class="kw">install.packages</span>(<span class="st">&quot;taxstats&quot;</span>,
+                   <span class="dt">lib =</span> templib,
+                   <span class="dt">repos =</span> <span class="st">&quot;https://hughparsonage.github.io/drat/&quot;</span>,
+                   <span class="dt">type =</span> <span class="st">&quot;source&quot;</span>)
+  <span class="kw">library</span>(<span class="st">&quot;taxstats&quot;</span>, <span class="dt">lib.loc =</span> templib)
   sample_files_all &lt;-<span class="st"> </span><span class="kw">get_sample_files_all</span>()
 }
 <span class="kw">library</span>(magrittr)
@@ -110,7 +115,7 @@ grattan_dollar &lt;-<span class="st"> </span><span class="cf">function</span> (x
   commaz &lt;-<span class="st"> </span><span class="kw">format</span>(<span class="kw">abs</span>(x), <span class="dt">nsmall =</span> nsmall, <span class="dt">trim =</span> <span class="ot">TRUE</span>, <span class="dt">big.mark =</span> <span class="st">&quot;,&quot;</span>, 
                    <span class="dt">scientific =</span> <span class="ot">FALSE</span>, <span class="dt">digits =</span> 1L)
   
-  dplyr<span class="op">::</span><span class="kw">if_else</span>(x <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>, 
+  hutils<span class="op">::</span><span class="kw">if_else</span>(x <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>, 
           <span class="kw">paste0</span>(<span class="st">&quot;\U2212&quot;</span>,<span class="st">&quot;$&quot;</span>, commaz),
           <span class="kw">paste0</span>(<span class="st">&quot;$&quot;</span>, commaz))
 }
@@ -120,7 +125,7 @@ grattan_dollar &lt;-<span class="st"> </span><span class="cf">function</span> (x
 <span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span>as.data.table <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">revenue_from_new_cap_and_div293</span>(<span class="dt">new_cap =</span> <span class="fl">25e3</span>, <span class="dt">fy.year =</span> <span class="st">&quot;2016-17&quot;</span>, <span class="dt">new_age_based_cap =</span> <span class="ot">FALSE</span>, <span class="dt">new_div293_threshold =</span> <span class="fl">250e3</span>))</code></pre></div>
-<pre><code>## [1] 1041238688</code></pre>
+<pre><code>## [1] 1170985968</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">paste</span>(<span class="kw">grattan_dollar</span>(new_revenue <span class="op">/</span><span class="st"> </span><span class="fl">1e9</span>), <span class="st">&quot;bn&quot;</span>)</code></pre></div>
 <pre><code>## [1] &quot;$1 bn&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">(n_affected &lt;-
@@ -128,9 +133,9 @@ grattan_dollar &lt;-<span class="st"> </span><span class="cf">function</span> (x
 <span class="st">  </span><span class="kw">project_to</span>(<span class="dt">to_fy =</span> <span class="st">&quot;2017-18&quot;</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span>as.data.table <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">n_affected_from_new_cap_and_div293</span>(<span class="dt">new_cap =</span> <span class="fl">25e3</span>, <span class="dt">fy.year =</span> <span class="st">&quot;2016-17&quot;</span>, <span class="dt">new_age_based_cap =</span> <span class="ot">FALSE</span>, <span class="dt">new_div293_threshold =</span> <span class="fl">250e3</span>))</code></pre></div>
-<pre><code>## [1] 476179</code></pre>
+<pre><code>## [1] 545395.3</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prettyNum</span>(<span class="kw">round</span>(n_affected), <span class="dt">big.mark =</span> <span class="st">&quot;,&quot;</span>)</code></pre></div>
-<pre><code>## [1] &quot;476,179&quot;</code></pre>
+<pre><code>## [1] &quot;545,395&quot;</code></pre>
 <p>Notes:</p>
 <ol style="list-style-type: decimal">
 <li><code>fy.year</code> refers to the year the function takes the tax scales from, not the forecast year. Because we don’t have tax scales for 2017-18 yet, we model using the most recent (<code>2017-18</code>).</li>
@@ -171,43 +176,43 @@ new_sample_file_<span class="dv">1718</span> <span class="op">%&gt;%</span>
 <tbody>
 <tr class="odd">
 <td align="right">1</td>
-<td align="right">1.84</td>
+<td align="right">2.05</td>
 </tr>
 <tr class="even">
 <td align="right">2</td>
-<td align="right">3.84</td>
+<td align="right">4.73</td>
 </tr>
 <tr class="odd">
 <td align="right">3</td>
-<td align="right">11.22</td>
+<td align="right">12.25</td>
 </tr>
 <tr class="even">
 <td align="right">4</td>
-<td align="right">21.56</td>
+<td align="right">24.62</td>
 </tr>
 <tr class="odd">
 <td align="right">5</td>
-<td align="right">30.43</td>
+<td align="right">33.47</td>
 </tr>
 <tr class="even">
 <td align="right">6</td>
-<td align="right">30.92</td>
+<td align="right">33.29</td>
 </tr>
 <tr class="odd">
 <td align="right">7</td>
-<td align="right">37.00</td>
+<td align="right">40.92</td>
 </tr>
 <tr class="even">
 <td align="right">8</td>
-<td align="right">54.98</td>
+<td align="right">62.88</td>
 </tr>
 <tr class="odd">
 <td align="right">9</td>
-<td align="right">90.24</td>
+<td align="right">99.46</td>
 </tr>
 <tr class="even">
 <td align="right">10</td>
-<td align="right">432.43</td>
+<td align="right">489.82</td>
 </tr>
 </tbody>
 </table>
@@ -225,7 +230,7 @@ new_sample_file_<span class="dv">1718</span> <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># cosmetic:</span>
 <span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">label =</span> grattan_dollar) <span class="op">+</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.title.y =</span> <span class="kw">element_text</span>(<span class="dt">face =</span> <span class="st">&quot;bold&quot;</span>, <span class="dt">angle =</span> <span class="dv">90</span>, <span class="dt">margin =</span> <span class="kw">margin</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="st">&quot;lines&quot;</span>)))</code></pre></div>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 </div>
 </div>
 </div>

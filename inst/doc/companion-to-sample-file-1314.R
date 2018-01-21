@@ -1,7 +1,9 @@
 ## ----knitrOpts-----------------------------------------------------------
 options("scipen" = 99)
 library(knitr)
-opts_chunk$set(fig.width = 9, fig.height = 6.5)
+opts_chunk$set(fig.width = 9,
+               fig.height = 6.5,
+               warn = FALSE)
 
 ## ------------------------------------------------------------------------
 FY.YEAR <- "2013-14"
@@ -352,12 +354,12 @@ sample_file %>%
   select(Tot_CY_CG_amt, Net_CG_amt, WEIGHT) %>%
   filter(Tot_CY_CG_amt > 0) %>%
   mutate(apparent_discount = Net_CG_amt / Tot_CY_CG_amt) %>%
-  mutate(apparent_discount_round = round(apparent_discount * cgt_ratio_res, 0) / cgt_ratio_res) %>%
+  mutate(apparent_discount_round = round(apparent_discount * cgt_ratio_res) / cgt_ratio_res) %>%
   group_by(apparent_discount_round) %>%
   summarise(n_taxpayers = sum(WEIGHT), 
-            n_taxpayers_by_val = sum(WEIGHT * Tot_CY_CG_amt)) %>%
-  rename(`Ratio of Net capital gains to Total capital gains` = apparent_discount_round) %>%
-  ggplot(aes(x = `Ratio of Net capital gains to Total capital gains`, y = n_taxpayers_by_val)) + 
+            n_taxpayers_by_val = sum(as.double(WEIGHT * Tot_CY_CG_amt))) %>%
+  ggplot(aes(x = apparent_discount_round, y = n_taxpayers_by_val)) +
+  xlab("Ratio of Net capital gains to Total capital gains") +
   geom_bar(stat = "identity", width = 1/cgt_ratio_res) + 
   theme(axis.title.y = element_blank(),
         axis.ticks.y = element_blank(),
@@ -371,8 +373,8 @@ sample_file %>%
   group_by(Tax_Bracket) %>%
   summarise(n_taxpayers = sum(WEIGHT),
             n_CG = sum(WEIGHT[Net_CG_amt > 0]),
-            val_CG = sum(Tot_CY_CG_amt * WEIGHT), 
-            total_CGT = sum((tax - tax_wo_CG) * WEIGHT)) %>%
+            val_CG = sum(as.double(Tot_CY_CG_amt * WEIGHT)), 
+            total_CGT = sum(as.double((tax - tax_wo_CG) * WEIGHT))) %>%
   ungroup %>%
   arrange(Tax_Bracket) 
 

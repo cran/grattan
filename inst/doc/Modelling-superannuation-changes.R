@@ -1,5 +1,4 @@
 ## ---- echo=FALSE---------------------------------------------------------
-
 required_packages <-
   c("testthat", 
     "taxstats",

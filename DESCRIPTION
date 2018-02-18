@@ -1,8 +1,8 @@
 Package: grattan
 Type: Package
 Title: Australian Tax Policy Analysis
-Version: 1.5.3.1
-Date: 2018-01-22
+Version: 1.5.3.5
+Date: 2018-02-12
 Authors@R: c(person("Hugh", "Parsonage", role = c("aut", "cre"), email = "hugh.parsonage@gmail.com"),
               person("Tim", "Cameron", role = "aut"),
               person("Brendan", "Coates", role = "aut"), 
@@ -24,15 +24,14 @@ Imports: data.table, hutils, rsdmx, fastmatch, forecast, assertthat,
         magrittr, Rcpp (>= 0.12.3), RcppParallel, utils, zoo
 LinkingTo: Rcpp, RcppParallel
 RoxygenNote: 6.0.1
-Suggests: broom, dplyr, dtplyr, ggplot2, ggrepel, mgcv, knitr,
-        rmarkdown, scales, survey, testthat, taxstats (>= 0.0.5),
-        viridis, yaml
+Suggests: broom, dplyr, dtplyr, ggplot2, ggrepel, knitr, lattice, mgcv,
+        rmarkdown, scales, survey, testthat, taxstats, viridis, yaml
 Additional_repositories: https://hughparsonage.github.io/drat/
 LazyData: true
 VignetteBuilder: knitr
 SystemRequirements: GNU make
 NeedsCompilation: yes
-Packaged: 2018-01-21 21:21:33 UTC; hughp
+Packaged: 2018-02-16 23:43:48 UTC; hughp
 Author: Hugh Parsonage [aut, cre],
   Tim Cameron [aut],
   Brendan Coates [aut],
@@ -41,4 +40,4 @@ Author: Hugh Parsonage [aut, cre],
   W. Karsten [ctb],
   M. Enrique Garcia [ctb]
 Repository: CRAN
-Date/Publication: 2018-01-21 21:57:29 UTC
+Date/Publication: 2018-02-18 04:51:52 UTC

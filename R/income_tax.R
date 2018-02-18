@@ -53,8 +53,7 @@ income_tax <- function(income,
     }
   }
   
-  # Absolutely necessary
-  .dots.ATO <- copy(.dots.ATO)
+ 
   
   if (is.null(age) &&
       length(fy.year) == 1L &&
@@ -68,12 +67,15 @@ income_tax <- function(income,
                           n_dependants = n_dependants,
                           .debug = .debug)
   } else {
+    # Absolutely necessary
+    .dots.ATO.copy <- copy(.dots.ATO)
+    
     out <- rolling_income_tax(income = income,
                               fy.year = fy.year,
                               age = age, 
                               family_status = family_status,
                               n_dependants = n_dependants, 
-                              .dots.ATO = .dots.ATO,
+                              .dots.ATO = .dots.ATO.copy,
                               allow.forecasts = allow.forecasts, 
                               .debug = .debug)
   }
@@ -153,11 +155,9 @@ rolling_income_tax <- function(income,
   
   # Don't like vector recycling
   # http://stackoverflow.com/a/9335687/1664978
-  prohibit_vector_recycling(income, fy.year, age, family_status, n_dependants)
-  prohibit_length0_vectors(income, fy.year, age, family_status, n_dependants)
-  
   # Also lengths() -- but doesn't appear to be faster, despite being so advertised 
-  input.lengths <- vapply(list(income, fy.year, age, family_status, n_dependants), FUN = length, FUN.VALUE = integer(1))
+  input.lengths <-
+    prohibit_vector_recycling.MAXLENGTH(income, fy.year, age, family_status, n_dependants)
   max.length <- max(input.lengths)
   
   input <- 
@@ -197,8 +197,8 @@ rolling_income_tax <- function(income,
   if (is.null(.dots.ATO) || "Spouse_adjusted_taxable_inc" %notin% names(.dots.ATO)){
     the_spouse_income <- 0L
   } else {
-    the_spouse_income <- .dots.ATO[["Spouse_adjusted_taxable_inc"]]
-    the_spouse_income[is.na(the_spouse_income)] <- 0L
+    the_spouse_income <- .subset2(.dots.ATO, "Spouse_adjusted_taxable_inc")
+    the_spouse_income[is.na(the_spouse_income)] <- if (is.double(the_spouse_income)) 0 else 0L
   }
   
   medicare_levy. <- 

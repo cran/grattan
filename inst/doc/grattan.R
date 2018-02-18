@@ -1,34 +1,13 @@
-## ----knitrOpts-----------------------------------------------------------
-options("scipen" = 99)
-library(knitr)
-opts_chunk$set(fig.width = 9,
-               fig.height = 6.5,
-               warn = FALSE)
+## ----setup, include = FALSE----------------------------------------------
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
 
-## ------------------------------------------------------------------------
-FY.YEAR <- "2013-14"
-
-## ----wsum----------------------------------------------------------------
-wsum <- function(x, w = 1){
-  sum((x) * w)
-}
-
-## ----loadPackages--------------------------------------------------------
-library(data.table)
-if (requireNamespace("taxstats", quietly = TRUE)){
-  library(taxstats)
-  sample_files_all <- get_sample_files_all()
-} else {
-  templib <- tempfile()
-  hutils::provide.dir(templib)
-  install.packages("taxstats",
-                   lib = templib,
-                   repos = "https://hughparsonage.github.io/drat/",
-                   type = "source")
-  library("taxstats", lib.loc = templib)
-  sample_files_all <- get_sample_files_all()
-}
-library(grattan)
+## ----loadPackages-1------------------------------------------------------
+library(broom)
+library(mgcv)
+library(lattice)
 library(dtplyr)
 library(dplyr)
 library(ggplot2)
@@ -36,11 +15,223 @@ library(scales)
 library(magrittr)
 library(ggrepel)
 library(viridis)
+library(knitr)
+library(hutils)
+library(magrittr)
+library(data.table)
 
-if (!exists("sample_files_all")){
-  stop("....")
+## ----loadPackages-2------------------------------------------------------
+templib <- tempfile()
+hutils::provide.dir(templib)
+
+## ----loadPackages-3------------------------------------------------------
+install.packages("https://raw.githubusercontent.com/hughparsonage/drat/gh-pages/src/contrib/taxstats_0.0.5.1415.tar.gz",
+                 dependencies = FALSE,
+                 quiet = FALSE,
+                 lib = templib,
+                 verbose = TRUE,
+                 repos = NULL)
+
+## ----loadPackages-4------------------------------------------------------
+library("taxstats",
+        lib.loc = templib,
+        verbose = TRUE,
+        character.only = TRUE)
+
+## ----sample_files_all----------------------------------------------------
+sample_files_all <-
+    rbindlist(lapply(list(`2003-04` = sample_file_0304, 
+                          `2004-05` = sample_file_0405,
+                          `2005-06` = sample_file_0506, 
+                          `2006-07` = sample_file_0607,
+                          `2007-08` = sample_file_0708, 
+                          `2008-09` = sample_file_0809,
+                          `2009-10` = sample_file_0910, 
+                          `2010-11` = sample_file_1011,
+                          `2011-12` = sample_file_1112, 
+                          `2012-13` = sample_file_1213,
+                          `2013-14` = sample_file_1314), 
+                     data.table::as.data.table),
+              use.names = TRUE,
+              fill = TRUE, 
+              idcol = "fy.year")
+sample_files_all[, WEIGHT := hutils::if_else(fy.year > '2010-11', 50L, 100L)]
+age_range_decoder <- as.data.table(age_range_decoder)
+
+## ----load-grattan--------------------------------------------------------
+library(grattan)
+
+## ----sample_file_1617----------------------------------------------------
+sample_file_1617 <-
+  project(sample_file_1213,
+          h = 4L,
+          fy.year.of.sample.file = "2012-13")
+
+## ----sample_file_2021----------------------------------------------------
+sample_file_2021 <-
+  project(sample_file_1213,
+          h = 8L,
+          fy.year.of.sample.file = "2012-13")
+
+## ----add-tax-paid-avg-tax------------------------------------------------
+sample_file_1617[, tax_paid := income_tax(Taxable_Income,
+                                          .dots.ATO = copy(sample_file_1617),
+                                          fy.year = "2016-17")]
+sample_file_1617[, avg_tax := tax_paid / Taxable_Income]
+sample_file_2021[, tax_paid := income_tax(Taxable_Income,
+                                          .dots.ATO = copy(sample_file_2021),
+                                          fy.year = "2019-20")]
+sample_file_2021[, avg_tax := tax_paid / Taxable_Income]
+
+## ----avg_tax_by_decile---------------------------------------------------
+avg_tax_by_decile_1617 <- 
+  sample_file_1617 %>%
+  .[, .(avg_tax = mean(avg_tax)),
+    keyby = .(decile = weighted_ntile(Taxable_Income, n = 10))]
+
+avg_tax_by_decile_2021 <- 
+  sample_file_2021 %>%
+  .[, .(avg_tax = mean(avg_tax)),
+    keyby = .(decile = weighted_ntile(Taxable_Income, n = 10))]
+
+## ----tax-changes-grattan-forecast----------------------------------------
+avg_tax_by_decile_1617[avg_tax_by_decile_2021] %>%
+  .[decile > 1] %>%
+  .[, ppt_increase := 100*(i.avg_tax - avg_tax)] %>%
+  .[, decile := factor(decile)] %>%
+  ggplot(aes(x = decile, y = ppt_increase)) + 
+  geom_col()
+
+## ----Budget_wage_series--------------------------------------------------
+Budget_wage_series <-
+  data.table(fy_year = c("2017-18", "2018-19", "2019-20", "2020-21"),
+             r = c(0.025, 0.03, 0.035, 0.0375))
+
+kable(Budget_wage_series)
+
+## ----project-with-respect-to-budget--------------------------------------
+sample_file_1617 <- project(sample_file_1213,
+                            h = 4L,
+                            fy.year.of.sample.file = "2012-13")
+
+sample_file_2021 <- project(sample_file_1213,
+                            fy.year.of.sample.file = "2012-13",
+                            h = 8L,
+                            wage.series = Budget_wage_series)
+
+sample_file_1617[, tax_paid := income_tax(Taxable_Income,
+                                          .dots.ATO = copy(sample_file_1617),
+                                          fy.year = "2016-17")]
+sample_file_1617[, avg_tax := tax_paid / Taxable_Income]
+sample_file_2021[, tax_paid := income_tax(Taxable_Income,
+                                          .dots.ATO = copy(sample_file_2021),
+                                          fy.year = "2019-20")]
+sample_file_2021[, avg_tax := tax_paid / Taxable_Income]
+
+avg_tax_by_decile_1617 <- 
+  sample_file_1617 %>%
+  .[, .(avg_tax = mean(avg_tax)),
+    keyby = .(decile = weighted_ntile(Taxable_Income, n = 10))]
+
+avg_tax_by_decile_2021 <- 
+  sample_file_2021 %>%
+  .[, .(avg_tax = mean(avg_tax)),
+    keyby = .(decile = weighted_ntile(Taxable_Income, n = 10))]
+
+difference_2021_Budget <-
+  avg_tax_by_decile_1617[avg_tax_by_decile_2021] %>%
+  .[decile > 1] %>%
+  .[, ppt_increase := 100*(i.avg_tax - avg_tax)]
+
+difference_2021_Budget %>%
+  copy %>%
+  .[, decile := factor(decile)] %>%
+  ggplot(aes(x = decile, y = ppt_increase)) + 
+  geom_col()
+
+## ----middle_income_avg_inc-----------------------------------------------
+middle_income_avg_inc <-
+  difference_2021_Budget %>%
+  .[decile %between% c(3, 7)] %$%
+  range(round(ppt_increase, 1))
+
+## ----percentile_50000----------------------------------------------------
+sample_file_1617[, percentile := weighted_ntile(Taxable_Income, n = 100)]
+stopifnot(56 %in% sample_file_1617[Taxable_Income %between% c(49500, 50500)][["percentile"]])
+
+avg_tax_rate_2017_50k <- 
+  sample_file_1617[percentile == 56] %$% 
+  mean(avg_tax) %>%
+  round(3)
+
+avg_tax_rate_2021_50k <- 
+  sample_file_2021 %>%
+  .[, percentile := weighted_ntile(Taxable_Income, n = 100)] %>%
+  .[percentile == 56] %$% 
+  mean(avg_tax) %>%
+  round(3)
+
+## ----Change_1ppt_2021----------------------------------------------------
+tax_delta <- function(bracket_number, rate_increase = -0.01) {
+  current_tax <-
+    sample_file_2021[, .(tax = sum(tax_paid), 
+                         WEIGHT = WEIGHT[1])] %$% 
+    sum(tax * WEIGHT)
+  
+  orig_rates <- c(0, 0.19, 0.325, 0.37, 0.45)
+  new_rates <- orig_rates
+  new_rates[bracket_number] <- new_rates[bracket_number] + rate_increase
+    
+  # rebate_income is an internal function
+  .ri <- grattan:::rebate_income
+  
+  new_tax <- 
+    sample_file_2021 %>%
+    copy %>%
+    .[, base_tax. := IncomeTax(Taxable_Income,
+                              thresholds = c(0, 18200, 37000, 87000, 180e3),
+                              rates = new_rates)] %>%
+    .[, medicare_levy. := medicare_levy(income = Taxable_Income, fy.year = "2019-20",
+                                       Spouse_income = Spouse_adjusted_taxable_inc,
+                                       sapto.eligible = (age_range <= 1),
+                                       family_status = if_else(Spouse_adjusted_taxable_inc > 0, "family", "individual"))] %>%
+    .[, lito. := lito(Taxable_Income, max_lito = 445, lito_taper = 0.015, min_bracket = 37000)] %>%
+    .[, rebate_income := .ri(Taxable_Income,
+                             Rptbl_Empr_spr_cont_amt = Rptbl_Empr_spr_cont_amt,
+                             Net_fincl_invstmt_lss_amt = Net_fincl_invstmt_lss_amt,
+                             Net_rent_amt = Net_rent_amt,
+                             Rep_frng_ben_amt = Rep_frng_ben_amt)] %>%
+    .[, sapto. := sapto(rebate_income, fy.year = "2019-20", sapto.eligible = (age_range <= 1))] %>%
+    .[, tax_payable := pmaxC(base_tax. - lito. - sapto., 0) + medicare_levy.] %>%
+    .[, .(tax = sum(tax_payable), 
+          WEIGHT = WEIGHT[1])] %$% 
+    sum(tax * WEIGHT)
+  
+  current_tax - new_tax
 }
 
+## ----table_1pt-----------------------------------------------------------
+data.table(tax_bracket = c("<18,200",
+                           "18,200-37,000",
+                           "37,000-87,000",
+                           "87,000-180,000",
+                           "180,000+"),
+           budget_impact = c(NA, round(vapply(2:5, tax_delta, FUN.VALUE = double(1)) / 1e9, 2))) %>%
+  kable
+
+## ----knitrOpts-sample-file-----------------------------------------------
+options("scipen" = 99)
+opts_chunk$set(fig.width = 9,
+               fig.height = 6.5,
+               warn = FALSE)
+
+## ----FY.YEAR-------------------------------------------------------------
+FY.YEAR <- "2013-14"
+
+## ----wsum----------------------------------------------------------------
+wsum <- function(x, w = 1){
+  sum((x) * w)
+}
 
 ## ----grattan_dollar------------------------------------------------------
 grattan_dollar <- function (x, digits = 0) {
@@ -55,7 +246,7 @@ grattan_dollar <- function (x, digits = 0) {
 }
 
 ## ----load-sample-file----------------------------------------------------
-sample_file <- sample_files_all %>% filter(fy.year == FY.YEAR)
+sample_file <- sample_files_all[fy.year == FY.YEAR]
 sample_file <- merge(sample_file, age_range_decoder, by = "age_range")
 PREV.FY.YEAR <- yr2fy(fy2yr(FY.YEAR) - 1)
 sample_file_prev <- sample_files_all[fy.year == PREV.FY.YEAR]
@@ -65,11 +256,11 @@ sample_file_prev <- merge(sample_file_prev, age_range_decoder, by = "age_range")
 set.seed(48031)
 sample_file %<>%
   group_by(age_range_description) %>%
-  mutate(min_age = ifelse(grepl("to", age_range_description), 
-                          as.numeric(gsub("^([0-9]{2}).*$", "\\1", age_range_description)), 
-                          ifelse(grepl("70", age_range_description),
-                                 70, 
-                                 15)),
+  mutate(min_age = if_else(grepl("to", age_range_description), 
+                           as.numeric(gsub("^([0-9]{2}).*$", "\\1", age_range_description)), 
+                           if_else(grepl("70", age_range_description),
+                                   70, 
+                                   15)),
          max_age = min_age + 5, 
          age_imp = runif(n(), min_age, max_age)) %>%
   select(-min_age, -max_age)
@@ -400,11 +591,11 @@ sample_files_all %>%
   select(age_range, Net_CG_amt, fy.year) %>%
   merge(age_range_decoder, by = "age_range") %>%
   group_by(age_range_description) %>%
-  mutate(min_age = ifelse(grepl("to", age_range_description), 
-                          as.numeric(gsub("^([0-9]{2}).*$", "\\1", age_range_description)), 
-                          ifelse(grepl("70", age_range_description),
-                                 70, 
-                                 15)),
+  mutate(min_age = if_else(grepl("to", age_range_description), 
+                           as.numeric(gsub("^([0-9]{2}).*$", "\\1", age_range_description)), 
+                           if_else(grepl("70", age_range_description),
+                                   70, 
+                                   15)),
          max_age = min_age + 5, 
          age_imp = runif(n(), min_age, max_age)) %>%
   select(-min_age, -max_age) %>%
@@ -492,8 +683,7 @@ sample_file %>%
   rename(Age = age_imp) %>%
   mutate(`Taxable Income\n(excl CG) decile` = factor(Taxable_Income_noCG_decile)) %>%
   ggplot(aes(x = Age, fill = `Taxable Income\n(excl CG) decile`)) +
-  geom_density(size = 1.5, alpha = 0.7) + 
-  scale_fill_viridis(discrete = TRUE) +
+  geom_density(alpha = 0.7) +
   theme(legend.position = "right")
 
 ## ----CGT-marginal-rate-weighted-and-unweighted---------------------------
@@ -844,4 +1034,215 @@ sample_file %>%
   scale_x_continuous(expand = c(0,0)) + 
   theme_dark() +
   theme(legend.title = element_blank())
+
+## ------------------------------------------------------------------------
+wage_r_by_fy <- 
+  data.table(fy.year = yr2fy(2005:2014)) %>%
+  mutate(lag_fy = yr2fy(2004:2013)) %>%
+  mutate(wage_growth_r = wage_inflator(from_fy = lag_fy, to_fy = fy.year) - 1)
+
+## ---- fig.width=7, fig.height=6------------------------------------------
+average_salary_by_fy_swtile <- 
+  sample_files_all %>%
+  select(fy.year, Sw_amt) %>%
+  filter(Sw_amt > 0) %>%
+  group_by(fy.year) %>%
+  mutate(`Salary percentile` = ntile(Sw_amt, 100)) %>%
+  ungroup %>%
+  group_by(fy.year, `Salary percentile`) %>%
+  summarise(average_salary = mean(Sw_amt)) %>%
+  ungroup %>%
+  arrange(`Salary percentile`, fy.year) %>%
+  group_by(`Salary percentile`) %>%
+  mutate(r_average_salary = average_salary / lag(average_salary) - 1) %>%
+  filter(fy.year != min(fy.year))
+
+{
+  p <- 
+    average_salary_by_fy_swtile %>%  # NA
+    ungroup %>%
+    merge(wage_r_by_fy, by = "fy.year") %>%
+    mutate(`Basic wage inflator` = "Basic wage inflator") %>%
+    ggplot() + 
+    geom_area(aes(x = `Salary percentile`, y = r_average_salary, group = fy.year, fill = fy.year), 
+              se = FALSE, stat = "smooth", method = "loess") + 
+    theme_bw() + 
+    theme(legend.position = "right", plot.background = element_blank()) + 
+    geom_line(aes(x = `Salary percentile`, y = wage_growth_r, group = `Basic wage inflator`, color = `Basic wage inflator`),
+              size = 1.125) + 
+    scale_color_manual(values = "black") +
+    scale_y_continuous(name = "Salary rate of increase", label = percent) + 
+    facet_wrap(~fy.year, ncol = 5) +
+    guides(fill = FALSE) + 
+    theme(legend.position = c(0, 1), 
+          legend.title = element_blank(), 
+          legend.key = element_blank(),
+          legend.justification = c(0, 1))
+  
+  # ggplotly(p)
+  p
+}
+
+
+## ------------------------------------------------------------------------
+differential_uprates <- 
+  average_salary_by_fy_swtile %>%
+  group_by(`Salary percentile`) %>%
+  summarise(avg_r = mean(r_average_salary)) %>% 
+  mutate(avg_r_normed = avg_r / mean(avg_r))
+
+differential_uprates %>%
+  ggplot(aes(x = `Salary percentile`, y = avg_r)) +
+  geom_line() + 
+  scale_y_continuous(label = percent)
+
+## ---- echo=TRUE----------------------------------------------------------
+data_frame(wage = c(20e3, 50e3, 100e3)) %>%
+  mutate(ordinary = wage_inflator(wage, from_fy = "2012-13", to_fy = "2013-14"), 
+         `change ordinary` = ordinary / wage - 1, 
+         differential = differentially_uprate_wage(wage, from_fy = "2012-13", to_fy = "2013-14"), 
+         `change differential` = differential / wage - 1
+         ) %>%
+  mutate(wage = dollar(wage),
+         ordinary = dollar(ordinary), 
+         differential = dollar(differential), 
+         `change ordinary` = percent(`change ordinary`), 
+         `change differential` = percent(`change differential`)) %>%
+  kable(align = rep("r", ncol(.)))
+
+## ------------------------------------------------------------------------
+wage_r_by_fy <- 
+  data.table(fy.year = yr2fy(2005:2014)) %>%
+  mutate(lag_fy = yr2fy(2004:2013)) %>%
+  mutate(wage_growth_r = wage_inflator(from_fy = lag_fy, to_fy = fy.year) - 1)
+
+## ---- fig.width=7, fig.height=6------------------------------------------
+average_salary_by_fy_swtile <- 
+  sample_files_all %>%
+  select(fy.year, Sw_amt) %>%
+  filter(Sw_amt > 0) %>%
+  group_by(fy.year) %>%
+  mutate(`Salary percentile` = ntile(Sw_amt, 100)) %>%
+  ungroup %>%
+  group_by(fy.year, `Salary percentile`) %>%
+  summarise(average_salary = mean(Sw_amt)) %>%
+  ungroup %>%
+  arrange(`Salary percentile`, fy.year) %>%
+  group_by(`Salary percentile`) %>%
+  mutate(r_average_salary = average_salary / lag(average_salary) - 1) %>%
+  filter(fy.year != min(fy.year))
+
+{
+  p <- 
+    average_salary_by_fy_swtile %>%  # NA
+    ungroup %>%
+    merge(wage_r_by_fy, by = "fy.year") %>%
+    mutate(`Basic wage inflator` = "Basic wage inflator") %>%
+    ggplot() + 
+    geom_area(aes(x = `Salary percentile`, y = r_average_salary, group = fy.year, fill = fy.year), 
+              se = FALSE, stat = "smooth", method = "loess") + 
+    theme_bw() + 
+    theme(legend.position = "right", plot.background = element_blank()) + 
+    geom_line(aes(x = `Salary percentile`, y = wage_growth_r, group = `Basic wage inflator`, color = `Basic wage inflator`),
+              size = 1.125) + 
+    scale_color_manual(values = "black") +
+    scale_y_continuous(name = "Salary rate of increase", label = percent) + 
+    facet_wrap(~fy.year, ncol = 5) +
+    guides(fill = FALSE) + 
+    theme(legend.position = c(0, 1), 
+          legend.title = element_blank(), 
+          legend.key = element_blank(),
+          legend.justification = c(0, 1))
+  
+  # ggplotly(p)
+  p
+}
+
+
+## ------------------------------------------------------------------------
+differential_uprates <- 
+  average_salary_by_fy_swtile %>%
+  group_by(`Salary percentile`) %>%
+  summarise(avg_r = mean(r_average_salary)) %>% 
+  mutate(avg_r_normed = avg_r / mean(avg_r))
+
+differential_uprates %>%
+  ggplot(aes(x = `Salary percentile`, y = avg_r)) +
+  geom_line() + 
+  scale_y_continuous(label = percent)
+
+## ---- echo=TRUE----------------------------------------------------------
+data_frame(wage = c(20e3, 50e3, 100e3)) %>%
+  mutate(ordinary = wage_inflator(wage, from_fy = "2012-13", to_fy = "2013-14"), 
+         `change ordinary` = ordinary / wage - 1, 
+         differential = differentially_uprate_wage(wage, from_fy = "2012-13", to_fy = "2013-14"), 
+         `change differential` = differential / wage - 1
+         ) %>%
+  mutate(wage = dollar(wage),
+         ordinary = dollar(ordinary), 
+         differential = dollar(differential), 
+         `change ordinary` = percent(`change ordinary`), 
+         `change differential` = percent(`change differential`)) %>%
+  kable(align = rep("r", ncol(.)))
+
+## ------------------------------------------------------------------------
+sample_file_1314_projected <- 
+  sample_file_1213 %>%
+  copy %>%
+  mutate(WEIGHT = 50) %>%
+  project(h = 1L,
+          fy.year.of.sample.file = "2012-13",
+          .recalculate.inflators = TRUE) %>%
+  .[]
+
+## ------------------------------------------------------------------------
+data.table(the_source = c("Actual",
+                          "Projected"),
+           n_persons = c(nrow(sample_file_1314) * 50,
+                         sum(sample_file_1314_projected$WEIGHT)), 
+           avg_Taxable_Income = c(mean(sample_file_1314$Taxable_Income),
+                                  mean(sample_file_1314_projected$Taxable_Income)),
+           avg_Sw = c(mean(sample_file_1314$Sw_amt),
+                      mean(sample_file_1314_projected$Sw_amt))
+) %>% 
+  melt.data.table(id.vars = "the_source") %>%
+  group_by(variable) %>%
+  mutate(value_rel = value / first(value)) %>%
+  # dcast.data.table(variable ~ the_source) %>%
+  ggplot(aes(x = variable, y = value_rel, fill = the_source)) + 
+  geom_bar(stat = "identity", position = "dodge") + 
+  geom_text(aes(label = comma(round(value))),
+            position = position_dodge(width = 0.9),
+            hjust = 1.02) + 
+  coord_flip() + 
+  theme(legend.position = "top")
+
+## ------------------------------------------------------------------------
+conf_int_of_t.test <- function(variable){
+  t_test <- t.test(sample_file_1314[[variable]],
+                   sample_file_1314_projected[[variable]])
+  t_test %>%
+    tidy(.) %>%
+    mutate(var = variable) %>%
+    as.data.table
+}
+
+c("Sw_amt",
+  "Net_rent_amt",
+  "Net_CG_amt",
+  "Tot_inc_amt",
+  "Tot_ded_amt",
+  "Taxable_Income") %>%
+  lapply(conf_int_of_t.test) %>%
+  rbindlist %>%
+  .[, list(var, conf.low, conf.high, p.value)] %>%
+  ggplot(aes(x = var,
+             ymin = conf.low,
+             ymax = conf.high,
+             color = p.value > 0.05)) + 
+  geom_errorbar() + 
+  geom_hline(yintercept = 0)
+
+## ----echo=FALSE----------------------------------------------------------
+options("scipen" = 0)
 

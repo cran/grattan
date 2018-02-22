@@ -1,11 +1,11 @@
 ## ----setup, include = FALSE----------------------------------------------
+library(knitr)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
 ## ----loadPackages-1------------------------------------------------------
-library(broom)
 library(mgcv)
 library(lattice)
 library(dtplyr)
@@ -572,7 +572,7 @@ sample_file %>%
 ## ------------------------------------------------------------------------
 CG_descriptive_by_bracket %>% 
   # cosmetic
-  mutate(`Taxpayers` = comma(n_taxpayers),
+  mutate(Taxpayers = comma(n_taxpayers),
          `with CG` = comma(n_CG),
          `Total cap. gains ($)` = grattan_dollar(val_CG),
          `Total CGT ($)` = grattan_dollar(total_CGT)) %>%
@@ -1111,79 +1111,97 @@ data_frame(wage = c(20e3, 50e3, 100e3)) %>%
   kable(align = rep("r", ncol(.)))
 
 ## ------------------------------------------------------------------------
-wage_r_by_fy <- 
-  data.table(fy.year = yr2fy(2005:2014)) %>%
-  mutate(lag_fy = yr2fy(2004:2013)) %>%
-  mutate(wage_growth_r = wage_inflator(from_fy = lag_fy, to_fy = fy.year) - 1)
-
-## ---- fig.width=7, fig.height=6------------------------------------------
-average_salary_by_fy_swtile <- 
-  sample_files_all %>%
-  select(fy.year, Sw_amt) %>%
-  filter(Sw_amt > 0) %>%
-  group_by(fy.year) %>%
-  mutate(`Salary percentile` = ntile(Sw_amt, 100)) %>%
-  ungroup %>%
-  group_by(fy.year, `Salary percentile`) %>%
-  summarise(average_salary = mean(Sw_amt)) %>%
-  ungroup %>%
-  arrange(`Salary percentile`, fy.year) %>%
-  group_by(`Salary percentile`) %>%
-  mutate(r_average_salary = average_salary / lag(average_salary) - 1) %>%
-  filter(fy.year != min(fy.year))
-
-{
-  p <- 
-    average_salary_by_fy_swtile %>%  # NA
-    ungroup %>%
-    merge(wage_r_by_fy, by = "fy.year") %>%
-    mutate(`Basic wage inflator` = "Basic wage inflator") %>%
-    ggplot() + 
-    geom_area(aes(x = `Salary percentile`, y = r_average_salary, group = fy.year, fill = fy.year), 
-              se = FALSE, stat = "smooth", method = "loess") + 
-    theme_bw() + 
-    theme(legend.position = "right", plot.background = element_blank()) + 
-    geom_line(aes(x = `Salary percentile`, y = wage_growth_r, group = `Basic wage inflator`, color = `Basic wage inflator`),
-              size = 1.125) + 
-    scale_color_manual(values = "black") +
-    scale_y_continuous(name = "Salary rate of increase", label = percent) + 
-    facet_wrap(~fy.year, ncol = 5) +
-    guides(fill = FALSE) + 
-    theme(legend.position = c(0, 1), 
-          legend.title = element_blank(), 
-          legend.key = element_blank(),
-          legend.justification = c(0, 1))
-  
-  # ggplotly(p)
-  p
+library(grattan)
+library(data.table)
+if (requireNamespace("taxstats", quietly = TRUE)){
+  library(taxstats)
+  sample_files_all <- get_sample_files_all()
+} else {
+  templib <- tempfile()
+  hutils::provide.dir(templib)
+  install.packages("taxstats",
+                   lib = templib,
+                   repos = "https://hughparsonage.github.io/drat/",
+                   type = "source")
+  library("taxstats", lib.loc = templib)
+  sample_files_all <- get_sample_files_all()
 }
+library(magrittr)
+#' dollar scales
+#' 
+#' @name grattan_dollar
+#' @param x A numeric vector
+#' @param digits Minimum number of digits after the decimal point. (\code{nsmall} in \code{base::format}).
+#' @details Makes negative numbers appear as \eqn{-\$10,000} instead of \eqn{\$-10,000} in \code{scales::dollar}.
+#' @export
+# from scales
+
+grattan_dollar <- function (x, digits = 0) {
+  #
+  nsmall <- digits
+  commaz <- format(abs(x), nsmall = nsmall, trim = TRUE, big.mark = ",", 
+                   scientific = FALSE, digits = 1L)
+  
+  hutils::if_else(x < 0, 
+          paste0("\U2212","$", commaz),
+          paste0("$", commaz))
+}
+
+(new_revenue <- 
+  sample_file_1314 %>%
+  project_to(to_fy = "2017-18") %>%
+  as.data.table %>%
+  revenue_from_new_cap_and_div293(new_cap = 25e3, fy.year = "2016-17", new_age_based_cap = FALSE, new_div293_threshold = 250e3))
+
+paste(grattan_dollar(new_revenue / 1e9), "bn")
+
+(n_affected <-
+  sample_file_1314 %>%
+  project_to(to_fy = "2017-18") %>%
+  as.data.table %>%
+  n_affected_from_new_cap_and_div293(new_cap = 25e3, fy.year = "2016-17", new_age_based_cap = FALSE, new_div293_threshold = 250e3))
+
+prettyNum(round(n_affected), big.mark = ",")
+
+## ------------------------------------------------------------------------
+sample_file_1718 <-
+  sample_file_1314 %>%
+  project_to(to_fy = "2017-18") %>%
+  as.data.table
+
+## ------------------------------------------------------------------------
+new_sample_file_1718 <- 
+  sample_file_1718 %>%
+  model_new_caps_and_div293(new_cap = 25e3, fy.year = "2016-17", new_age_based_cap = FALSE, new_div293_threshold = 250e3)
 
 
 ## ------------------------------------------------------------------------
-differential_uprates <- 
-  average_salary_by_fy_swtile %>%
-  group_by(`Salary percentile`) %>%
-  summarise(avg_r = mean(r_average_salary)) %>% 
-  mutate(avg_r_normed = avg_r / mean(avg_r))
+library(knitr)
+library(dplyr)
+library(dtplyr)  # for data.table
 
-differential_uprates %>%
-  ggplot(aes(x = `Salary percentile`, y = avg_r)) +
-  geom_line() + 
-  scale_y_continuous(label = percent)
+new_sample_file_1718 %>%
+  mutate(Taxable_Income_decile = ntile(Taxable_Income, 10)) %>%
+  group_by(Taxable_Income_decile) %>%
+  summarise(`Average increase in tax` = round(mean(new_revenue - prv_revenue), 2)) %>%
+  arrange(Taxable_Income_decile) %>%
+  kable
 
-## ---- echo=TRUE----------------------------------------------------------
-data_frame(wage = c(20e3, 50e3, 100e3)) %>%
-  mutate(ordinary = wage_inflator(wage, from_fy = "2012-13", to_fy = "2013-14"), 
-         `change ordinary` = ordinary / wage - 1, 
-         differential = differentially_uprate_wage(wage, from_fy = "2012-13", to_fy = "2013-14"), 
-         `change differential` = differential / wage - 1
-         ) %>%
-  mutate(wage = dollar(wage),
-         ordinary = dollar(ordinary), 
-         differential = dollar(differential), 
-         `change ordinary` = percent(`change ordinary`), 
-         `change differential` = percent(`change differential`)) %>%
-  kable(align = rep("r", ncol(.)))
+## ------------------------------------------------------------------------
+library(ggplot2)
+new_sample_file_1718 %>%
+  mutate(Taxable_Income_decile = ntile(Taxable_Income, 10)) %>%
+  group_by(Taxable_Income_decile) %>%
+  summarise(`Average increase in tax` = mean(new_revenue - prv_revenue)) %>%
+  arrange(Taxable_Income_decile) %>%
+  #
+  mutate(`Taxable income decile` = factor(Taxable_Income_decile)) %>%
+  ggplot(aes(x = `Taxable income decile`, y = `Average increase in tax`)) + 
+  geom_bar(stat = "identity") + 
+  
+  # cosmetic:
+  scale_y_continuous(label = grattan_dollar) + 
+  theme(axis.title.y = element_text(face = "bold", angle = 90, margin = margin(1, 1, 1, 1, "lines")))
 
 ## ------------------------------------------------------------------------
 sample_file_1314_projected <- 
@@ -1221,10 +1239,11 @@ data.table(the_source = c("Actual",
 conf_int_of_t.test <- function(variable){
   t_test <- t.test(sample_file_1314[[variable]],
                    sample_file_1314_projected[[variable]])
-  t_test %>%
-    tidy(.) %>%
-    mutate(var = variable) %>%
-    as.data.table
+  
+  data.table(var = variable,
+             conf.low = t_test$conf.int[1],
+             conf.high = t_test$conf.int[2],
+             p.value = t_test$p.value)
 }
 
 c("Sw_amt",

@@ -8,13 +8,13 @@
 \usage{
 model_new_caps_and_div293(.sample.file, fy.year, new_cap = 30000,
   new_cap2 = 35000, new_age_based_cap = TRUE, new_cap2_age = 49,
-  new_ecc = FALSE, new_div293_threshold = 3e+05, use_other_contr = FALSE,
+  new_ecc = FALSE, new_div293_threshold = 300000, use_other_contr = FALSE,
   scale_contr_match_ato = FALSE, .lambda = 0,
   reweight_late_lodgers = TRUE, .mu = 1.05,
   impute_zero_concess_contr = TRUE, .min.Sw.for.SG = 450 * 12,
   .SG_rate = 0.0925, prv_cap = 30000, prv_cap2 = 35000,
   prv_age_based_cap = TRUE, prv_cap2_age = 49, prv_ecc = FALSE,
-  prv_div293_threshold = 3e+05)
+  prv_div293_threshold = 300000)
 
 n_affected_from_new_cap_and_div293(..., adverse_only = TRUE)
 
@@ -39,7 +39,7 @@ revenue_from_new_cap_and_div293(...)
 
 \item{use_other_contr}{Should \code{MCS_Othr_Contr} be used to calculate Division 293 liabilities?}
 
-\item{scale_contr_match_ato}{(logical) Should concessional contributions be inflated to match aggregates in 2013-14? That is, should concessional contributions by multiplied by \code{grattan:::super_contribution_inflator_1314}, which was defined to be: \deqn{\frac{\textrm{Total assessable contributions in SMSF and funds}}{\textrm{Total contributions in 2013-14 sample file}}}{Total assessable contributions in SMSF and funds / Total contributions in 2013-14 sample file.}.}
+\item{scale_contr_match_ato}{(logical) Should concessional contributions be inflated to match aggregates in 2013-14? That is, should the concessional contributions by multiplied by the internal constant \code{grattan:::super_contribution_inflator_1314}, which was defined to be: \deqn{\frac{\textrm{Total assessable contributions in SMSF and funds}}{\textrm{Total contributions in 2013-14 sample file}}}{Total assessable contributions in SMSF and funds / Total contributions in 2013-14 sample file.}.}
 
 \item{.lambda}{Scalar weight applied to \code{concessional contributions}. \eqn{\lambda = 0} means no (extra) weight. \eqn{\lambda = 1} means contributions are inflated by the ratio of aggregates to the sample file's total. For \eqn{R = \textrm{actual} / \textrm{apparent}} then the contributions are scaled by \eqn{1 + \lambda(R - 1)}.}
 

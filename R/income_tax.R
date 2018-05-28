@@ -110,7 +110,7 @@ rolling_income_tax <- function(income,
            "Consider new_income_tax().")
     }
     bad <- which(!is.fy(fy.year))
-    if (length(bad) > 5){
+    if (length(bad) > 5) {
       stop("Entries ", bad[1:5], " (and others)", 
            " were not in correct form.", "\n", "First bad entry: ", fy.year[bad[1]])
     } else {
@@ -316,11 +316,7 @@ income_tax_cpp <- function(income, fy.year, .dots.ATO = NULL, sapto.eligible = N
       } else {
         if ("Birth_year" %chin% .dots.ATO.noms) {
           sapto.eligible <- coalesce(between(.subset2(.dots.ATO, "Birth_year"), 0L, 1L), FALSE)
-        } else {
-          stop("`.dots.ATO` was supplied, but did not contain columns 'age_range' or 'Birth_year'. ",
-               "`dots.ATO` needs to be a sample file with the original names. Ensure `.dots.ATO` ",
-               "has either 'age_range' or 'Birth_year' among its columns.")
-        }
+        } else stop("Not reachable. Please report: income_tax_cpp:319.")
       }
     }
   }
@@ -356,13 +352,10 @@ income_tax_cpp <- function(income, fy.year, .dots.ATO = NULL, sapto.eligible = N
   base_tax. <- 
     IncomeTax(income, 
               thresholds = c(0, 18200, 37000,
-                             if (fy.year < "2016-17") 80e3 else 87e3,
+                             if (fy.year < "2016-17") 80e3 else if (fy.year < "2018-19") 87e3 else 90e3,
                              180000),
               rates = c(0, 0.19, 0.325, 0.37, 
-                        # Temp budget repair levy
-                        if (OR(fy.year == "2014-15",
-                               OR(fy.year == "2015-16",
-                                  fy.year == "2016-17"))) 0.47 else 0.45))
+                        0.45))
   
   lito. <- pminC(pmaxC(445 - (income - 37000) * 0.015, 0),
                  445)
@@ -478,14 +471,22 @@ income_tax_cpp <- function(income, fy.year, .dots.ATO = NULL, sapto.eligible = N
     sbto. <-
       small_business_tax_offset(taxable_income = income,
                                 basic_income_tax_liability = S4.10_basic_income_tax_liability,
-                                .dots.ATO = .dots.ATO,
+                                .dots.ATO = .dots.ATO[, .SD, .SDcols = c("Total_PP_BE_amt", 
+                                                                         "Total_PP_BI_amt", 
+                                                                         "Total_NPP_BE_amt",
+                                                                         "Total_NPP_BI_amt")],
                                 fy_year = fy.year)
   }
   
   out <-
     pmaxC(S4.10_basic_income_tax_liability - sbto., 0) +
     medicare_levy. +
-    flood_levy.
+    flood_levy. 
+  
+  # temp budget repair levy
+  if (Year.int <= 2017L && Year.int >= 2015L) {
+    out <- out + 0.02 * pmax0(income - 180e3)
+  }
   
   if (any(income < 0)) {
     warning("Negative entries in income detected. These will have value NA.")

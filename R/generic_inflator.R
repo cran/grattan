@@ -18,15 +18,14 @@ generic_inflator <- function(vars,
                              estimator = "mean",
                              pred_interval = 80) {
   stopifnot(length(h) == 1L)
+  stopifnot(is.integer(h), 
+            h >= 0, 
+            length(fy.year.of.sample.file) == 1L,
+            all_fy(fy.year.of.sample.file))
   if (h == 0L) {
     return(data.table(variable = vars, 
                       inflator = 1))
   }
-  
-  stopifnot(is.integer(h), 
-            h >= 0, 
-            is.fy(fy.year.of.sample.file))
-  
   vars_only_in_201314 <- c("MCS_Emplr_Contr", 
                            "MCS_Prsnl_Contr",
                            "MCS_Othr_Contr",
@@ -34,9 +33,9 @@ generic_inflator <- function(vars,
   
   switch(fy.year.of.sample.file, 
          "2012-13" = if (any(vars_only_in_201314 %chin% vars)) {
-           stop("You have requested a projection / inflator of ",
-                vars[vars %in% vars_only_in_201314],
-                " but this variable ",
+           stop("You have requested a projection / inflator of '",
+                first(vars[vars %in% vars_only_in_201314]),
+                "', yet `fy.year.ofy.sample.file = '2012-13'` but this variable ",
                 "was not present till the 2013-14 sample file.")
          })
   
@@ -78,7 +77,7 @@ generic_inflator <- function(vars,
   }
   
   forecast_and_extract <- function(fy.year, value) {
-    max_year <- max(fy2yr(fy.year))
+    max_year <- max_fy2yr(fy.year)
     list(fy_year = c(fy.year, yr2fy(max_year + seq_len(h))),
          value = c(value, extract_estimator(forecast_ahead_h(forecaster(value)))))
   }

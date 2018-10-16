@@ -44,7 +44,15 @@ sapto <- function(rebate_income,
     stopifnot(all(family_status %chin% c("single", "married")))
     
     if ("single" %chin% family_status[is_married]) {
-      stop("family_status may be 'single' if and only if Spouse_income > 0.")
+      if (length(family_status) == 1L) {
+        stop("`family_status = 'single'` yet `Spouse_income > 0`. ", 
+             "Whenever `Spouse_income` is positive, `family_status` must be set to 'married'.")
+      } else {
+        first_bad <- which(family_status == "single" & is_married)
+        stop("In entry ", first_bad, " `family_status = 'single' ", 
+             "yet Spouse_income > 0 for that entry. ",
+             "Whenever `Spouse_income` is positive, `family_status` must be set to 'married'.")
+      }
     }
   }
   
@@ -53,16 +61,17 @@ sapto <- function(rebate_income,
     AA <- BB <- CC <- DD <- 
     GG <- HH <- II <- JJ <- . <- NULL
   
+  out_tbl <- sapto_tbl[input, on = c("fy_year", "family_status")]
+  setindex(out_tbl, is_married)
   out <- 
-    sapto_tbl[input, on = c("fy_year", "family_status")] %>%
+    out_tbl %>%
     .[, sapto_income := rebate_income + Spouse_income] %>%
-    .[, sapto_value := pmaxC(pminV(max_offset, 
-                                   max_offset + lower_threshold * taper_rate - sapto_income * taper_rate),
-                             0)] %>%
+    .[, sapto_value := pmaxIPnum0(pminV(max_offset, 
+                                        max_offset + lower_threshold * taper_rate - sapto_income * taper_rate))] %>%
     # https://www.ato.gov.au/individuals/income-and-deductions/in-detail/transferring-the-seniors-and-pensioners-tax-offset/
-    .[(is_married), partner_unused_sapto := pmaxC(pminV(max_offset / 2,
-                                                        max_offset / 2 + taper_rate * lower_threshold / 2 - taper_rate * Spouse_income), 
-                                                  0)] %>%
+    .[(is_married),
+      partner_unused_sapto := pmaxIPnum0(pminV(max_offset / 2,
+                                               max_offset / 2 + taper_rate * lower_threshold / 2 - taper_rate * Spouse_income))] %>%
     # Transfer unutilized SAPTO:
     .[(is_married), lito := 445] %>%
     .[(is_married), AA := rebate_income] %>%
@@ -78,16 +87,16 @@ sapto <- function(rebate_income,
     .[(is_married), GG := 18200 + DD / 0.19] %>%
     # ATO calculator suggests this was intended:
     # .[, GG := 37230] %>%
-    .[(is_married), HH := pmaxC(AA - GG, 0)] %>%
+    .[(is_married), HH := pmaxIPnum0(AA - GG)] %>%
     .[(is_married), II := HH / 8] %>%
-    .[(is_married), JJ := pmaxC(CC - II, 0)] %>% 
+    .[(is_married), JJ := pmaxIPnum0(CC - II)] %>% 
     .[(is_married),
       sapto_value := JJ] %>%
     .[is_married & rebate_income < GG,
       sapto_value := CC] %>%
     # Eligibility for SAPTO
     # my_printer %>%
-    .[["sapto_value"]]
+    .subset2("sapto_value")
   
   sapto.eligible * coalesce(out, fill)
 

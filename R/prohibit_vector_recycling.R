@@ -1,5 +1,5 @@
 #' Prohibit vector recycling
-#' 
+#' @name prohibit_vector_recycling
 #' @description Tests (harshly) whether the vectors can be recycled safely.
 #' 
 #' @param ... A list of vectors
@@ -22,14 +22,43 @@ prohibit_vector_recycling <- function(...){
   # http://stackoverflow.com/a/9335687/1664978
   lengths <- vapply(list(...), FUN = length, FUN.VALUE = 0L)
   max.length <- max(lengths)
-  if (any(lengths != 1L & lengths != max.length)){
-    stop("Only permissible vector lengths are 1 or the maximum (nrow) of the inputs.")
+  if (any(lengths != 1L & lengths != max.length)) {
+    i <- which.max(lengths != 1L & lengths != max.length)
+    j <- which.max(lengths)
+    dots <- eval(substitute(alist(...)))
+    first_wrong_arg <- as.character(dots[i])
+    max_wrong_arg <- as.character(dots[j])
+    stop("`", first_wrong_arg, "` had length ", lengths[i],
+         ", but the length of `", max_wrong_arg, "` is ", max.length, ". ",
+         "The only permissible vector lengths are 1 or the maximum length of the inputs.")
   }
 }
 
-prohibit_vector_recycling.MAXLENGTH <- function(...){
+#' @rdname prohibit_vector_recycling
+prohibit_vector_recycling.MAXLENGTH <- function(...) {
   # http://stackoverflow.com/a/9335687/1664978
   lengths <- vapply(list(...), FUN = length, FUN.VALUE = 0L)
+  max.length <- max(lengths)
+  if (any(lengths != 1L & lengths != max.length)) {
+    i <- which.max(lengths != 1L & lengths != max.length)
+    j <- which.max(lengths)
+    dots <- eval(substitute(alist(...)))
+    first_wrong_arg <- as.character(dots[i])
+    max_wrong_arg <- as.character(dots[j])
+    stop("`", first_wrong_arg, "` had length ", lengths[i],
+         ", but the length of `", max_wrong_arg, "` is ", max.length, ". ",
+         "The only permissible vector lengths are 1 or the maximum length of the inputs.")
+  } else {
+    invisible(max.length)
+  }
+}
+
+
+#' @rdname prohibit_vector_recycling
+#' @param LIST A list of objects (typically \code{mget(ls())} called in the body of a function).
+prohibit_arg_recycling.MAXLENGTH <- function(LIST) {
+  # http://stackoverflow.com/a/9335687/1664978
+  lengths <- vapply(LIST, FUN = length, FUN.VALUE = 0L)
   max.length <- max(lengths)
   if (any(lengths != 1L & lengths != max.length)){
     stop("Only permissible vector lengths are 1 or the maximum (nrow) of the inputs.")
@@ -37,4 +66,6 @@ prohibit_vector_recycling.MAXLENGTH <- function(...){
     invisible(max.length)
   }
 }
+
+
 

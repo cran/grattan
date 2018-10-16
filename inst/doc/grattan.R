@@ -25,18 +25,23 @@ templib <- tempfile()
 hutils::provide.dir(templib)
 
 ## ----loadPackages-3------------------------------------------------------
-install.packages("https://raw.githubusercontent.com/hughparsonage/drat/gh-pages/src/contrib/taxstats_0.0.5.1415.tar.gz",
-                 dependencies = FALSE,
-                 quiet = FALSE,
-                 lib = templib,
-                 verbose = TRUE,
-                 repos = NULL)
-
-## ----loadPackages-4------------------------------------------------------
-library("taxstats",
-        lib.loc = templib,
-        verbose = TRUE,
-        character.only = TRUE)
+if (requireNamespace("taxstats1516", quietly = TRUE) &&
+    requireNamespace("taxstats", quietly = TRUE)) {
+  library(taxstats)
+  library(taxstats1516)
+} else {
+  install.packages("https://raw.githubusercontent.com/hughparsonage/tax-drat/master/src/contrib/taxstats_0.0.5.1415.tar.gz",
+                   dependencies = FALSE,
+                   quiet = TRUE,
+                   lib = templib,
+                   verbose = FALSE,
+                   repos = NULL)
+  
+  library("taxstats",
+          lib.loc = templib,
+          verbose = TRUE,
+          character.only = TRUE)
+}
 
 ## ----sample_files_all----------------------------------------------------
 sample_files_all <-

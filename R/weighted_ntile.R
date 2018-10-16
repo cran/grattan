@@ -10,27 +10,33 @@
 #' @export
 #' @details With a short-length vector, or with weights of a high variance, the results may be unexpected.
 
-weighted_ntile <- function(vector, weights = rep(1, length(vector)), n){
-  stopifnot(all(weights >= 0))
-  if (any(weights %>% are_zero)){
+weighted_ntile <- function(vector, weights = rep(1, times = length(vector)), n) {
+  if (missing(weights) || length(weights) <= 1L) {
+    v <- vector
+    # This line is basically from dplyr. MIT License
+    return(as.integer(n * {frank(v, ties.method = "first") - 1} / length(v) + 1))
+  }
+  
+  min_w <- min(weights)
+  if (min_w < 0) {
+    stop("`weights` contained negative values. Ensure `weights` is non-negative.")
+  }
+  
+  if (min_w == 0) {
     warning("Some weights are zero. Maximum ntile may be incorrect.")
   }
   
-  # We need to sort `vector` first before cumsumming.
-  # CRAN NOTE avoidance
-  vec <- wts <- orig_order <- NULL
-  # 
-  out <- 
-    data.table(vec = vector, 
-               wts = weights) %>%
-    .[, orig_order := 1:.N] %>%
-    setorderv("vec") %>%
-    .[, out := as.integer(floor((n * cumsum(shift(x = wts, n = 1L, fill = 0)) / sum(wts)) + 1))] %>% 
-    setorderv("orig_order") %>%
-    .[["out"]]
+  if (length(weights) != length(vector)) {
+    stop("`weights` must be length-one or length(vector).")
+  }
   
-  if (any(out > n)){
+  ov <- order(vector)
+  out <- as.integer(n * cumsum(shift(x = weights[ov], fill = 0)) / sum(weights))
+  
+  if (last(out) >= n) {
     warning("Some ntiles greater than n = ", n)
   } 
-  out
+  out[order(ov)] + 1L
 }
+
+

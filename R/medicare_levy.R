@@ -31,7 +31,7 @@ medicare_levy <- function(income,
                           n_dependants = 0, 
                           .checks = TRUE){
   if (.checks){
-    stopifnot(all(is.fy(fy.year)), all(family_status %in% c("family", "individual")))
+    stopifnot(all_fy(fy.year), all(family_status %in% c("family", "individual")))
     prohibit_vector_recycling(income, fy.year, family_status, Spouse_income, sapto.eligible, n_dependants)
   }
   if (any(Spouse_income > 0 & family_status == "individual")){
@@ -98,14 +98,12 @@ medicare_levy <- function(income,
     .[, upper_family_threshold := upper_family_threshold + n_dependants * lower_up_for_each_child] %>%
     .[, income_share := if_else(Spouse_income > 0, income / (income + Spouse_income), 1)] %>%
     # Levy in the case of small incomes (s.7 of Act)
-    .[, medicare_levy := if_else(family_status == "family" & family_income <= upper_family_threshold & income > lower_threshold,
-                                 # subs.8(2)(c) of Medicare Levy Act 1986
-                                 income_share * pminV(pmaxC(taper * (family_income - lower_family_threshold), 
-                                                            0), 
-                                                      rate * family_income),
-                                 pminV(pmaxC(taper * (income - lower_threshold),
-                                             0), 
-                                       rate * income))] %>%
-    
-    .[["medicare_levy"]]
+    .[, if_else(and(family_status == "family",
+                    and(family_income <= upper_family_threshold,
+                        income > lower_threshold)),
+                # subs.8(2)(c) of Medicare Levy Act 1986
+                income_share * pminV(pmax0(taper * (family_income - lower_family_threshold)),
+                                     rate * family_income),
+                pminV(pmax0(taper * (income - lower_threshold)), 
+                      rate * income))]
 }

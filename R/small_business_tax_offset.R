@@ -38,7 +38,7 @@
 #' you can specify it via \code{tax_discount}. If both are provided, \code{tax_discount} prevails, with a warning.
 #' @source
 #' Basic income tax method s4-10(3) \url{http://classic.austlii.edu.au/au/legis/cth/consol_act/itaa1997240/s4.10.html}.
-#' Explanatory memorandum \url{http://parlinfo.aph.gov.au/parlInfo/download/legislation/ems/r5494_ems_0a26ca86-9c3f-4ffa-9b81-219ac09be454/upload_pdf/503041.pdf}.
+#' Explanatory memorandum \url{https://github.com/HughParsonage/grattan/blob/master/data-raw/parlinfo/small-biz-explanatory-memo-2015.pdf} from the original \verb{http://parlinfo.aph.gov.au/parlInfo/download/legislation/ems/r5494_ems_0a26ca86-9c3f-4ffa-9b81-219ac09be454/upload_pdf/503041.pdf}.
 #' @export
 
 
@@ -50,8 +50,8 @@ small_business_tax_offset <- function(taxable_income,
                                       fy_year = NULL,
                                       tax_discount = NULL) {
   
-  if (!is.null(fy_year) && fy_year < "2015-16") {
-    return(0)
+  if (!is.null(fy_year) && length(fy_year) == 1L && fy_year < "2015-16") {
+    double(length(taxable_income))
   } else {
     if (!is.null(.dots.ATO)) {
       if (!is.null(aggregated_turnover)) {
@@ -95,6 +95,9 @@ small_business_tax_offset <- function(taxable_income,
                                             aggregated_turnover,
                                             total_net_small_business_income)
     }
+    
+    # 1.26 explanatory memorandum
+    total_net_small_business_income <- pmax0(total_net_small_business_income)
     
     # See explanatory memorandum: p. 16
     prop_business_income <- total_net_small_business_income / taxable_income

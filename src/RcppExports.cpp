@@ -5,6 +5,34 @@
 
 using namespace Rcpp;
 
+// anyOutside
+int anyOutside(IntegerVector x, int a, int b);
+RcppExport SEXP _grattan_anyOutside(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type a(aSEXP);
+    Rcpp::traits::input_parameter< int >::type b(bSEXP);
+    rcpp_result_gen = Rcpp::wrap(anyOutside(x, a, b));
+    return rcpp_result_gen;
+END_RCPP
+}
+// AnyWhich
+int AnyWhich(IntegerVector x, int a, bool gt, bool lt, bool eq);
+RcppExport SEXP _grattan_AnyWhich(SEXP xSEXP, SEXP aSEXP, SEXP gtSEXP, SEXP ltSEXP, SEXP eqSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type a(aSEXP);
+    Rcpp::traits::input_parameter< bool >::type gt(gtSEXP);
+    Rcpp::traits::input_parameter< bool >::type lt(ltSEXP);
+    Rcpp::traits::input_parameter< bool >::type eq(eqSEXP);
+    rcpp_result_gen = Rcpp::wrap(AnyWhich(x, a, gt, lt, eq));
+    return rcpp_result_gen;
+END_RCPP
+}
 // IncomeTax
 NumericVector IncomeTax(NumericVector x, NumericVector thresholds, NumericVector rates);
 RcppExport SEXP _grattan_IncomeTax(SEXP xSEXP, SEXP thresholdsSEXP, SEXP ratesSEXP) {
@@ -40,17 +68,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // MedicareLevySaptoYear
-NumericVector MedicareLevySaptoYear(NumericVector income, NumericVector SpouseIncome, IntegerVector NDependants, bool sapto, int yr);
-RcppExport SEXP _grattan_MedicareLevySaptoYear(SEXP incomeSEXP, SEXP SpouseIncomeSEXP, SEXP NDependantsSEXP, SEXP saptoSEXP, SEXP yrSEXP) {
+NumericVector MedicareLevySaptoYear(NumericVector income, NumericVector SpouseIncome, IntegerVector NDependants, LogicalVector SaptoEligible, int yr);
+RcppExport SEXP _grattan_MedicareLevySaptoYear(SEXP incomeSEXP, SEXP SpouseIncomeSEXP, SEXP NDependantsSEXP, SEXP SaptoEligibleSEXP, SEXP yrSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type income(incomeSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type SpouseIncome(SpouseIncomeSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type NDependants(NDependantsSEXP);
-    Rcpp::traits::input_parameter< bool >::type sapto(saptoSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type SaptoEligible(SaptoEligibleSEXP);
     Rcpp::traits::input_parameter< int >::type yr(yrSEXP);
-    rcpp_result_gen = Rcpp::wrap(MedicareLevySaptoYear(income, SpouseIncome, NDependants, sapto, yr));
+    rcpp_result_gen = Rcpp::wrap(MedicareLevySaptoYear(income, SpouseIncome, NDependants, SaptoEligible, yr));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -122,6 +150,28 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
     rcpp_result_gen = Rcpp::wrap(pmax0(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// pmaxIPnum0
+NumericVector pmaxIPnum0(NumericVector x);
+RcppExport SEXP _grattan_pmaxIPnum0(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(pmaxIPnum0(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// pmaxIPint0
+IntegerVector pmaxIPint0(IntegerVector x);
+RcppExport SEXP _grattan_pmaxIPint0(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(pmaxIPint0(x));
     return rcpp_result_gen;
 END_RCPP
 }

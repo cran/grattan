@@ -3,12 +3,27 @@
 
 select_which_ <- hutils::select_which
 
+# fast selector, shallow copy
+.selector <- function(dt, noms) {
+  dt_key <- key(dt)
+  out <- setnames(setDT(lapply(noms, function(v) .subset2(dt, v))), noms)
+  if (!is.null(dt_key)) {
+    setattr(out, "sorted", dt_key)
+  }
+  out
+}
+
 unselect_ <- function(.data, .dots) {
   hutils::drop_cols(.data, vars = .dots)
 }
 
 `%notin%` <- function(x, y) {
   !(x %in% y)
+}
+
+anyIntersection <- function(x, y) {
+  max(match(x, y, nomatch = 0L)) &&
+    max(match(y, x, nomatch = 0L))
 }
 
 is_knitting <- function() {
@@ -84,5 +99,54 @@ qtrs_ahead <- function(x, y) {
   }
   qtrs_ahead
 }
+
+# vectorized switch 
+# e.g. Switch(c("A", "B", "C", "A"), "A" = 1, "B" = 2, "C" = 11:14)
+Switch <- function(Expr, ..., DEFAULT) {
+  max.length <- max(prohibit_vector_recycling.MAXLENGTH(...), 
+                    length(DEFAULT))
+  out <- rep_len(DEFAULT, max.length)
+  dots <- list(...)
+  dot_noms <- names(dots)
+  for (n in seq_along(dots)) {
+    w <- which(Expr == dot_noms[n])
+    n_res <- switch(n, ...)
+    if (length(n_res) == 1L) {
+      out[w] <- n_res
+    } else {
+      out[w] <- n_res[w]
+    }
+  }
+  out
+}
+
+
+# NOTE: FUN must return the same length as 'x'. e.g. mean will fail badly.
+accel_repetitive_input <- function(x, FUN, ..., THRESHOLD = 1000L) {
+  .FUN <- match.fun(FUN)
+  if (length(x) <= 1L || length(x) < THRESHOLD) {
+    .FUN(x)
+  } else {
+    DT <- setDT(list(x = x))
+    .subset2(DT[, "res" := .FUN(.BY[[1L]], ...), by = "x"], "res")
+  }
+}
+
+.getOption <- function(x, default = NULL) {
+  ans <- getOption(x)
+  if (is.null(ans)) {
+    default
+  } else {
+    ans
+  }
+}
+
+is.Date <- function(x) inherits(x, "Date")
+
+autonamed_list <- function(...) {
+  setNames(list(...), nm = eval(substitute(alist(...))))
+}
+
+
 
 

@@ -4,6 +4,7 @@
 #' @param income The individual assessable income.
 #' @param fy.year The financial year in which the income was earned. Tax years 2000-01 to 2016-17 are provided, as well as the tax years 2017-18 to 2019-20, for convenience, under the assumption the 2017 Budget measures will pass. 
 #' In particular, the tax payable is calculated under the assumption that the rate of the Medicare levy will rise to 2.5\% in the 2019-20 tax year.
+#' If fy.year is not given, the current financial year is used by default.
 #' @param age The individual's age.
 #' @param family_status For Medicare and SAPTO purposes.
 #' @param n_dependants An integer for the number of children of the taxpayer (for the purposes of the Medicare levy).
@@ -11,7 +12,7 @@
 #' @param .dots.ATO A data.frame that contains additional information about the individual's circumstances, with columns the same as in the ATO sample files. If \code{.dots.ATO} is a \code{data.table}, I recommend you enclose it with \code{copy()}.
 #' @param allow.forecasts should dates beyond 2019-20 be permitted? Currently, not permitted.
 #' @param .debug (logical, default: \code{FALSE})  If \code{TRUE}, returns a \code{data.table} containing the components. (This argument and its result is liable to change in future versions, possibly without notice.)
-#' @author Tim Cameron, Brendan Coates, Hugh Parsonage, William Young
+#' @author Tim Cameron, Brendan Coates, Matthew Katzen, Hugh Parsonage, William Young
 #' @details The function 'rolling' is inflexible by design. It is designed to guarantee the correct tax payable in a year.
 #' For years preceding the introduction of SAPTO, the maximum offset is assumed to apply to those above pensionable age. 
 #' @return The total personal income tax payable.
@@ -31,7 +32,7 @@
 #' @export income_tax
 
 income_tax <- function(income,
-                       fy.year,
+                       fy.year = NULL,
                        age = NULL,
                        family_status = "individual",
                        n_dependants = 0L,
@@ -39,8 +40,9 @@ income_tax <- function(income,
                        return.mode = c("numeric", "integer"),
                        allow.forecasts = FALSE,
                        .debug = FALSE) {
-  if (missing(fy.year)){
-    stop("fy.year is missing, with no default")
+  if (is.null(fy.year)){
+    fy.year <- date2fy(Sys.Date())
+    warning("fy.year is missing, using current financial year")
   }
   
   if (!is.null(.dots.ATO)) {
@@ -252,7 +254,7 @@ rolling_income_tax <- function(income,
   # input[["fy_year"]] ensures it matches the length of income if length(fy.year) == 1.
   if (any(c("2014-15", "2015-16", "2016-17") %fin% .subset2(input, "fy_year"))) {
     temp_budget_repair_levy. <-
-      0.02 * pmaxC(income - 180e3, 0) *
+      0.02 * pmaxIPnum0(income - 180e3) *
       {.subset2(input, "fy_year") %chin% c("2014-15", "2015-16", "2016-17")}
   } else {
     temp_budget_repair_levy. <- 0
@@ -262,13 +264,13 @@ rolling_income_tax <- function(income,
     flood_levy. <- 
       0.005 *
       {.subset2(input, "fy_year") == "2011-12"} * 
-      {pmaxC(income - 50e3, 0) + pmaxC(income - 100e3, 0)}
+      {pmaxIPnum0(income - 50e3) + pmaxIPnum0(income - 100e3)}
   } else {
     flood_levy. <- 0
   }
   
   # http://classic.austlii.edu.au/au/legis/cth/consol_act/itaa1997240/s4.10.html
-  S4.10_basic_income_tax_liability <- pmaxC(base_tax. - lito. - sapto., 0)
+  S4.10_basic_income_tax_liability <- pmaxIPnum0(base_tax. - lito. - sapto.)
   
   # SBTO can only be calculated off .dots.ATO
   if (is.null(.dots.ATO)) {
@@ -282,7 +284,7 @@ rolling_income_tax <- function(income,
   }
   
   # SBTO is non-refundable (Para 1.6 of explanatory memo)
-  pmaxC(S4.10_basic_income_tax_liability - sbto., 0) +
+  pmaxIPnum0(S4.10_basic_income_tax_liability - sbto.) +
     medicare_levy. +
     temp_budget_repair_levy. +
     flood_levy.
@@ -316,7 +318,9 @@ income_tax_cpp <- function(income, fy.year, .dots.ATO = NULL, sapto.eligible = N
       } else {
         if ("Birth_year" %chin% .dots.ATO.noms) {
           sapto.eligible <- coalesce(between(.subset2(.dots.ATO, "Birth_year"), 0L, 1L), FALSE)
+          # nocov start
         } else stop("Not reachable. Please report: income_tax_cpp:319.")
+        # nocov end
       }
     }
   }
@@ -357,7 +361,7 @@ income_tax_cpp <- function(income, fy.year, .dots.ATO = NULL, sapto.eligible = N
               rates = c(0, 0.19, 0.325, 0.37, 
                         0.45))
   
-  lito. <- pminC(pmaxC(445 - (income - 37000) * 0.015, 0),
+  lito. <- pminC(pmax0(445 - (income - 37000) * 0.015),
                  445)
 
   switch(fy.year,
@@ -431,14 +435,16 @@ income_tax_cpp <- function(income, fy.year, .dots.ATO = NULL, sapto.eligible = N
                   "Net_rent_amt", 
                   "Rep_frng_ben_amt") %chin% .dots.ATO.noms))) {
       sapto. <- double(max.length)
-      .dAse <- .dots.ATO[which_sapto]
+      .dAse <- function(v) {
+        .dots.ATO[which_sapto, eval(parse(text = v))]
+      }
       
       sapto.[which_sapto] <-
         sapto_rcpp_yr(RebateIncome = rebate_income(Taxable_Income = income[which_sapto],
-                                                   Rptbl_Empr_spr_cont_amt = .dAse[["Rptbl_Empr_spr_cont_amt"]],
-                                                   Net_fincl_invstmt_lss_amt = .dAse[["Net_fincl_invstmt_lss_amt"]],
-                                                   Net_rent_amt = .dAse[["Net_rent_amt"]],
-                                                   Rep_frng_ben_amt = .dAse[["Rep_frng_ben_amt"]]),
+                                                   Rptbl_Empr_spr_cont_amt = .dAse("Rptbl_Empr_spr_cont_amt"),
+                                                   Net_fincl_invstmt_lss_amt = .dAse("Net_fincl_invstmt_lss_amt"),
+                                                   Net_rent_amt = .dAse("Net_rent_amt"),
+                                                   Rep_frng_ben_amt = .dAse("Rep_frng_ben_amt")),
                       SpouseIncome = SpouseIncome_sapto_eligible,
                       IsMarried = SpouseIncome_sapto_eligible > 0,
                       yr = Year.int)
@@ -462,7 +468,7 @@ income_tax_cpp <- function(income, fy.year, .dots.ATO = NULL, sapto.eligible = N
   flood_levy. <- 0
   
   # http://classic.austlii.edu.au/au/legis/cth/consol_act/itaa1997240/s4.10.html
-  S4.10_basic_income_tax_liability <- pmaxC(base_tax. - lito. - sapto., 0)
+  S4.10_basic_income_tax_liability <- pmaxIPnum0(base_tax. - lito. - sapto.)
   
   # SBTO can only be calculated off .dots.ATO
   if (is.null(.dots.ATO)) {
@@ -471,15 +477,15 @@ income_tax_cpp <- function(income, fy.year, .dots.ATO = NULL, sapto.eligible = N
     sbto. <-
       small_business_tax_offset(taxable_income = income,
                                 basic_income_tax_liability = S4.10_basic_income_tax_liability,
-                                .dots.ATO = .dots.ATO[, .SD, .SDcols = c("Total_PP_BE_amt", 
-                                                                         "Total_PP_BI_amt", 
-                                                                         "Total_NPP_BE_amt",
-                                                                         "Total_NPP_BI_amt")],
+                                .dots.ATO = .selector(.dots.ATO, c("Total_PP_BE_amt", 
+                                                                   "Total_PP_BI_amt", 
+                                                                   "Total_NPP_BE_amt",
+                                                                   "Total_NPP_BI_amt")),
                                 fy_year = fy.year)
   }
   
   out <-
-    pmaxC(S4.10_basic_income_tax_liability - sbto., 0) +
+    pmax0(S4.10_basic_income_tax_liability - sbto.) +
     medicare_levy. +
     flood_levy. 
   

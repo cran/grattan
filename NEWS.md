@@ -1,3 +1,33 @@
+## 1.7.1.0
+
+### Bug fixes
+* `income_tax` now gives consistent results modulo the existence of completely empty 
+  columns that are inputs for `sapto` (#158)
+* `income_tax` will work if `.dots.ATO` is a non-data.table data.frame.
+* `model_income_tax`:
+  - Correctly imputes SAPTO vs non-SAPTO family thresholds when both provided.
+  - `sapto_rcpp` is now more careful about passing length-one vectors to vectorized C++
+    functions.
+* `project` now correctly prioritizes `excl_vars` over variables with otherwise predefined 
+  uprating mechanisms (such as `Sw_amt`).
+
+### New functions:
+* `awote` for weekly earnings
+
+### Enhancements:
+* `age_grouper` can now have a custom first label prefix, and is much faster
+  when `length(age)` is large.
+* `income_tax` now emits a warning when both age and `.dots.ATO` are provided, 
+  indicating that `age` will be ignored.
+* The data has been updated to 2019-02-23.
+  
+
+### Internal
+* `mutate_ntile` and `weighted_ntile` now use the `hutils` equivalents. This 
+  broke 3 unit tests because of the specific phrasing of some error messages.
+* The vignette requires pandoc > 2.4. Some chunks have been refactored to avoid
+  excess memory usage.
+
 ## 1.7.0.0
 
 ### Bug fixes

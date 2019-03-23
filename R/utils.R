@@ -21,6 +21,10 @@ unselect_ <- function(.data, .dots) {
   !(x %in% y)
 }
 
+any_notin <- function(x, y) {
+  anyNA(match(x, y))
+}
+
 anyIntersection <- function(x, y) {
   max(match(x, y, nomatch = 0L)) &&
     max(match(y, x, nomatch = 0L))
@@ -28,6 +32,23 @@ anyIntersection <- function(x, y) {
 
 is_knitting <- function() {
   isTRUE(getOption('knitr.in.progress'))
+}
+
+# i.e. is the output latex -- useful for constructing
+# print objects that may need different escaping/spacing
+is_knitting_latex <- function() {
+  OR(is_knitting() && 
+       identical(knitr::opts_knit$get("out.format"), "latex"),
+     # use this for unit tests
+     Sys.getenv("_R_GRATTAN_MOCK_KNITR_LATEX_") == "true")
+}
+
+if_knitting_latex <- function(yes, no) {
+  if (is_knitting_latex()) {
+    yes
+  } else {
+    no
+  }
 }
 
 # from dplyr::near
@@ -47,7 +68,12 @@ as.numeric_unless_warning <- function(x){
 }
 
 # Cosmetic: For line-breaking. Slower but easier to read.  
-.add <- function(...) Reduce("+", list(...))
+.add <- function(x, ...) {
+  if (missing(..1)) {
+    return(x)
+  }
+  x + .add(...)
+}
 
 gforecast <- function(x, ...) {
   forecast::forecast(forecast::auto.arima(x), ...)
@@ -147,6 +173,17 @@ autonamed_list <- function(...) {
   setNames(list(...), nm = eval(substitute(alist(...))))
 }
 
+get_qtr <- function(x) {
+  stopifnot(is.Date(x))
+  {month(x) - 1L} %/% 3L + 1L
+}
 
+hasntName <- function(x, name) {
+  match(name, names(x), nomatch = 0L) == 0L
+}
+
+age2age_range <- function(age) {
+  pmax.int(pmin.int(11L - {(age - 15L) %/% 5L}, 11L), 0L)
+}
 
 

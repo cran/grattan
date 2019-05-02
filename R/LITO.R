@@ -57,8 +57,9 @@ lmito <- function(income,
                   fy.year = NULL) {
   if (!is.null(fy.year) &&
       !identical(fy.year, "2018-19") &&
-      !identical(fy.year, "2017-18")) {
-    stop("`fy.year` was not NULL or \"2018-19\". Only these values are supported")
+      !identical(fy.year, "2017-18") &&
+      !identical(fy.year, "2019-20")) {
+    stop("`fy.year` was not NULL or \"2018-19\" or \"2019-20\". Only these values are supported")
   }
   
   stopifnot(length(thresholds) == length(taper))
@@ -69,8 +70,11 @@ lmito <- function(income,
   as.integer(round(out))
 }
 
-watr <- function(income) {
-  pmax0(lmito(income, first_offset = 350, taper = c(0, 0.0525, 0, -0.02625)))
+watr <- function(income,
+                 first_offset = 350,
+                 thresholds = c(37e3, 48e3, 90e3, 125333+1/3),
+                 taper = c(0, 0.0525, 0, -0.02625)) {
+  pmax0(lmito(income, first_offset = first_offset, taper = taper, thresholds = thresholds))
 }
 
 

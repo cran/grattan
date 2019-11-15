@@ -12,7 +12,7 @@
 #' If the SDMX connection fails, a message is emitted (not a warning) and
 #' the function contines as if \code{useABSConnection = FALSE}.
 #' 
-#' The internal data was updated on 2019-05-20 to 2019-Q1. 
+#' The internal data was updated on 2019-10-29 to 2019-Q2. 
 #' If using \code{useABSConnection = TRUE}, ensure you have \code{rsdmx (>= 0.5-10)} up-to-date.
 #' @param allow.projection Should projections beyond the ABS's data be allowed?
 #' @param accelerate.above An integer setting the threshold for 'acceleration'. 
@@ -135,6 +135,7 @@ cpi_inflator <- function(from_nominal_price = 1,
     }
   
   
+  
   permitted_fys <- .subset2(cpi.indices, "fy_year")
   earliest_from_fy <- permitted_fys[[1L]]
   cpi_table_nom <-
@@ -182,6 +183,10 @@ cpi_inflator <- function(from_nominal_price = 1,
                                      max_fy2yr(to_fy),
                                      by = 1L)),
                  obsValue = cpi_index_forecast))
+    
+    # TODO: fy should inherit 'character'
+    cpi.indices.new[, fy_year := as.character(fy_year)]  
+    
     cpi.indices <-
       rbindlist(list(cpi.indices, cpi.indices.new),
                 use.names = TRUE,

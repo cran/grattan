@@ -1,5 +1,11 @@
 context("Wage inflator")
 
+expect_equal <- function(left, right, check.attributes = FALSE, ...) {
+  testthat::expect_equal(unclass(left),
+                         unclass(right), 
+                         check.attributes = FALSE, ...)
+}
+
 test_that("Default from_fy and to_fy", {
   expect_warning(wage_inflator(), 
                  regexp = "`from_fy` and `to_fy` are missing, using previous and current financial years respectively")
@@ -30,7 +36,7 @@ test_that("Error handling", {
   expect_error(wage_inflator(1, from_fy = "2013-14", to_fy = "2045-46", allow.projection = FALSE),
                regexp = "wage index data")
   expect_error(wage_inflator(from_fy = "2017-18",
-                              to_fy = "2018-19",
+                              to_fy = "2020-21",
                               forecast.series = "custom",
                               wage.series = data.table(fy_year = c("2017-18", "2017-18"),
                                                      r = c(0, 0.123))), 
@@ -45,7 +51,7 @@ test_that("upper/lower higher/lower", {
 
 test_that("Custom wage series", {
   
-  y <- wage_inflator(1, from_fy = "2017-18", to_fy = "2020-21", 
+  y <- wage_inflator(1, from_fy = "2018-19", to_fy = "2021-22", 
                      forecast.series = "custom", 
                      wage.series = 0.1)
   
@@ -65,9 +71,9 @@ test_that("Custom wage series error handling", {
                regexp = "`wage.series` had length 2.",
                fixed = TRUE)
   
-  expect_message(wage_inflator(1, from_fy = "2015-16", to_fy = "2018-19", 
+  expect_message(wage_inflator(1, from_fy = "2015-16", to_fy = "2019-20", 
                                forecast.series = "custom", 
-                               wage.series = data.table(fy_year = c("2017-18", "2018-19"), 
+                               wage.series = data.table(fy_year = c("2018-19", "2019-20"), 
                                                         r = c(2.5, 10.0))),
                  regexp = "unlikely")
 })
@@ -101,8 +107,10 @@ test_that("ABS connection", {
   skip_if_not(packageVersion("rsdmx") >= package_version("0.5.10"))
   
   # Minimize false on errors on travis
-  skip_if(getRversion() >= "3.6")
-  skip_if(getRversion() <= "3.4")
+  # Skip travis tests (except oldrel)
+  nottravis_or_oldrel <- 
+    Sys.getenv("TRAVIS_R_VERSION_STRING") %in% c("", "oldrel")
+  skip_if_not(nottravis_or_oldrel)
   
   internal_ans <- wage_inflator(from_fy = "2012-13", 
                                 to_fy = "2013-14",
@@ -126,7 +134,7 @@ test_that("ABS Connection (extras)", {
                                 to_fy = "2020 21",
                                 useABSConnection = TRUE)
   
-  expect_equal(internal_ans, external_ans, tol = 0.00001, scale = 1)
+  testthat::expect_equal(internal_ans, external_ans, tol = 0.00001, scale = 1)
   
   internal_ans <- wage_inflator(from_fy = yr2fy(2013:2016), 
                                 to_fy = "2020-21",
@@ -135,7 +143,7 @@ test_that("ABS Connection (extras)", {
                                 to_fy = "2020 21",
                                 useABSConnection = TRUE)
   
-  expect_equal(internal_ans, external_ans, tol = 0.00001, scale = 1)
+  testthat::expect_equal(internal_ans, external_ans, tol = 0.00001, scale = 1)
 })
 
 test_that("accelerated", {

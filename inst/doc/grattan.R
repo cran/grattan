@@ -574,7 +574,8 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 
 ## ----CG-by-tax-bracket---------------------------------------------------
 #  CG_descriptive_by_bracket <-
-#  sample_file %>%
+#    sample_file %>%
+#    lazy_dt %>%
 #    mutate(tax = income_tax(Taxable_Income, fy.year = FY.YEAR),
 #           tax_wo_CG = income_tax(pmaxC(Taxable_Income - Net_CG_amt, 0), fy.year = FY.YEAR)) %>%
 #    group_by(Tax_Bracket) %>%
@@ -587,6 +588,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 
 ## ------------------------------------------------------------------------
 #  CG_descriptive_by_bracket %>%
+#    as.data.table %>%
 #    # cosmetic
 #    mutate(Taxpayers = comma(n_taxpayers),
 #           `with CG` = comma(n_CG),
@@ -662,8 +664,10 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 ## ----CGT-by-age-weighted-ntile-------------------------------------------
 #  set.seed(24841)
 #  sample_files_all %>%
+#    lazy_dt %>%
 #    select(age_range, Net_CG_amt, fy.year) %>%
 #    merge(age_range_decoder, by = "age_range") %>%
+#    as.data.frame %>%
 #    group_by(age_range_description) %>%
 #    mutate(min_age = ifelse(grepl("to", age_range_description),
 #                            as.numeric(gsub("^([0-9]{2}).*$", "\\1", age_range_description)),
@@ -721,6 +725,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    stop("Check annotations in this chart before compiling")
 #  }
 #  sample_file %>%
+#    lazy_dt %>%
 #    filter(Net_CG_amt > 0, age_imp > 20) %>%
 #    mutate(marginal_rate = income_tax(Taxable_Income + 1, fy.year = FY.YEAR) - income_tax(Taxable_Income, fy.year = FY.YEAR)) %>%
 #    rename(Age = age_imp) %>%
@@ -742,10 +747,12 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    stop("Check annotations in this chart before compiling")
 #  }
 #  sample_file %>%
+#    lazy_dt %>%
 #    filter(Net_CG_amt > 0, age_imp > 20) %>%
 #    mutate(Taxable_Income_b4_CG = pmaxC(Taxable_Income - Net_CG_amt, 0),
 #           marginal_rate_b4_CG = income_tax(Taxable_Income_b4_CG + 1, fy.year = FY.YEAR) - income_tax(Taxable_Income_b4_CG, fy.year = FY.YEAR)) %>%
 #    rename(Age = age_imp) %>%
+#    as.data.frame %>%
 #    ggplot(aes(x = Age, y = marginal_rate_b4_CG)) +
 #    scale_y_continuous(label = percent) +
 #    geom_smooth(aes(weight = 1),  colour = viridis(2)[2], size = 1.2) +

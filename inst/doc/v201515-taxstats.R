@@ -1,11 +1,11 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 library(knitr)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ----no-run-vignette, include=FALSE--------------------------------------
+## ----no-run-vignette, include=FALSE-------------------------------------------
 if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
   opts_hooks$set(inline = function(x) invisible(NULL))
   knit_hooks$set(inline = function(x) deparse(substitute(x)),
@@ -17,7 +17,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
   opts_chunk$set(eval = FALSE, error = TRUE, warning = FALSE)
 }
 
-## ----loadPackages--------------------------------------------------------
+## ----loadPackages-------------------------------------------------------------
 #  library(data.table)
 #  library(hutils)
 #  library(magrittr)
@@ -28,7 +28,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    require_taxstats() &&
 #    require_taxstats1516()
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 #  s1516 <-
 #    as.data.table(sample_file_1516_synth) %>%
 #    setkey(Taxable_Income) %>%
@@ -37,13 +37,13 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #  s1516[, tax := income_tax(Taxable_Income, "2015-16", .dots.ATO = .SD)]
 #  
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 #  s1516[, taxNoNG := income_tax(Taxable_Income - pminC(Net_rent_amt, 0),
 #                                fy.year = "2015-16",
 #                                .dots.ATO = .SD)]
 #  s1516[, benefit_due_NG := taxNoNG - tax]
 
-## ----benefitsNG_by_Decile------------------------------------------------
+## ----benefitsNG_by_Decile-----------------------------------------------------
 #  benefitsNG_by_Decile <-
 #    s1516[, .(avgBenefitNG = mean(benefit_due_NG)), keyby = "Taxable_IncomeDecile"]
 #  
@@ -54,7 +54,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    setnames("avgBenefitNG", "Average benefit from NG / $") %>%
 #    kable(align = "rrr")
 
-## ----average-taxable-income-by-age-and-gender-2015-----------------------
+## ----average-taxable-income-by-age-and-gender-2015----------------------------
 #  s1516[, .(avgTaxableIncome = mean(Taxable_Income)), keyby = .(age_range, Gender)] %>%
 #    .[age_range_decoder, on = "age_range"] %>%
 #    .[, Sex := if_else(Gender == 1, "Female", "Male")] %>%

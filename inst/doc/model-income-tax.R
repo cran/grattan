@@ -1,4 +1,4 @@
-## ----no-run-vignette, include=FALSE--------------------------------------
+## ----no-run-vignette, include=FALSE-------------------------------------------
 library(knitr)
 if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
   do_eval <- function() return(FALSE)
@@ -12,14 +12,14 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
   opts_chunk$set(eval = FALSE, error = TRUE, warning = FALSE)
 }
 
-## ----no-includes, include=FALSE------------------------------------------
+## ----no-includes, include=FALSE-----------------------------------------------
 #  do_eval <- function() {
 #    library(hutils)
 #    NEITHER(nzchar(Sys.getenv("CIRCLECI")),
 #            nzchar(Sys.getenv("TRAVIS")))
 #  }
 
-## ----loadPackages--------------------------------------------------------
+## ----loadPackages-------------------------------------------------------------
 #  library(knitr)
 #  library(data.table)
 #  library(magrittr)
@@ -31,11 +31,11 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #  s1516 <- as.data.table(sample_file_1516_synth)
 #  s1516[, WEIGHT := 50L]
 
-## ----detach-taxstats, include=FALSE--------------------------------------
+## ----detach-taxstats, include=FALSE-------------------------------------------
 #  # memory
 #  detach("package:taxstats1516", unload = TRUE)
 
-## ----dollar--------------------------------------------------------------
+## ----dollar-------------------------------------------------------------------
 #  #' @return Number formatted as dollar e.g. 30e3 => $30,000
 #  dollar <- function (x, digits = 0) {
 #    nsmall <- digits
@@ -46,14 +46,14 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #            paste0("$", commaz))
 #  }
 
-## ----baseline-fy---------------------------------------------------------
+## ----baseline-fy--------------------------------------------------------------
 #  s1516 %>%
 #    model_income_tax(baseline_fy = "2015-16") %>%
 #    select_grep("tax$", "Taxable_Income") %>%  # just look at relevant cols
 #    head %>%
 #    kable
 
-## ----baseline-fy-int-----------------------------------------------------
+## ----baseline-fy-int----------------------------------------------------------
 #  is_all_equal <- function(x, y) {
 #    if (is.integer(x) && is.integer(y)) {
 #      all(x == y)
@@ -70,7 +70,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    head %>%
 #    kable
 
-## ----s1516_no_changes----------------------------------------------------
+## ----s1516_no_changes---------------------------------------------------------
 #  s1516_no_changes <-
 #    # Temp budget repair levy not refundable against SBTO
 #    s1516 %>%
@@ -81,14 +81,14 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #                     ordinary_tax_rates = c(0, 0.19, 0.325, 0.37, 0.45 + 0.02),
 #                     return. = "sample_file.int")
 
-## ----medicare-levy-rate-increase-a, eval=do_eval()-----------------------
+## ----medicare-levy-rate-increase-a, eval=do_eval()----------------------------
 #  m1516a <-
 #    s1516 %>%
 #    model_income_tax("2015-16",
 #                     # Increase to 3%
 #                     medicare_levy_rate = 0.03)
 
-## ----medicare-levy-rate-increase-b, eval=do_eval()-----------------------
+## ----medicare-levy-rate-increase-b, eval=do_eval()----------------------------
 #  m1516a <-
 #    s1516 %>%
 #    model_income_tax("2015-16",
@@ -97,7 +97,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #                     medicare_levy_upper_threshold = 30479,
 #                     medicare_levy_upper_sapto_threshold = 48197)
 
-## ----medicare-levy-rate-increase-c, eval=do_eval()-----------------------
+## ----medicare-levy-rate-increase-c, eval=do_eval()----------------------------
 #  m1516a <-
 #    s1516 %>%
 #    model_income_tax("2015-16",
@@ -107,7 +107,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #                     medicare_levy_upper_threshold = 26670,
 #                     medicare_levy_upper_sapto_threshold = 48197)
 
-## ----medicare-levy-rate-increase-d, eval=do_eval()-----------------------
+## ----medicare-levy-rate-increase-d, eval=do_eval()----------------------------
 #  m1516a <-
 #    s1516 %>%
 #    model_income_tax("2015-16",
@@ -118,28 +118,28 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #                     medicare_levy_upper_threshold = 26670,
 #                     medicare_levy_upper_sapto_threshold = 48197)
 
-## ----lito-a--------------------------------------------------------------
+## ----lito-a-------------------------------------------------------------------
 #  L1516a <-
 #    s1516 %>%
 #    model_income_tax("2015-16",
 #                     lito_max_offset = 1000)
 #  revenue_foregone(L1516a)
 
-## ----cleanup-before-project, include=FALSE-------------------------------
+## ----cleanup-before-project, include=FALSE------------------------------------
 #  # reduce memory usage (e.g. travis, CCI)
 #  rm(L1516a, m1516a, s1516_no_changes)
 
-## ----project-a-----------------------------------------------------------
+## ----project-a----------------------------------------------------------------
 #  s1819 <- project(s1516, h = 3L)
 
-## ----project-wage-lf-series----------------------------------------------
+## ----project-wage-lf-series---------------------------------------------------
 #  s1819_lf2pc_wage2pc <-
 #    s1516 %>%
 #    project(h = 3L,
 #            lf.series = 0.02,
 #            wage.series = 0.02)
 
-## ----compare-2pc-to-default----------------------------------------------
+## ----compare-2pc-to-default---------------------------------------------------
 #  tax_Grattan_1819 <-
 #    s1819 %$%
 #    income_tax(Taxable_Income, "2018-19", .dots.ATO = copy(s1819)) %>%
@@ -153,10 +153,10 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    # Weight (equi-weighted so do now)
 #    multiply_by(s1819[["WEIGHT"]][1L])
 
-## ----s2021---------------------------------------------------------------
+## ----s2021--------------------------------------------------------------------
 #  s2021 <- project(s1516, h = 5L)
 
-## ----s1819_wage80pc------------------------------------------------------
+## ----s1819_wage80pc-----------------------------------------------------------
 #  s2021_wage80pc <-
 #    s1516 %>%
 #    copy %>%
@@ -171,13 +171,13 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #            .copyDT = FALSE) %>%  # just for memory frugality
 #    .[]
 
-## ----compare-Sw_amt------------------------------------------------------
+## ----compare-Sw_amt-----------------------------------------------------------
 #  s2021[, mean(Sw_amt)] %>% dollar
 #  s2021_wage80pc[, mean(Sw_amt)] %>% dollar
 #  s2021[, mean(Taxable_Income)] %>% dollar
 #  s2021_wage80pc[, mean(Taxable_Income)] %>% dollar
 
-## ----cgt_25pc_fwd_estimates, eval=do_eval()------------------------------
+## ----cgt_25pc_fwd_estimates, eval=do_eval()-----------------------------------
 #  cgt_25pc_fwd_estimates <-
 #    lapply(yr2fy(2019:2022), function(fy) {
 #      s1516 %>%
@@ -188,7 +188,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    }) %>%
 #    rbindlist
 
-## ----cgt_25pc_fwd_estimates-deciles, eval=do_eval()----------------------
+## ----cgt_25pc_fwd_estimates-deciles, eval=do_eval()---------------------------
 #  cgt_25pc_fwd_estimates %>%
 #    mutate_ntile("Taxable_Income", n = 5L, keyby = "fy_year") %>%
 #    .[, delta := new_tax - baseline_tax] %>%
@@ -199,7 +199,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    .[, lapply(.SD, round), keyby = key(.)] %>%
 #    kable
 
-## ----lito_multi_201516---------------------------------------------------
+## ----lito_multi_201516--------------------------------------------------------
 #  s1516 %>%
 #    model_income_tax("2015-16",
 #                     lito_multi = list(x = c(-Inf, 37e3, 200e3/3, Inf),
@@ -208,19 +208,19 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    .[new_tax != baseline_tax]
 #  
 
-## ----sapto_abolished1819-------------------------------------------------
+## ----sapto_abolished1819------------------------------------------------------
 #  sapto_abolished1819 <-
 #    s1819 %>%
 #    model_income_tax("2018-19",
 #                     sapto_eligible = FALSE)
 
-## ----sapto_abolished_abv27k_1819-----------------------------------------
+## ----sapto_abolished_abv27k_1819----------------------------------------------
 #  sapto_abolished_abv27k_1819 <-
 #    s1819 %>%
 #    model_income_tax("2018-19",
 #                     sapto_lower_threshold = 27000)
 
-## ----sapto-age-of-entitlement--------------------------------------------
+## ----sapto-age-of-entitlement-------------------------------------------------
 #  s1718_AgeOfEntitlement <-
 #      project(s1516,
 #              h = 2L) %>%

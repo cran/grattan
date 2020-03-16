@@ -1,4 +1,4 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 library(knitr)
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -32,7 +32,7 @@ knitr::opts_chunk$set(
 # })
 # knitr::opts_chunk$set(do_mem = TRUE)
 
-## ----no-run-vignette, include=FALSE--------------------------------------
+## ----no-run-vignette, include=FALSE-------------------------------------------
 library(knitr)
 if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
   opts_hooks$set(inline = function(x) invisible(NULL))
@@ -45,7 +45,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
   opts_chunk$set(eval = FALSE, error = TRUE, warning = FALSE)
 }
 
-## ----loadPackages-1------------------------------------------------------
+## ----loadPackages-1-----------------------------------------------------------
 #  library(mgcv)
 #  library(lattice)
 #  library(dtplyr)
@@ -60,37 +60,37 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #  library(magrittr)
 #  library(data.table)
 
-## ----load-grattan--------------------------------------------------------
+## ----load-grattan-------------------------------------------------------------
 #  library(grattan)
 
-## ----loadPackages-3------------------------------------------------------
+## ----loadPackages-3-----------------------------------------------------------
 #  require_taxstats()
 #  require_taxstats1516()
 
-## ----sample_files_all----------------------------------------------------
+## ----sample_files_all---------------------------------------------------------
 #  sample_files_all <- get_sample_files_all()
 #  sample_files_all[, WEIGHT := if_else(fy.year > '2010-11', 50L, 100L)]
 #  age_range_decoder <- as.data.table(age_range_decoder)
 
-## ----weighted-mean-------------------------------------------------------
+## ----weighted-mean------------------------------------------------------------
 #  # Just an easy way to grab a bit of extra memory
 #  weighted.mean <- function(x, w) {
 #    sum(as.double(x) * w) / sum(x)
 #  }
 
-## ----sample_file_1617----------------------------------------------------
+## ----sample_file_1617---------------------------------------------------------
 #  sample_file_1617 <-
 #    project(sample_file_1213,
 #            h = 4L,
 #            fy.year.of.sample.file = "2012-13")
 
-## ----sample_file_2021----------------------------------------------------
+## ----sample_file_2021---------------------------------------------------------
 #  sample_file_2021 <-
 #    project(sample_file_1213,
 #            h = 8L,
 #            fy.year.of.sample.file = "2012-13")
 
-## ----add-tax-paid-avg-tax------------------------------------------------
+## ----add-tax-paid-avg-tax-----------------------------------------------------
 #  sample_file_1617[, tax_paid := income_tax(Taxable_Income,
 #                                            .dots.ATO = copy(sample_file_1617),
 #                                            fy.year = "2016-17")]
@@ -100,7 +100,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #                                            fy.year = "2019-20")]
 #  sample_file_2021[, avg_tax := tax_paid / Taxable_Income]
 
-## ----avg_tax_by_decile---------------------------------------------------
+## ----avg_tax_by_decile--------------------------------------------------------
 #  avg_tax_by_decile_1617 <-
 #    sample_file_1617 %>%
 #    .[, .(avg_tax = mean(avg_tax)),
@@ -111,7 +111,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    .[, .(avg_tax = mean(avg_tax)),
 #      keyby = .(decile = weighted_ntile(Taxable_Income, n = 10))]
 
-## ----tax-changes-grattan-forecast----------------------------------------
+## ----tax-changes-grattan-forecast---------------------------------------------
 #  avg_tax_by_decile_1617[avg_tax_by_decile_2021] %>%
 #    .[decile > 1] %>%
 #    .[, ppt_increase := 100*(i.avg_tax - avg_tax)] %>%
@@ -119,14 +119,14 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    ggplot(aes(x = decile, y = ppt_increase)) +
 #    geom_col()
 
-## ----Budget_wage_series--------------------------------------------------
+## ----Budget_wage_series-------------------------------------------------------
 #  Budget_wage_series <-
 #    data.table(fy_year = c("2017-18", "2018-19", "2019-20", "2020-21"),
 #               r = c(0.025, 0.03, 0.035, 0.0375))
 #  
 #  kable(Budget_wage_series)
 
-## ----project-with-respect-to-budget--------------------------------------
+## ----project-with-respect-to-budget-------------------------------------------
 #  sample_file_1617 <- project(sample_file_1213,
 #                              h = 4L,
 #                              fy.year.of.sample.file = "2012-13")
@@ -166,13 +166,13 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    ggplot(aes(x = decile, y = ppt_increase)) +
 #    geom_col()
 
-## ----middle_income_avg_inc-----------------------------------------------
+## ----middle_income_avg_inc----------------------------------------------------
 #  middle_income_avg_inc <-
 #    difference_2021_Budget %>%
 #    .[decile %between% c(3, 7)] %$%
 #    range(round(ppt_increase, 1))
 
-## ----percentile_50000----------------------------------------------------
+## ----percentile_50000---------------------------------------------------------
 #  sample_file_1617[, percentile := weighted_ntile(Taxable_Income, n = 100)]
 #  stopifnot(56 %in% sample_file_1617[Taxable_Income %between% c(49500, 50500)][["percentile"]])
 #  
@@ -188,7 +188,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    mean(avg_tax) %>%
 #    round(3)
 
-## ----Change_1ppt_2021----------------------------------------------------
+## ----Change_1ppt_2021---------------------------------------------------------
 #  tax_delta <- function(bracket_number, rate_increase = -0.01) {
 #    current_tax <-
 #      sample_file_2021[, .(tax = sum(tax_paid),
@@ -237,7 +237,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    current_tax - new_tax
 #  }
 
-## ----table_1pt-----------------------------------------------------------
+## ----table_1pt----------------------------------------------------------------
 #  data.table(tax_bracket = c("<18,200",
 #                             "18,200-37,000",
 #                             "37,000-87,000",
@@ -246,21 +246,21 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #             budget_impact = c(NA, round(vapply(2:5, tax_delta, FUN.VALUE = double(1)) / 1e9, 2))) %>%
 #    kable
 
-## ----knitrOpts-sample-file-----------------------------------------------
+## ----knitrOpts-sample-file----------------------------------------------------
 #  options("scipen" = 99)
 #  opts_chunk$set(fig.width = 9,
 #                 fig.height = 6.5,
 #                 warn = FALSE)
 
-## ----FY.YEAR-------------------------------------------------------------
+## ----FY.YEAR------------------------------------------------------------------
 #  FY.YEAR <- "2013-14"
 
-## ----wsum----------------------------------------------------------------
+## ----wsum---------------------------------------------------------------------
 #  wsum <- function(x, w = 1){
 #    sum((x) * w)
 #  }
 
-## ----grattan_dollar------------------------------------------------------
+## ----grattan_dollar-----------------------------------------------------------
 #  grattan_dollar <- function (x, digits = 0) {
 #    #
 #    nsmall <- digits
@@ -272,16 +272,18 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #            paste0("$", commaz))
 #  }
 
-## ----load-sample-file----------------------------------------------------
+## ----load-sample-file---------------------------------------------------------
 #  sample_file <- sample_files_all[fy.year == FY.YEAR]
 #  sample_file <- merge(sample_file, age_range_decoder, by = "age_range")
 #  PREV.FY.YEAR <- yr2fy(fy2yr(FY.YEAR) - 1)
 #  sample_file_prev <- sample_files_all[fy.year == PREV.FY.YEAR]
 #  sample_file_prev <- merge(sample_file_prev, age_range_decoder, by = "age_range")
 
-## ----impute-ages---------------------------------------------------------
+## ----impute-ages--------------------------------------------------------------
 #  set.seed(48031)
-#  sample_file %<>%
+#  sample_file <-
+#    sample_file %>%
+#    lazy_dt %>%
 #    group_by(age_range_description) %>%
 #    mutate(min_age = if_else(grepl("to", age_range_description),
 #                             as.numeric(gsub("^([0-9]{2}).*$", "\\1", age_range_description)),
@@ -292,7 +294,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #           age_imp = runif(n(), min_age, max_age)) %>%
 #    select(-min_age, -max_age)
 
-## ----tax-bracket---------------------------------------------------------
+## ----tax-bracket--------------------------------------------------------------
 #  sample_file %<>%
 #    mutate(Tax_Bracket = cut(Taxable_Income,
 #                             breaks = c(-Inf, 18200, 37e3, 80e3, 180e3, Inf),
@@ -303,7 +305,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #                                        "$80,001-$180,000",
 #                                        "$180,000+")))
 
-## ----texNum--------------------------------------------------------------
+## ----texNum-------------------------------------------------------------------
 #  texNum <- function(number, sig.figs = 3L, dollar = FALSE, pre.phrase = NULL, .suffix = NULL){
 #    orig.number <- number
 #    stopifnot(is.numeric(number), length(number) == 1L)
@@ -391,8 +393,9 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #      return(out)
 #    }
 #  }
+#  sample_file <- as.data.table(sample_file)
 
-## ----taxable-income-quantiles--------------------------------------------
+## ----taxable-income-quantiles-------------------------------------------------
 #  tx_inc_q <- function(q){
 #    quantile(sample_file$Taxable_Income, probs = q)
 #  }
@@ -404,8 +407,10 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #  DF <- with(dens, data.frame(x, y))
 #  
 #  sample_file %>%
+#    lazy_dt %>%
 #    mutate(Taxable_Income_decile = ntile(Taxable_Income, 10)) %>%
 #    filter(between(Taxable_Income, 0, tx_inc_q(0.95))) %>%
+#    as.data.table %>%
 #    ggplot(aes(x = Taxable_Income)) +
 #    geom_density() +
 #    scale_fill_viridis(discrete = TRUE) +
@@ -419,7 +424,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #          axis.text.y = element_blank(),
 #          axis.title.y = element_blank())
 
-## ----taxable-income-quantiles-filled-------------------------------------
+## ----taxable-income-quantiles-filled------------------------------------------
 #  DF %>%
 #    mutate(Taxable_Income_decile = cut(x,
 #                                       breaks = quantile(sample_file$Taxable_Income,
@@ -463,7 +468,8 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #                 yend = 1.9 * max(.$y[.$x > tx_inc_q(0.925)]))
 #    }
 
-## ----CGT-description-stats-----------------------------------------------
+## ----CGT-description-stats----------------------------------------------------
+#  sample_file <- as.data.table(sample_file)
 #  n_CGs <-
 #    sample_file %>%
 #    filter(Tot_CY_CG_amt > 0) %$%
@@ -492,6 +498,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #  
 #  tax_on_CG_prev <-
 #    sample_file_prev %>%
+#    lazy_dt %>%
 #    filter(Net_CG_amt > 0) %>%
 #    mutate(tax = income_tax(Taxable_Income, fy.year = FY.YEAR),
 #           tax_wo_CG = income_tax(pmaxC(Taxable_Income - Net_CG_amt, 0), fy.year = FY.YEAR)) %>%
@@ -499,10 +506,10 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #              avg = mean(tax - tax_wo_CG))
 #  
 
-## ----latex_percent-------------------------------------------------------
+## ----latex_percent------------------------------------------------------------
 #  latex_percent <- function(x) gsub("%", "\\%", percent(x), fixed = TRUE)
 
-## ----CG-incidence-by-age-descriptive-stats-------------------------------
+## ----CG-incidence-by-age-descriptive-stats------------------------------------
 #  sample_file <- as.data.table(sample_file)
 #  probCG_by_age <-
 #    sample_file[, .(probCG = mean(Net_CG_amt > 0)),
@@ -556,7 +563,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #  
 #  cgt_ratio_res <- 50
 
-## ----Ratio-Net-CG-to-Tot-CG----------------------------------------------
+## ----Ratio-Net-CG-to-Tot-CG---------------------------------------------------
 #  sample_file %>%
 #    selector(Tot_CY_CG_amt, Net_CG_amt, WEIGHT) %>%
 #    .[Tot_CY_CG_amt > 0] %>%
@@ -572,7 +579,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #          axis.ticks.y = element_blank(),
 #          axis.text.y = element_blank())
 
-## ----CG-by-tax-bracket---------------------------------------------------
+## ----CG-by-tax-bracket--------------------------------------------------------
 #  CG_descriptive_by_bracket <-
 #    sample_file %>%
 #    lazy_dt %>%
@@ -586,7 +593,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    ungroup %>%
 #    arrange(Tax_Bracket)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 #  CG_descriptive_by_bracket %>%
 #    as.data.table %>%
 #    # cosmetic
@@ -598,13 +605,13 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #           `Taxpayers`, `with CG`, `Total cap. gains ($)`, `Total CGT ($)`) %>%
 #    kable(align = "rrrrrr")
 
-## ----CG-incidence-by-age-------------------------------------------------
+## ----CG-incidence-by-age------------------------------------------------------
 #  sample_file %>%
 #    ggplot(aes(x = age_imp, y = as.numeric(Net_CG_amt > 0))) +
 #    geom_smooth(color = viridis(1), size = 1.2) +
 #    scale_y_continuous(label = percent)
 
-## ----CG-incidence-by-age-by-fy-------------------------------------------
+## ----CG-incidence-by-age-by-fy------------------------------------------------
 #  
 #  # faster than ifelseing over the whole table
 #  desc2min_age <- function(x) {
@@ -661,7 +668,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    theme_dark() +
 #    theme(axis.title.y = element_blank())
 
-## ----CGT-by-age-weighted-ntile-------------------------------------------
+## ----CGT-by-age-weighted-ntile------------------------------------------------
 #  set.seed(24841)
 #  sample_files_all %>%
 #    lazy_dt %>%
@@ -669,11 +676,14 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    merge(age_range_decoder, by = "age_range") %>%
 #    as.data.frame %>%
 #    group_by(age_range_description) %>%
-#    mutate(min_age = ifelse(grepl("to", age_range_description),
-#                            as.numeric(gsub("^([0-9]{2}).*$", "\\1", age_range_description)),
-#                            ifelse(grepl("70", age_range_description),
-#                                   70,
-#                                   15)),
+#    mutate(min_age =
+#             if (grepl("^([0-9]{2}).*$", first(age_range_description))) {
+#               as.numeric(gsub("^([0-9]{2}).*$", "\\1", age_range_description))
+#             } else {
+#               if_else(grepl("70", age_range_description),
+#                       70,
+#                       15)
+#             },
 #           max_age = min_age + 5,
 #           age_imp = runif(n(), min_age, max_age)) %>%
 #    select(-min_age, -max_age) %>%
@@ -707,7 +717,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #                     plot.margin = unit(c(0,0,5,0), "pt"))
 #           }
 
-## ----Age-distribution-ofCG-by-taxable-income-exclCG----------------------
+## ----Age-distribution-ofCG-by-taxable-income-exclCG---------------------------
 #  sample_file %>%
 #    mutate(Tot_inc_amt_noCG = Tot_inc_amt - Net_CG_amt,
 #           Taxable_Income_noCG = pmaxC(Tot_inc_amt_noCG - Tot_ded_amt - NPP_loss_claimed - PP_loss_claimed, 0)) %>%
@@ -720,7 +730,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    geom_density(alpha = 0.7) +
 #    theme(legend.position = "right")
 
-## ----CGT-marginal-rate-weighted-and-unweighted---------------------------
+## ----CGT-marginal-rate-weighted-and-unweighted--------------------------------
 #  if (FY.YEAR != "2013-14"){
 #    stop("Check annotations in this chart before compiling")
 #  }
@@ -742,7 +752,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #             hjust = 0) +
 #    theme(axis.title.y = element_blank())
 
-## ----CGT-marginal-rate-b4-CG-weighted-and-unweighted---------------------
+## ----CGT-marginal-rate-b4-CG-weighted-and-unweighted--------------------------
 #  if (FY.YEAR != "2013-14"){
 #    stop("Check annotations in this chart before compiling")
 #  }
@@ -766,7 +776,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #             hjust = 0) +
 #    theme(axis.title.y = element_blank())
 
-## ----Negative-gearing-stats----------------------------------------------
+## ----Negative-gearing-stats---------------------------------------------------
 #  n_prop_invstrs <-
 #    sample_file %$%
 #    sum((Gross_rent_amt > 0) * WEIGHT)
@@ -786,7 +796,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #           diff = new_tax - tax) %$%
 #    sum(diff * WEIGHT)
 
-## ----NG-vs-salary--------------------------------------------------------
+## ----NG-vs-salary-------------------------------------------------------------
 #  sample_file %>%
 #    filter(between(Sw_amt, 0, 250e3)) %>%
 #    rename(Salary = Sw_amt) %>%
@@ -796,7 +806,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    scale_x_continuous(label = dollar) +
 #    theme(axis.title.y = element_blank())
 
-## ----NG-by-tax-bracket---------------------------------------------------
+## ----NG-by-tax-bracket--------------------------------------------------------
 #  NG_by_taxBracket <-
 #    sample_file %>%
 #    mutate(Tax_bracket = cut(Taxable_Income,
@@ -811,7 +821,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #              n = sum(WEIGHT)) %>%
 #    arrange(Tax_bracket)
 
-## ----NG-by-tax-bracket-xtable, results='asis'----------------------------
+## ----NG-by-tax-bracket-xtable, results='asis'---------------------------------
 #  NG_by_taxBracket %>%
 #    mutate(`Number negative gearing` = comma(n_NG),
 #           `\\%` = percent(n_NG / n)) %>%
@@ -820,7 +830,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #           `\\%`) %>%
 #    kable(align = "rrr")
 
-## ----NG-by-tax-bracket-tax-benefit---------------------------------------
+## ----NG-by-tax-bracket-tax-benefit--------------------------------------------
 #  NG_by_taxBracket_tax_benefit <-
 #    sample_file %>%
 #    mutate(Tot_inc_amt_NoNG = Tot_inc_amt - Net_rent_amt + pmaxC(Net_rent_amt, 0),
@@ -842,7 +852,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #              avg_tax_change = mean(change)) %>%
 #    arrange(Tax_bracket)
 
-## ----NG-by-tax-bracket-tax-benefit-xtable, results='asis'----------------
+## ----NG-by-tax-bracket-tax-benefit-xtable, results='asis'---------------------
 #  NG_by_taxBracket_tax_benefit %>%
 #    mutate(`Total tax change` = grattan_dollar(total_tax_change),
 #           `Average tax change` = grattan_dollar(avg_tax_change)) %>%
@@ -851,7 +861,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #           `Average tax change`) %>%
 #    kable(align = paste0(rep("r", ncol(.)), collapse = ""))
 
-## ----NG-by-taxable-income-decile-----------------------------------------
+## ----NG-by-taxable-income-decile----------------------------------------------
 #  NG_by_taxable_income_decile <-
 #    sample_file %>%
 #    mutate(Taxable_Income_decile = ntile(Taxable_Income, 10)) %>%
@@ -860,7 +870,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #              n = sum(WEIGHT)) %>%
 #    arrange(Taxable_Income_decile)
 
-## ----NG-by-taxable-income-decile-xtable, results='asis'------------------
+## ----NG-by-taxable-income-decile-xtable, results='asis'-----------------------
 #  NG_by_taxable_income_decile %>%
 #  mutate(`Number negative gearing` = comma(n_NG),
 #           `\\%` = percent(n_NG / n)) %>%
@@ -870,7 +880,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #           `\\%`) %>%
 #    kable(align = "rrrr")
 
-## ----NG-tax-benefit-by-income-tax-decile---------------------------------
+## ----NG-tax-benefit-by-income-tax-decile--------------------------------------
 #  NG_tax_benefit_taxable_income_decile <-
 #    sample_file %>%
 #    mutate(Tot_inc_amt_NoNG = Tot_inc_amt - Net_rent_amt + pmaxC(Net_rent_amt, 0),
@@ -913,7 +923,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #                                                 NG_tax_benefit_taxable_income_decile$tax_diff_prop)), 1)))
 #  
 
-## ----NG-tax-benefit-comparison-prev-fy-----------------------------------
+## ----NG-tax-benefit-comparison-prev-fy----------------------------------------
 #  NG_tax_benefit_taxable_income_decile_prev <-
 #    sample_file_prev %>%
 #    mutate(Tot_inc_amt_NoNG = Tot_inc_amt - Net_rent_amt + pmaxC(Net_rent_amt, 0),
@@ -968,7 +978,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #          strip.background = element_rect(color = grey(0.8), fill = grey(0.8)),
 #          strip.text = element_text(colour = "white", face = "bold"))
 
-## ----NG-incidence-by-age-------------------------------------------------
+## ----NG-incidence-by-age------------------------------------------------------
 #  p <-
 #    ggplot(NULL) +
 #    geom_smooth(data = sample_file,
@@ -1002,7 +1012,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #  
 #  p
 
-## ----NG-by-age-by-total-income-------------------------------------------
+## ----NG-by-age-by-total-income------------------------------------------------
 #  age_res = 1
 #  inc_res = 10000
 #  
@@ -1038,7 +1048,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #          plot.margin = unit(c(0,0,0,0), "pt"))# %>%
 #    #align_baptiste(.)
 
-## ----NG-tax-benefit-by-age-by-total-income-------------------------------
+## ----NG-tax-benefit-by-age-by-total-income------------------------------------
 #  age_res = 1
 #  inc_res = 10000
 #  
@@ -1072,13 +1082,13 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    theme_dark() +
 #    theme(legend.title = element_blank())
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 #  wage_r_by_fy <-
 #    data.table(fy.year = yr2fy(2005:2014)) %>%
 #    mutate(lag_fy = yr2fy(2004:2013)) %>%
 #    mutate(wage_growth_r = wage_inflator(from_fy = lag_fy, to_fy = fy.year) - 1)
 
-## ---- fig.width=7, fig.height=6------------------------------------------
+## ---- fig.width=7, fig.height=6-----------------------------------------------
 #  average_salary_by_fy_swtile <-
 #    sample_files_all %>%
 #    select(fy.year, Sw_amt) %>%
@@ -1121,7 +1131,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #  }
 #  
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 #  differential_uprates <-
 #    average_salary_by_fy_swtile %>%
 #    group_by(`Salary percentile`) %>%
@@ -1133,7 +1143,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    geom_line() +
 #    scale_y_continuous(label = percent)
 
-## ---- echo=TRUE----------------------------------------------------------
+## ---- echo=TRUE---------------------------------------------------------------
 #  data.table(wage = c(20e3, 50e3, 100e3)) %>%
 #    mutate(ordinary = wage_inflator(wage, from_fy = "2012-13", to_fy = "2013-14"),
 #           `change ordinary` = ordinary / wage - 1,
@@ -1147,7 +1157,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #           `change differential` = percent(`change differential`)) %>%
 #    kable(align = rep("r", ncol(.)))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 #  library(grattan)
 #  library(data.table)
 #  library(magrittr)
@@ -1187,19 +1197,19 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #  
 #  prettyNum(round(n_affected), big.mark = ",")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 #  sample_file_1718 <-
 #    sample_file_1314 %>%
 #    project_to(to_fy = "2017-18") %>%
 #    as.data.table
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 #  new_sample_file_1718 <-
 #    sample_file_1718 %>%
 #    model_new_caps_and_div293(new_cap = 25e3, fy.year = "2016-17", new_age_based_cap = FALSE, new_div293_threshold = 250e3)
 #  
 
-## ----new_sample_file_1718-kable------------------------------------------
+## ----new_sample_file_1718-kable-----------------------------------------------
 #  library(knitr)
 #  library(dplyr)
 #  library(dtplyr)  # for data.table
@@ -1211,7 +1221,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    arrange(Taxable_Income_decile) %>%
 #    kable
 
-## ----Avgerage-increase-in-tax-vs-Taxable-income-decile-------------------
+## ----Avgerage-increase-in-tax-vs-Taxable-income-decile------------------------
 #  library(ggplot2)
 #  new_sample_file_1718 %>%
 #    mutate(Taxable_Income_decile = ntile(Taxable_Income, 10)) %>%
@@ -1227,7 +1237,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    scale_y_continuous(label = grattan_dollar) +
 #    theme(axis.title.y = element_text(face = "bold", angle = 90, margin = margin(1, 1, 1, 1, "lines")))
 
-## ----sample_file_1314_projected------------------------------------------
+## ----sample_file_1314_projected-----------------------------------------------
 #  sample_file_1314_projected <-
 #    sample_file_1213 %>%
 #    copy %>%
@@ -1237,7 +1247,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #            .recalculate.inflators = TRUE) %>%
 #    .[]
 
-## ----value_rel-vs-variable-by-the_source-flip----------------------------
+## ----value_rel-vs-variable-by-the_source-flip---------------------------------
 #  data.table(the_source = c("Actual",
 #                            "Projected"),
 #             n_persons = c(nrow(sample_file_1314) * 50,
@@ -1259,7 +1269,7 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    coord_flip() +
 #    theme(legend.position = "top")
 
-## ----t-test-conf-vs-taxstats-variables-----------------------------------
+## ----t-test-conf-vs-taxstats-variables----------------------------------------
 #  conf_int_of_t.test <- function(variable){
 #    t_test <- t.test(sample_file_1314[[variable]],
 #                     sample_file_1314_projected[[variable]])
@@ -1286,6 +1296,6 @@ if (!identical(Sys.getenv("R_GRATTAN_BUILD_MAIN_VIGNETTE"), "true")) {
 #    geom_errorbar() +
 #    geom_hline(yintercept = 0)
 
-## ----options-scipen, echo=FALSE------------------------------------------
+## ----options-scipen, echo=FALSE-----------------------------------------------
 #  options("scipen" = 0)
 

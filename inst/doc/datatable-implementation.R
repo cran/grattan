@@ -1,11 +1,11 @@
-## ----loadPackages--------------------------------------------------------
+## ----loadPackages-------------------------------------------------------------
 library(knitr)
 library(magrittr)
 library(data.table)
 library(hutils)
 library(grattan)
 
-## ----tax-table-201718----------------------------------------------------
+## ----tax-table-201718---------------------------------------------------------
 dollar <- function(x) paste0("$", prettyNum(x, big.mark = ","))
 grattan:::tax_table2[fy_year == "2017-18",
                      .(`Lower bracket` = dollar(lower_bracket),
@@ -13,7 +13,7 @@ grattan:::tax_table2[fy_year == "2017-18",
                        `Marginal rate` = marginal_rate)] %>%
   kable(align = "r")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 income <- 50e3
 fy_year <- "2017-18"
 
@@ -29,7 +29,7 @@ ifelse(fy_year == '2017-18',
                                    54232 + 0.45 * (income - 180e3))))),
        stop("Not yet implemented."))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 input <- data.table(income = income)
 tax_table2 <- copy(grattan:::tax_table2)
 

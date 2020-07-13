@@ -78,6 +78,13 @@ test_that("Error handling (sample files)", {
   expect_warning(project(sample_file_1112, h = 1L, fy.year.of.sample.file = "2015-16"), 
                  regexp = "nrow(sample_file) != 269639", 
                  fixed = TRUE)
+  expect_warning(project(sample_file_1112,
+                         h = 1L, 
+                         fy.year.of.sample.file = "2017-18",
+                         .recalculate.inflators = TRUE, 
+                         differentially_uprate_Sw = FALSE), 
+                 regexp = "nrow(sample_file) != 284925", 
+                 fixed = TRUE)
   expect_error(project_to(sample_file_1112, "2013-14"),
                regexp = "`fy.year.of.sample.file` was not provided, yet its value could not be inferred from nrow(sample_file) = 254273.",
                fixed = TRUE)
@@ -114,10 +121,13 @@ test_that("Custom lf/wage series", {
   s2021_LA <- project(s1314, h = 7L, lf.series = 0.0)
   
   s2021_LB <- project(s1314, h = 7L, lf.series = 0.1)
+  lf_hs <- 
+    vapply(1:8, function(hh) lf_inflator_fy(from_fy = next_fy("2013-14", h = hh - 1L),
+                                            to_fy = next_fy("2013-14", h = hh)), 
+           FUN.VALUE = double(1))
+  
   expect_lt(s2021_LA[, sum(WEIGHT)], 
-            s2021[, sum(WEIGHT)])
-  expect_gt(s2021_LB[, sum(WEIGHT)], 
-            s2021[, sum(WEIGHT)])
+            s2021_LB[, sum(WEIGHT)])
   
   s2021_WA <- project(s1314, h = 7L, wage.series = 0.0)
   s2021_WB <- project(s1314, h = 7L, wage.series = 0.035)
@@ -176,6 +186,20 @@ test_that("excl_vars has priority", {
   }
   
   expect_false(Sw_all_equal(s1718, s1718_noSwAmt))
+})
+
+test_that("r_super_balance", {
+  skip_if_not_installed("taxstats")
+  library(data.table)
+  library(taxstats)
+  s1718 <- project(sample_file_1314, h = 4L, r_super_balance = 1L)
+  expect_equal(sample_file_1314$MCS_Ttl_Acnt_Bal, s1718$MCS_Ttl_Acnt_Bal)
+  
+  expect_error(project(sample_file_1314, h = 4L, r_super_balance = "abc"),
+               regexp = "r_super_balance")
+  expect_error(project(sample_file_1314, h = 4L, r_super_balance = 1:2),
+               regexp = "r_super_balance.*length")
+  
 })
 
 

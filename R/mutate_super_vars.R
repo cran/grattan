@@ -24,6 +24,8 @@
 #' @param drop_helpers (logical) Should columns used in the calculation be dropped before the sample file is returned?
 #' @param copyDT (logical) Should the data table be \code{copy()}d? If the action of this data table is being compared, possibly useful.
 #' @return A data table comprising the original sample file (\code{.sample.file}) with extra superannuation policy-relevant variables for the policy specified by the function.
+#' 
+#' 
 #' @export 
 
 apply_super_caps_and_div293 <- function(.sample.file, 
@@ -31,7 +33,7 @@ apply_super_caps_and_div293 <- function(.sample.file,
                                         colname_div293_tax = "div293_tax", 
                                         colname_new_Taxable_Income = "Taxable_income_for_ECT",
                                         div293_threshold = 300e3, 
-                                        cap = 25e3, 
+                                        cap = 30e3, 
                                         cap2 = 35e3, 
                                         age_based_cap = TRUE, 
                                         cap2_age = 59, 
@@ -46,7 +48,7 @@ apply_super_caps_and_div293 <- function(.sample.file,
                                         .SG_rate = 0.0925,
                                         warn_if_colnames_overwritten = TRUE, 
                                         drop_helpers = FALSE, 
-                                        copyDT = TRUE){
+                                        copyDT = TRUE) {
   # Todo/wontfix
   if (!identical(ecc, FALSE)) {
     stop("ECC not implemented.")
@@ -65,7 +67,7 @@ apply_super_caps_and_div293 <- function(.sample.file,
     .sample.file <- copy(.sample.file)
   }
   
-  if (!is.data.table(.sample.file)){
+  if (!is.data.table(.sample.file)) {
     stop(".sample.file must be a data.table")
   }
   
@@ -81,7 +83,7 @@ apply_super_caps_and_div293 <- function(.sample.file,
   
   common.indices <- new_colnames %in% names(.sample.file)
   
-  if (warn_if_colnames_overwritten && any(common.indices)){
+  if (warn_if_colnames_overwritten && any(common.indices)) {
     warning("Overwriting", names(.sample.file)[common.indices], "in .sample.file")
   }
   
@@ -93,7 +95,7 @@ apply_super_caps_and_div293 <- function(.sample.file,
   
   if (any(c(colname_div293_tax, colname_concessional, colname_new_Taxable_Income) %in% names(.sample.file))){
     warning("Dropping requested column names.")
-    .sample.file[ , which(names(.sample.file) %in% c(colname_div293_tax, colname_concessional, colname_new_Taxable_Income)) := NULL]
+    .sample.file[, (c(colname_div293_tax, colname_concessional, colname_new_Taxable_Income)) := NULL]
   }
   
   if (!all(c("MCS_Emplr_Contr", 
@@ -104,8 +106,8 @@ apply_super_caps_and_div293 <- function(.sample.file,
   }
   
   if ("Rptbl_Empr_spr_cont_amt" %in% names(.sample.file)){
-    .sample.file[ , SG_contributions := pmaxC(MCS_Emplr_Contr - Rptbl_Empr_spr_cont_amt, 0)]
-    .sample.file[ , salary_sacrifice_contributions := Rptbl_Empr_spr_cont_amt]
+    .sample.file[, SG_contributions := pmax0(MCS_Emplr_Contr - Rptbl_Empr_spr_cont_amt)]
+    .sample.file[, salary_sacrifice_contributions := Rptbl_Empr_spr_cont_amt]
   }
   
   if ("Non_emp_spr_amt" %in% names(.sample.file))
@@ -113,14 +115,14 @@ apply_super_caps_and_div293 <- function(.sample.file,
   
   # Concessional contributions
   if (scale_contr_match_ato) {
-    .sample.file[ , MCS_Emplr_Contr := MCS_Emplr_Contr * (1 + (super_contribution_inflator_1314 - 1) * .lambda) ]
-    .sample.file[ , Non_emp_spr_amt := Non_emp_spr_amt * (1 + (super_contribution_inflator_1314 - 1) * .lambda) ]
+    .sample.file[, MCS_Emplr_Contr := MCS_Emplr_Contr * (1 + (super_contribution_inflator_1314 - 1) * .lambda) ]
+    .sample.file[, Non_emp_spr_amt := Non_emp_spr_amt * (1 + (super_contribution_inflator_1314 - 1) * .lambda) ]
   }
   
-  .sample.file[ , concessional_contributions := MCS_Emplr_Contr + Non_emp_spr_amt]
-  .sample.file[ , non_concessional_contributions := pmaxC(MCS_Prsnl_Contr - Non_emp_spr_amt, 0)]
+  .sample.file[, concessional_contributions := MCS_Emplr_Contr + Non_emp_spr_amt]
+  .sample.file[, non_concessional_contributions := pmaxC(MCS_Prsnl_Contr - Non_emp_spr_amt, 0)]
   
-  if (impute_zero_concess_contr){
+  if (impute_zero_concess_contr) {
     # CRAN note avoidance.
     Sw_amt <- Rptbl_Empr_spr_cont_amt <- NULL
     
@@ -184,6 +186,7 @@ apply_super_caps_and_div293 <- function(.sample.file,
   
   # https://www.ato.gov.au/uploadedFiles/Content/TPALS/downloads/Division-293-scenario-table-v2.pdf
   .sample.file[ , excess_concessional_contributions := pmaxC(concessional_contributions - concessional_cap, 0)]
+  .sample.file[, concessional_contributions := concessional_contributions - excess_concessional_contributions]
   .sample.file[ , rental_losses := -1 * pminC(Net_rent_amt, 0)]
   .sample.file[ , surchargeable_income_div293 := Taxable_Income + Net_fincl_invstmt_lss_amt + rental_losses + Rep_frng_ben_amt]
   if (use_other_contr){

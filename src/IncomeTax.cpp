@@ -1,16 +1,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// This is a simple example of exporting a C++ function to R. You can
-// source this function into an R session using the Rcpp::sourceCpp 
-// function (or via the Source button on the editor toolbar). Learn
-// more about Rcpp at:
-//
-//   http://www.rcpp.org/
-//   http://adv-r.had.co.nz/Rcpp.html
-//   http://gallery.rcpp.org/
-//
-
 //' @title IncomeTax
 //' @description Calculates the ordinary tax payable given income and tax thresholds and rates.
 //' Basic, designed for performance.
@@ -26,8 +16,6 @@ NumericVector IncomeTax(NumericVector x, NumericVector thresholds, NumericVector
   NumericVector tax(n);
   
   // Environment Env = Environment::parent();
-  
-  
   int tn = thresholds.length();
   
   for (int i = 0; i < n; ++i) {
@@ -49,9 +37,7 @@ NumericVector IncomeTax(NumericVector x, NumericVector thresholds, NumericVector
         }
       }
     }
-    
   }
-  
   
   return tax;
 }

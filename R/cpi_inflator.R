@@ -12,7 +12,7 @@
 #' If the SDMX connection fails, a message is emitted (not a warning) and
 #' the function contines as if \code{useABSConnection = FALSE}.
 #' 
-#' The internal data was updated on 2020-03-16 to 2019-Q4. 
+#' The internal data was updated on 2020-07-02 to 2020-Q1. 
 #' If using \code{useABSConnection = TRUE}, ensure you have \code{rsdmx (>= 0.5-10)} up-to-date.
 #' @param allow.projection Should projections beyond the ABS's data be allowed?
 #' @param accelerate.above An integer setting the threshold for 'acceleration'. 
@@ -95,15 +95,14 @@ cpi_inflator <- function(from_nominal_price = 1,
   
   cpi.indices <- 
     if (useABSConnection) {
-      switch(adjustment, 
-             "none" = url <-     
-               "http://stat.data.abs.gov.au/restsdmx/sdmx.ashx/GetData/CPI/1.50.10001.10.Q/ABS?startTime=1948", 
-             
-             "seasonal" = url <- 
-               "http://stat.data.abs.gov.au/restsdmx/sdmx.ashx/GetData/CPI/1.50.999901.10+20.Q/ABS?startTime=1948",
-             
-             "trimmed.mean" = url <- 
-               "http://stat.data.abs.gov.au/restsdmx/sdmx.ashx/GetData/CPI/1.50.999902.10+20.Q/ABS?startTime=1948")
+      if (!requireNamespace("rsdmx", quietly = TRUE)) {
+        stop("`useABSConnection = TRUE`, yet package:rsdmx is not installed.")  # nocov
+      }
+      url <-
+        switch(adjustment, 
+               "none" = "http://stat.data.abs.gov.au/restsdmx/sdmx.ashx/GetData/CPI/1.50.10001.10.Q/ABS?startTime=1948", 
+               "seasonal" = "http://stat.data.abs.gov.au/restsdmx/sdmx.ashx/GetData/CPI/1.50.999901.10+20.Q/ABS?startTime=1948",
+               "trimmed.mean" = "http://stat.data.abs.gov.au/restsdmx/sdmx.ashx/GetData/CPI/1.50.999902.10+20.Q/ABS?startTime=1948")
       
       # nocov start
       sdmx_ok <- TRUE

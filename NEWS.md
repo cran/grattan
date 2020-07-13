@@ -1,8 +1,24 @@
+## 1.9.0.0
+
+### New features
+
+* 2017-18 sample file now contemplated as an input to `project` 
+* `project` now has `r_super_balance` to project super balances by a user-supplied
+  factor, rather than a hard-coded 1.05.
+* Modelling superannuation changes now accepts contributions taxes relative to 
+  marginal rates.
+
+### Data
+* Data updated to 2020-06-30
+
+### Internal:
+
+* `package:rsdmx` is now Suggested, since a dependency has been orphaned.
+
 ## 1.8.0.1
 
 ### Bug fixes
-Fixed issue with stringsAsFactors = FALSE being inconsistently applied
-with R 4.0
+* Fixed issue with stringsAsFactors = FALSE being inconsistently applied with R 4.0
 
 ### Data
 

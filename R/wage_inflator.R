@@ -10,7 +10,7 @@
 #' If the SDMX connection fails, a message is emitted (not a warning) and
 #' the function contines as if \code{useABSConnection = FALSE}.
 #' 
-#' The internal data was updated on 2020-03-16 to 2019-Q4. 
+#' The internal data was updated on 2020-07-02 to 2020-Q1. 
 #' @param allow.projection If set to \code{TRUE} the \code{forecast} package is used to project forward, if required. 
 #' @param forecast.series Whether to use the forecast mean, or the upper or lower boundaries of the prediction intervals. A fourth option \code{custom} allows manual forecasts to be set.
 #' @param forecast.level The prediction interval to be used if \code{forecast.series} is \code{upper} or \code{lower}.
@@ -125,6 +125,9 @@ wage_inflator <- function(wage = 1,
   
   if (useABSConnection) {
     # nocov start
+    if (!requireNamespace("rsdmx", quietly = TRUE)) {
+      stop("`useABSConnection = TRUE`, yet package:rsdmx is not installed.")  # nocov
+    }
     wage.url <- "http://stat.data.abs.gov.au/restsdmx/sdmx.ashx/GetData/LABOUR_PRICE_INDEX/1.THRPEB.7.-.0.30.Q/all?startTime=1997-Q3"
     tryCatch({
       wages <- rsdmx::readSDMX(wage.url)

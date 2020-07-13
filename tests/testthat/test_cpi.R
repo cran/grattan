@@ -182,6 +182,7 @@ test_that("cpi_inflator_general_date messages", {
 test_that("cpi returns reasonable forecasts", {
   skip_on_circleci(1)
   skip_on_cran()
+  skip_if_not_installed("rsdmx")
   skip_if_not(packageVersion("rsdmx") >= package_version("0.5.10"))
   travis_release_not_pr <- 
     identical(Sys.getenv("TRAVIS"), "true") &&
@@ -359,6 +360,14 @@ test_that("cpi different lengths", {
                    cpi_inflator(rep(1, 5),
                                 to_fy = c("2004-05", "2007-08", "2009-10", "2009-10", "2007-08"),
                                 from_fy = rep("1999-00", 5)))
+})
+
+test_that("cpi_general_date", {
+  # Issue #211
+  expect_false(anyNA(cpi_inflator_general_date(from_nominal_price = 1, 
+                                               from_date = as.Date("2010-01-01"), 
+                                               to_date = as.Date("2040-01-01"),
+                                               adjustment = "none")))
 })
 
 

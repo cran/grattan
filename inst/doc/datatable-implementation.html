@@ -12,7 +12,7 @@
 
 <meta name="author" content="Hugh Parsonage" />
 
-<meta name="date" content="2020-07-13" />
+<meta name="date" content="2021-01-16" />
 
 <title>Calculations of income tax are rolling joins</title>
 
@@ -301,7 +301,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Calculations of income tax are rolling joins</h1>
 <h4 class="author">Hugh Parsonage</h4>
-<h4 class="date">2020-07-13</h4>
+<h4 class="date">2021-01-16</h4>
 
 
 
@@ -309,17 +309,19 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h2>Short introduction to ordinary income tax</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(knitr)</a></code></pre></div>
 <pre><code>## Warning: package &#39;knitr&#39; was built under R version 4.0.2</code></pre>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">library</span>(magrittr)</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="kw">library</span>(data.table)</a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="kw">library</span>(hutils)</a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="kw">library</span>(grattan)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">library</span>(magrittr)</a></code></pre></div>
+<pre><code>## Warning: package &#39;magrittr&#39; was built under R version 4.0.3</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">library</span>(data.table)</a></code></pre></div>
+<pre><code>## Warning: package &#39;data.table&#39; was built under R version 4.0.2</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">library</span>(hutils)</a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="kw">library</span>(grattan)</a></code></pre></div>
 <p>Generally, income taxes are parmeterized by tax tables. In Australia, for the 2017-18 financial year, the table looks like</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">dollar &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span class="kw">paste0</span>(<span class="st">&quot;$&quot;</span>, <span class="kw">prettyNum</span>(x, <span class="dt">big.mark =</span> <span class="st">&quot;,&quot;</span>))</a>
-<a class="sourceLine" id="cb4-2" title="2">grattan<span class="op">:::</span>tax_table2[fy_year <span class="op">==</span><span class="st"> &quot;2017-18&quot;</span>,</a>
-<a class="sourceLine" id="cb4-3" title="3">                     .(<span class="st">`</span><span class="dt">Lower bracket</span><span class="st">`</span> =<span class="st"> </span><span class="kw">dollar</span>(lower_bracket),</a>
-<a class="sourceLine" id="cb4-4" title="4">                       <span class="st">`</span><span class="dt">Tax payable</span><span class="st">`</span> =<span class="st"> </span><span class="kw">dollar</span>(tax_at),</a>
-<a class="sourceLine" id="cb4-5" title="5">                       <span class="st">`</span><span class="dt">Marginal rate</span><span class="st">`</span> =<span class="st"> </span>marginal_rate)] <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb4-6" title="6"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">align =</span> <span class="st">&quot;r&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">dollar &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span class="kw">paste0</span>(<span class="st">&quot;$&quot;</span>, <span class="kw">prettyNum</span>(x, <span class="dt">big.mark =</span> <span class="st">&quot;,&quot;</span>))</a>
+<a class="sourceLine" id="cb8-2" title="2">grattan<span class="op">:::</span>tax_table2[fy_year <span class="op">==</span><span class="st"> &quot;2017-18&quot;</span>,</a>
+<a class="sourceLine" id="cb8-3" title="3">                     .(<span class="st">`</span><span class="dt">Lower bracket</span><span class="st">`</span> =<span class="st"> </span><span class="kw">dollar</span>(lower_bracket),</a>
+<a class="sourceLine" id="cb8-4" title="4">                       <span class="st">`</span><span class="dt">Tax payable</span><span class="st">`</span> =<span class="st"> </span><span class="kw">dollar</span>(tax_at),</a>
+<a class="sourceLine" id="cb8-5" title="5">                       <span class="st">`</span><span class="dt">Marginal rate</span><span class="st">`</span> =<span class="st"> </span>marginal_rate)] <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb8-6" title="6"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">align =</span> <span class="st">&quot;r&quot;</span>)</a></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -357,37 +359,37 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tbody>
 </table>
 <p>To calculate the income tax for a given income find the next lowest value in the <code>Lower bracket</code> column, then add the tax payable and difference between the lower bracket value and the income multiplied by the marginal rate. Originally, we implemented it like this:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">income &lt;-<span class="st"> </span><span class="fl">50e3</span></a>
-<a class="sourceLine" id="cb5-2" title="2">fy_year &lt;-<span class="st"> &quot;2017-18&quot;</span></a>
-<a class="sourceLine" id="cb5-3" title="3"></a>
-<a class="sourceLine" id="cb5-4" title="4"><span class="kw">ifelse</span>(fy_year <span class="op">==</span><span class="st"> &#39;2017-18&#39;</span>,</a>
-<a class="sourceLine" id="cb5-5" title="5">       <span class="kw">ifelse</span>(income <span class="op">&lt;</span><span class="st"> </span><span class="dv">18200</span>,</a>
-<a class="sourceLine" id="cb5-6" title="6">              <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb5-7" title="7">              <span class="kw">ifelse</span>(income <span class="op">&lt;</span><span class="st"> </span><span class="fl">37e3</span>,</a>
-<a class="sourceLine" id="cb5-8" title="8">                     <span class="dv">0</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.19</span> <span class="op">*</span><span class="st"> </span>(income <span class="op">-</span><span class="st"> </span><span class="dv">18200</span>),</a>
-<a class="sourceLine" id="cb5-9" title="9">                     <span class="kw">ifelse</span>(income <span class="op">&lt;</span><span class="st"> </span><span class="fl">87e3</span>,</a>
-<a class="sourceLine" id="cb5-10" title="10">                            <span class="dv">3572</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.325</span> <span class="op">*</span><span class="st"> </span>(income <span class="op">-</span><span class="st"> </span><span class="dv">37000</span>),</a>
-<a class="sourceLine" id="cb5-11" title="11">                            <span class="kw">ifelse</span>(income <span class="op">&lt;</span><span class="st"> </span><span class="fl">180e3</span>,</a>
-<a class="sourceLine" id="cb5-12" title="12">                                   <span class="dv">19822</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.37</span> <span class="op">*</span><span class="st"> </span>(income <span class="op">-</span><span class="st"> </span><span class="fl">87e3</span>),</a>
-<a class="sourceLine" id="cb5-13" title="13">                                   <span class="dv">54232</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.45</span> <span class="op">*</span><span class="st"> </span>(income <span class="op">-</span><span class="st"> </span><span class="fl">180e3</span>))))),</a>
-<a class="sourceLine" id="cb5-14" title="14">       <span class="kw">stop</span>(<span class="st">&quot;Not yet implemented.&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">income &lt;-<span class="st"> </span><span class="fl">50e3</span></a>
+<a class="sourceLine" id="cb9-2" title="2">fy_year &lt;-<span class="st"> &quot;2017-18&quot;</span></a>
+<a class="sourceLine" id="cb9-3" title="3"></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="kw">ifelse</span>(fy_year <span class="op">==</span><span class="st"> &#39;2017-18&#39;</span>,</a>
+<a class="sourceLine" id="cb9-5" title="5">       <span class="kw">ifelse</span>(income <span class="op">&lt;</span><span class="st"> </span><span class="dv">18200</span>,</a>
+<a class="sourceLine" id="cb9-6" title="6">              <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb9-7" title="7">              <span class="kw">ifelse</span>(income <span class="op">&lt;</span><span class="st"> </span><span class="fl">37e3</span>,</a>
+<a class="sourceLine" id="cb9-8" title="8">                     <span class="dv">0</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.19</span> <span class="op">*</span><span class="st"> </span>(income <span class="op">-</span><span class="st"> </span><span class="dv">18200</span>),</a>
+<a class="sourceLine" id="cb9-9" title="9">                     <span class="kw">ifelse</span>(income <span class="op">&lt;</span><span class="st"> </span><span class="fl">87e3</span>,</a>
+<a class="sourceLine" id="cb9-10" title="10">                            <span class="dv">3572</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.325</span> <span class="op">*</span><span class="st"> </span>(income <span class="op">-</span><span class="st"> </span><span class="dv">37000</span>),</a>
+<a class="sourceLine" id="cb9-11" title="11">                            <span class="kw">ifelse</span>(income <span class="op">&lt;</span><span class="st"> </span><span class="fl">180e3</span>,</a>
+<a class="sourceLine" id="cb9-12" title="12">                                   <span class="dv">19822</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.37</span> <span class="op">*</span><span class="st"> </span>(income <span class="op">-</span><span class="st"> </span><span class="fl">87e3</span>),</a>
+<a class="sourceLine" id="cb9-13" title="13">                                   <span class="dv">54232</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.45</span> <span class="op">*</span><span class="st"> </span>(income <span class="op">-</span><span class="st"> </span><span class="fl">180e3</span>))))),</a>
+<a class="sourceLine" id="cb9-14" title="14">       <span class="kw">stop</span>(<span class="st">&quot;Not yet implemented.&quot;</span>))</a></code></pre></div>
 <pre><code>## [1] 7797</code></pre>
 <p>There were some problems, however. One is that it’s difficult to update or modify. But perhaps more importantly is that it’s not particularly <em>literate</em>: the code merely ‘happens’ to give the right answer, rather than expressing the method too.</p>
 </div>
 <div id="income-tax-calculations-are-rolling-joins" class="section level2">
 <h2>Income tax calculations are rolling joins</h2>
 <p>A more natural and expressive approach is to treat the income tax as a rolling join.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">input &lt;-<span class="st"> </span><span class="kw">data.table</span>(<span class="dt">income =</span> income)</a>
-<a class="sourceLine" id="cb7-2" title="2">tax_table2 &lt;-<span class="st"> </span><span class="kw">copy</span>(grattan<span class="op">:::</span>tax_table2)</a>
-<a class="sourceLine" id="cb7-3" title="3"></a>
-<a class="sourceLine" id="cb7-4" title="4"><span class="co"># Record the order if needed</span></a>
-<a class="sourceLine" id="cb7-5" title="5">input[, the_order <span class="op">:</span><span class="er">=</span><span class="st"> </span>.I]</a>
-<a class="sourceLine" id="cb7-6" title="6">input[, fy_year <span class="op">:</span><span class="er">=</span><span class="st"> &quot;2017-18&quot;</span>]</a>
-<a class="sourceLine" id="cb7-7" title="7"><span class="kw">setkey</span>(input, fy_year, income)</a>
-<a class="sourceLine" id="cb7-8" title="8"></a>
-<a class="sourceLine" id="cb7-9" title="9">tax_table2[input, roll =<span class="st"> </span><span class="ot">TRUE</span>] <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb7-10" title="10"><span class="st">  </span>.[, tax <span class="op">:</span><span class="er">=</span><span class="st"> </span>tax_at <span class="op">+</span><span class="st"> </span>(income <span class="op">-</span><span class="st"> </span>lower_bracket) <span class="op">*</span><span class="st"> </span>marginal_rate] <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb7-11" title="11"><span class="st">  </span>.[<span class="kw">order</span>(the_order)]</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">input &lt;-<span class="st"> </span><span class="kw">data.table</span>(<span class="dt">income =</span> income)</a>
+<a class="sourceLine" id="cb11-2" title="2">tax_table2 &lt;-<span class="st"> </span><span class="kw">copy</span>(grattan<span class="op">:::</span>tax_table2)</a>
+<a class="sourceLine" id="cb11-3" title="3"></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="co"># Record the order if needed</span></a>
+<a class="sourceLine" id="cb11-5" title="5">input[, the_order <span class="op">:</span><span class="er">=</span><span class="st"> </span>.I]</a>
+<a class="sourceLine" id="cb11-6" title="6">input[, fy_year <span class="op">:</span><span class="er">=</span><span class="st"> &quot;2017-18&quot;</span>]</a>
+<a class="sourceLine" id="cb11-7" title="7"><span class="kw">setkey</span>(input, fy_year, income)</a>
+<a class="sourceLine" id="cb11-8" title="8"></a>
+<a class="sourceLine" id="cb11-9" title="9">tax_table2[input, roll =<span class="st"> </span><span class="ot">TRUE</span>] <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb11-10" title="10"><span class="st">  </span>.[, tax <span class="op">:</span><span class="er">=</span><span class="st"> </span>tax_at <span class="op">+</span><span class="st"> </span>(income <span class="op">-</span><span class="st"> </span>lower_bracket) <span class="op">*</span><span class="st"> </span>marginal_rate] <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb11-11" title="11"><span class="st">  </span>.[<span class="kw">order</span>(the_order)]</a></code></pre></div>
 <pre><code>##    fy_year income lower_bracket marginal_rate tax_at the_order  tax
 ## 1: 2017-18  50000         37000         0.325   3572         1 7797</code></pre>
 <p>With this approach, we can just append new tax years or proposed tax rates to <code>tax_table2</code>, rather than pipetting magic numbers into a nest of <code>ifelse</code>s. The code and the data are separate and both are easier to manage.</p>

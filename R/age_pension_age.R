@@ -99,7 +99,7 @@ age_pension_age <- function(when = Sys.Date(),
                  })
     }
     
-    # https://guides.dss.gov.au/guide-social-security-law/3/4/1/10
+    # http://guides.dss.gov.au/guide-social-security-law/3/4/1/10
     age_pension_dates_female <-
       list(Date = as.Date(c("1995-06-30", paste0(seq(1995, 2013, by = 2), "-07-01"))), 
            Age = seq(60, 65, by = 0.5))

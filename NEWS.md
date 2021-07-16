@@ -1,10 +1,19 @@
-## 1.9.0.3
+## 2.0.0.0
 
-* Maintenance release to avoid svg issues on new Apple OS.
+### Breaking changes
 
-## 1.9.0.2
+* `income_tax` and `medicare_levy` no longer accept `family_status` as an input, since it was giving
+  misleading results. Use `.dots.ATO` with appropriate variables to define the 
+  spouse's income or the number of children.
+* `income_tax` gives a slightly different error message when an invalid 
+  financial year is passed. Previously "not in correct form", now "not a valid financial year".
+* `useABSConnection = TRUE` is no longer supported because of ABS server issues   
 
-* Maintenance release with some new data updates.
+
+## 1.9.0.8
+
+* Maintenance release for the new financial year. 
+  
 
 ## 1.9.0.0
 

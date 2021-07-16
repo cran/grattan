@@ -64,7 +64,7 @@ rent_assistance <- function(fortnightly_rent = Inf,
   if (is.null(max_rate) && is.null(min_rent)) {
     if (is.null(Date)) {
       if (is.null(fy.year)) {
-        fy.year <- date2fy(Sys.Date())
+        fy.year <- "2020-21"
         message('`fy.year` not set, so defaulting to fy.year = "', fy.year, '"')
       }
       

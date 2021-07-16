@@ -13,7 +13,7 @@ A \code{data.table} of three columns and 522 observations:
 }
 }
 \source{
-ABS Cat 6416.0. \code{https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/residential-property-price-indexes-eight-capital-cities/latest-release}
+ABS Cat 6416.0. \url{https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/residential-property-price-indexes-eight-capital-cities/latest-release}.
 }
 \usage{
 residential_property_prices

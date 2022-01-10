@@ -1,8 +1,8 @@
 Package: grattan
 Type: Package
 Title: Australian Tax Policy Analysis
-Version: 1.9.0.9
-Date: 2021-07-15
+Version: 1.9.0.10
+Date: 2022-01-01
 Authors@R: c(person("Hugh", "Parsonage", role = c("aut", "cre"), email = "hugh.parsonage@gmail.com"),
               person("Tim", "Cameron", role = "aut"),
               person("Brendan", "Coates", role = "aut"),
@@ -38,7 +38,7 @@ Additional_repositories: https://hughparsonage.github.io/tax-drat/
 LazyData: true
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2021-07-15 09:06:44 UTC; hughp
+Packaged: 2022-01-03 14:33:28 UTC; hughp
 Author: Hugh Parsonage [aut, cre],
   Tim Cameron [aut],
   Brendan Coates [aut],
@@ -49,4 +49,4 @@ Author: Hugh Parsonage [aut, cre],
   M. Enrique Garcia [ctb],
   Matt Cowgill [aut]
 Repository: CRAN
-Date/Publication: 2021-07-16 07:30:11 UTC
+Date/Publication: 2022-01-10 01:02:41 UTC

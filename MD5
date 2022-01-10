@@ -1,6 +1,6 @@
-fab7bfeb8c5fe98204a8f657a7d11dca *DESCRIPTION
+aa525491bf734e4eed05c9afb9a572c6 *DESCRIPTION
 0a95598912e014c2876c3160dbcf7732 *NAMESPACE
-d808d6eb39687217246d0a970a9d0904 *NEWS.md
+77f118a4cf6dfaafdbc8dab2c4b121de *NEWS.md
 05303441a8ff324df0da63674045fed1 *R/CG_inflator.R
 7873f2c117cd6d18f20bd8c21333b172 *R/LITO.R
 275bec3384fd8ebd7582bc752eeabca4 *R/ModellingSuperannuationChanges.R
@@ -19,8 +19,8 @@ c9c935d8eab37af7ff3dbe25a239e946 *R/awote.R
 0db2804786eb7fb1ca8c7ad13e8fbb56 *R/child_care_subsidy.R
 4524b06fc6f6badb028b631998b3575c *R/compare_avg_tax_rates.R
 25e652c7fc7de084ba622e3f11cd04d9 *R/cpi_general_date.R
-8e320e0972a66c53a86b2d464977779e *R/cpi_inflator.R
-75fb49f0f82967b356807fbd6b9cf93a *R/cpi_inflator_quarters.R
+8f5a742ea289bff7f00c6d67a6a1b096 *R/cpi_inflator.R
+1b6b1d8c9aba690de9e5fa370ec8745e *R/cpi_inflator_quarters.R
 47e751e84f1658a56328cd8bc3f249f7 *R/data.R
 ca8484b6445edb074b521abc58f5f971 *R/differentially_uprate_wage.R
 2b4537fda59d5a30025e788717e73533 *R/disability_pension.R
@@ -40,7 +40,7 @@ ff02da3a679b38309da4f6a540b9df3c *R/inverse_average_rate.R
 6c09672b745c48e23fdfac941be89fb5 *R/inverse_income.R
 73ddb61a62fe1b91ff18de6f9a9ded82 *R/kakwani.R
 32a0f14be20ab4afc9ba6b70302c9a95 *R/koffset.R
-ed807c92a2eb270b6fe1d6c10372ba5c *R/lf_inflator.R
+4b18586446291e8765f8e681d5a09743 *R/lf_inflator.R
 3e1775e69722251026053c6db2a77036 *R/marginal_rate.R
 f3537722d801dcc62dd58245fc59a8e4 *R/medicare_levy.R
 23585401917e0404df572186c9bcf638 *R/model_child_care_subsidy.R
@@ -52,7 +52,7 @@ e740fc2811e3449ddbf84fddbedd89b7 *R/mutate_ntile.R
 60909b4e98fc7361fd5b3b40cc365156 *R/new_income_tax.R
 efcc1e77265c76f12d95170240eaf070 *R/new_medicare_levy.R
 ae838442fcbab2f1398a1bda21d77784 *R/new_sapto.R
-b2468e33e98ceef73199139290c2916d *R/newstart_allowance.R
+3b166b0cfc03df3435900b5e522105f3 *R/newstart_allowance.R
 ec3da08abdc15292762797eeb1bbe7b7 *R/next_fy.r
 6f67bf625d1e70d0a653cd0db67fb833 *R/pension_supplement.R
 00b1b9857c0b3699f13622806c2c4c18 *R/pmaxC.R
@@ -65,7 +65,7 @@ ab82e0266711873916b545af023b711e *R/prohibit_vector_recycling.R
 2f6c17e880910056aa848a823b876990 *R/project_to.R
 282c1c79b11ad20664e67a6d9fbbac8f *R/rebate_income.R
 1d38836390fcfab4becd919e804a4014 *R/rename_sf2alife.R
-39f7b5102cd558915cc900939e7bedb2 *R/rent_assistance.R
+65a046acf9d9bc7aadd9da45f7905266 *R/rent_assistance.R
 192077f359f102c58edea8593d572c88 *R/require_taxstats.R
 e18e5c3613f855fabcf09b55f5c27c15 *R/residential_property_prices.R
 9fad91f8c9748f79b750a840cbb1c2cf *R/revenue_foregone.R
@@ -75,13 +75,13 @@ dcfb6e26150c9ad97202c7a1d22c2edc *R/sapto_rcpp.R
 00b58cea3ebd5890e1f79ee1ddc6d2a1 *R/standardize_payment_names.R
 a3ea0d38f16cb2593f1e1d687d958ddd *R/stop.R
 788d89a710cc6d15d18a638497d21f9c *R/student_repayment.R
-81fe5e85a2e2ea1d6bda62ea6b22c677 *R/sysdata.rda
+ec30cc5e38c9a8bb5f83e92753b56bc0 *R/sysdata.rda
 efb5526c6109f750a4dcc41a062ac3d2 *R/unemployment_benefit.R
 3334ca8510b5038967cdae4a605d4138 *R/utils-test.R
 b7b805b7f829494efa25455d6a0a43e6 *R/utils.R
 0b4910926e88a92074129f8d93a6044f *R/validate_date.R
 075985d3c73e90fea4ddd4ac796565f6 *R/validate_per.R
-72fe35e0f7eadfecae4f96eb48c631c1 *R/wage_inflator.R
+61a87016a01583599fa4657d402c904b *R/wage_inflator.R
 588cf0d7e77ea2eb34a96b8a0790da13 *R/weighted_ntile.R
 e6fdc2c4736e9b87fa53160e054de87a *R/youth_allowance.R
 6db95c9ed3618ddc515733a0c2caae9e *R/youth_unemployment.R
@@ -108,9 +108,9 @@ b8105eda6c0bd5ef4328a5c81fe97cec *man/bto.Rd
 4f21fc860c40d7563dc0e1a0492867bd *man/carers_allowance.Rd
 78edd2ad03b829dd9d8f70fb9dc98969 *man/child_care_subsidy.Rd
 21a365539b3d9b9e716e9867e80bbdb0 *man/compare_avg_tax_rates.Rd
-6bb4611c96319a64398bb73b180e439e *man/cpi_inflator.Rd
+b6aec736e3005f29a95192e4a0b9c470 *man/cpi_inflator.Rd
 a8b9fab51a6e29760adbf80c226fe111 *man/cpi_inflator_general_date.Rd
-875bf5abfd30a98ea2d8b89fbf054727 *man/cpi_inflator_quarters.Rd
+5d5c944feb2102b333fadccf2a9bed80 *man/cpi_inflator_quarters.Rd
 c2f4444d175db5f34d132c93f337d9a1 *man/differentially_uprate_wage.Rd
 ced22f722e7c7030c90c73f0447a74ec *man/disability_pension.Rd
 a13d4862d86aa552b673dad1a69e4153 *man/energy_supplement.Rd
@@ -128,7 +128,7 @@ e78c653cf7c7ab40f468949a49e2de55 *man/inflator.Rd
 d3af5a25696a638498892d3e1af3afdf *man/inverse_average_rate.Rd
 7949c963271c5395ee5935e740ac33b3 *man/inverse_income.Rd
 5f0a531ffe0f895db8ad711712cdf521 *man/is.fy.Rd
-1e3d53a43bc9fa0ca459401b77304c13 *man/lf_inflator.Rd
+20c5a5dbd906b675008079788fd62316 *man/lf_inflator.Rd
 b0814fa5f2c8ce0f7c4720652a3118f6 *man/lito.Rd
 7f9040de32b38b6e002918aed72e0cf4 *man/max_super_contr_base.Rd
 f8119de6562a6f4e13263b67c0fa8207 *man/medicare_levy.Rd
@@ -139,7 +139,7 @@ d1ab16470194c0b29bf7ab80aca53c92 *man/model_income_tax.Rd
 cc9ffe8a61cfb37a55295465f26ecb11 *man/new_income_tax.Rd
 fd26ba26ed890175384278680f163b8c *man/new_medicare_levy.Rd
 067868d33d081437af85bf2c22228242 *man/new_sapto.Rd
-e188611b6e6a0fc71ed2462dac2237e6 *man/newstart_allowance.Rd
+15122a2627ebf9b3e4587b7a9e4626a4 *man/newstart_allowance.Rd
 8c031b70012d6d4a74486f9abdbfb1ee *man/npv.Rd
 44694dadd9b8d39e3ac00e5dc9da4dee *man/pension_supplement.Rd
 b9cf1af09ca81cdb45b3842084693b6d *man/progressivity.Rd
@@ -149,7 +149,7 @@ d298598460e032e3d94ab757e194e887 *man/project.Rd
 31c6cecc9c14dc0423b4e43e1a67cda2 *man/project_to.Rd
 8ebb545ab204e5a8abdb245a372af230 *man/rebate_income.Rd
 5a2f5aa2f4fad834717c014f4eb77661 *man/reexports.Rd
-1905a5d885428033b87d343c43300d4e *man/rent_assistance.Rd
+7cf0472c7f85c08de5726495a7f64a8c *man/rent_assistance.Rd
 942766e2b171c5491320785317e33893 *man/require_taxstats.Rd
 b1357f44dc7ca2bf5d73a891ded8c8a4 *man/residential_property_prices.Rd
 9c9d529ac4d471662b5c29802e7f985e *man/revenue_foregone.Rd
@@ -161,7 +161,7 @@ a38b57b7a97ffd3456cf23538daa5823 *man/sapto_rcpp_singleton.Rd
 f74ec03a4209d879f3e09d5516890d82 *man/student_repayment.Rd
 8715b4a42e1c5de5633f5dc51f26c088 *man/unemployment_benefit.Rd
 a02ec16733faea7fa57af054ee8544ef *man/validate_date.Rd
-f2d9b8bad4edf371ad308be69f3d7d88 *man/wage_inflator.Rd
+567e3e213f8d1f10443dce45917d3e9f *man/wage_inflator.Rd
 a9711a500b09a27f824ec54b9cfcd4e8 *man/youth_allowance.Rd
 1b51c555ef707063fa4b34079d84e74a *man/youth_unemployment.Rd
 4d24806960a784ae7e353ee3f7ad1525 *src/IncomeTax.cpp
@@ -170,13 +170,13 @@ a9711a500b09a27f824ec54b9cfcd4e8 *man/youth_allowance.Rd
 3ee36f0b435b706faf78fdecd846e601 *src/Offset.cpp
 ab1d2f9a83b8f043d05eebb68324bfb8 *src/Offset.h
 c074e261d17d55c29d801504a64084a4 *src/Person.h
-cca0ec0c8d40c6567e720c5251a7349a *src/RcppExports.cpp
+b7eee1e18120938d221f3e517809e753 *src/RcppExports.cpp
 c0967b9971b3be4219a704ecfb3485ab *src/Sapto.cpp
 d23b2797af9776e3e7ca7ef200ca28fc *src/Sapto.h
 6208fc63202d8bb5a97fe82460774300 *src/constants.cpp
 c262f98662562ea9ce06c76344e33b40 *src/do_income_tax.cpp
 ccebcd9326c632a098724b686a14c568 *src/do_lito.cpp
-f7af4d46db1cf74342cf50d25a13af0d *src/grattan.h
+a02e8ceae04819820468816e759a2dbc *src/grattan.h
 51cd653fbd20b4102bdf93fc48f12005 *src/grattanMedicareLevy.h
 d6d493085755bd0f28df6a5f0ff0366f *src/medicare_levies.cpp
 4ddfeff8b6d4939ee25185b6ed70f461 *src/sapto_rcpp.cpp
@@ -259,7 +259,7 @@ aa1151b9643acc5a1a672f98edaa552e *tests/testthat/test_disability_pension.R
 d3b26758afad55460212762f061fd43c *tests/testthat/test_gni.R
 e84f471a6c2099f31c3dbfa1feb3c27a *tests/testthat/test_incomeTaxCollections.R
 437c441f85084c90d90f5ded895cb90b *tests/testthat/test_incometax_dotsATO.R
-2d50c51c6ad5c83641d263b1bca1de63 *tests/testthat/test_incometax_dotsATO_sfa.R
+0e97f390060c44e2e84382c74e7f0b66 *tests/testthat/test_incometax_dotsATO_sfa.R
 6b67505414f8f1a0d08309d74b39f19b *tests/testthat/test_incometax_single.R
 cce1c0b7972507ce4404d4aaeaf874b3 *tests/testthat/test_inflator.R
 75aa907359753ceda46ae300c99f253d *tests/testthat/test_install_taxstats.R
@@ -268,7 +268,7 @@ cce1c0b7972507ce4404d4aaeaf874b3 *tests/testthat/test_inflator.R
 a6a840556026cb25e21e574ebd3f1a6f *tests/testthat/test_isfy.R
 f6b58cbb36bd01ab9cbf96813ca7e66f *tests/testthat/test_lf_inflator.R
 2c25ba56ac1914b38bc490140f309c6e *tests/testthat/test_medicare_levy.R
-d59c1570e8e21cde68cf50a763b137cc *tests/testthat/test_modelCJ.R
+47486b1b912931af7f37e8681d4f7c34 *tests/testthat/test_modelCJ.R
 fd29db094e5ac629ad39249ad7e6c8de *tests/testthat/test_model_child_care_subsidy.R
 70733d29c5ca40ca81a2de17f127341a *tests/testthat/test_model_rent_assistance.R
 d9e45f21e7255d51ff785bc08a393989 *tests/testthat/test_mutate_ntile.R

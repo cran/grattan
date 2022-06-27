@@ -34,6 +34,8 @@
 #' @importFrom hutils mutate_ntile
 #' 
 #' @importFrom hutilscpp anyOutside
+#' @importFrom hutilscpp coalesce0
+#' @importFrom hutilscpp isntConstant
 #' @importFrom hutilscpp pmin0
 #' @importFrom hutilscpp pmax0
 #' @importFrom hutilscpp pmax3
@@ -56,11 +58,11 @@
 #' @importFrom magrittr and
 #' @importFrom magrittr or
 
-#' @importFrom Rcpp sourceCpp
 #' @importFrom stats complete.cases
 #' @importFrom stats setNames
 #' 
 #' @importFrom utils hasName
+#' @importFrom utils packageName
 #' 
 #' 
 #' @import data.table

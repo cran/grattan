@@ -2,9 +2,7 @@ context("utils")
 
 test_that("unselect_", {
   skip_if_not_installed("taxstats")
-  skip_if_not_installed("dplyr")
   library(taxstats)
-  library(dplyr)
   y <- sample_file_1314 %>% copy %>% unselect_(.dots = "Sw_amt")
   expect_false("Sw_amt" %in% names(y))
 })
@@ -64,7 +62,7 @@ test_that("fast selector", {
 
 test_that("koffset", {
   expect_equal(koffset(37000 + 1:10, c(0, 37e3, 66667, Inf), c(445, 445, 0, 0)), 
-               lito(37000 + 1:10))
+               lito(37000 + 1:10, "2015-16"))
 })
 
 test_that("Switch", {

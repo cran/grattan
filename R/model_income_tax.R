@@ -14,7 +14,6 @@
 #' the \code{Taxable_Income} is reduced by 0.2\% before the tax rates are applied.
 #' 
 #' If \code{NULL}, an elasticity of 0 is used. 
-#' @param n_dependants The number of dependants for each entry in \code{sample_file}.
 #' @param ordinary_tax_thresholds A numeric vector specifying the lower bounds of the brackets for "ordinary tax" as defined by the Regulations.
 #' The first element should be zero if there is a tax-free threshold.
 #' @param ordinary_tax_rates The marginal rates of ordinary tax. The first element should be zero if there is a tax-free threshold. 
@@ -30,20 +29,21 @@
 #' @param medicare_levy_lower_sapto_threshold,medicare_levy_upper_sapto_threshold The equivalent values for SAPTO-eligible individuals (not families).
 #' @param medicare_levy_lower_family_sapto_threshold,medicare_levy_upper_family_sapto_threshold The equivalent values for SAPTO-eligible individuals in a family.
 #' @param medicare_levy_lower_up_for_each_child The amount to add to the \code{_family_threshold}s for each dependant child.
-#' @param lito_max_offset The maximum offset available for low incomes.
-#' @param lito_taper The taper to apply beyond \code{lito_min_bracket}.
-#' @param lito_min_bracket The taxable income at which the value of the offset starts to reduce (from \code{lito_max_offset}).
-#' @param lito_multi A list of two components, named \code{x} and \code{y}, giving the value of a \emph{replacement} for \code{lito} at specified points, which will be linked by a piecewise linear curve between the points specified. For example, to mimic LITO in 2015-16 (when the offset was \$445 for incomes below \$37,000, and afterwards tapered off to \$66,667), one would use \code{lito_multi = list(x = c(-Inf, 37e3, 200e3/3, Inf), y = c(445, 445, 0, 0))}. The reason the argument ends with \code{multi} is that it is intended to extend the original parameters of LITO so that multiple kinks (including ones of positive and negative gradients) can be modelled. 
+#' @param lito_max_offset (deprecated) The maximum offset available for low incomes.
+#' @param lito_taper (deprecated) The taper to apply beyond \code{lito_min_bracket}.
+#' @param lito_min_bracket (deprecated) The taxable income at which the value of the offset starts to reduce (from \code{lito_max_offset}).
+#' @param lito_multi No longer supported.
 #' 
-#' @param Budget2018_lamington logical; default is `FALSE`. If set to `TRUE`, calculates the amount that taxpayers would be entitled to under the Low and Middle Income Tax Offset as contained in the 2018 Budget.
-#' @param Budget2019_lamington logical. If set to `TRUE`, calculates the amount that taxpayers would be entitled to under the Low and Middle Income Tax Offset as amended by the 2019 Budget.
+#' @param offsets A list of lists created by \code{\link{set_offsets}}. If
+#' \code{NULL}, the default, the list is populated by the offsets
+#' in \code{baseline_fy}.
 #' 
-#' The default, `NA`, means `TRUE` if `baseline_fy` is set to a year where the LMITO
-#' is in effect, viz. 2017-18, 2018-19, 2019-20 or 2020-21, and `FALSE` otherwise.
+#' @param Budget2018_lamington No longer supported
+#' @param Budget2019_lamington No longer supported.
 #' 
-#' @param Budget2018_lito_202223 The LITO proposed to start in 2022-23 as announced in the 2018 Budget.
-#' @param Budget2018_watr logical; default is `FALSE`. If set to `TRUE`, calculates the "Working Australian Tax Refund" as proposed in the Labor Opposition Leader's Budget Reply Speech 2018.
-#' @param Budget2019_watr logical; default is `FALSE`. If set to `TRUE`, calculates the "Working Australian Tax Refund" as revised in the Labor Opposition Leader's Budget Reply Speech 2019.
+#' @param Budget2018_lito_202223 No longer supported.
+#' @param Budget2018_watr No longer supported
+#' @param Budget2019_watr No longer supported.
 #' 
 #' @param sapto_eligible Whether or not each taxpayer in \code{sample_file} is eligible for \code{SAPTO}. 
 #' If \code{NULL}, the default, then eligibility is determined by \code{age_range} in \code{sample_file};
@@ -88,7 +88,6 @@
 
 model_income_tax <- function(sample_file,
                              baseline_fy,
-                             n_dependants = 0L,
                              elasticity_of_taxable_income = NULL,
                              ordinary_tax_thresholds = NULL,
                              ordinary_tax_rates = NULL,
@@ -107,6 +106,7 @@ model_income_tax <- function(sample_file,
                              lito_taper = NULL,
                              lito_min_bracket = NULL,
                              lito_multi = NULL,
+                             offsets = NULL,
                              Budget2018_lamington = FALSE,
                              Budget2019_lamington = NA,
                              Budget2018_lito_202223 = FALSE,
@@ -129,6 +129,49 @@ model_income_tax <- function(sample_file,
                              clear_tax_cols = TRUE,
                              warn_upper_thresholds = TRUE,
                              .debug = FALSE) {
+  yr <- fy::fy2yr(baseline_fy)
+  if (!missing(Budget2018_lamington) || 
+      !missing(Budget2019_lamington) || 
+      !missing(Budget2018_lito_202223) ||
+      !missing(Budget2018_watr) ||
+      !missing(Budget2019_watr) ) {
+    if (!is_testing()) {
+      warning("Budget2018_lamington, Budget2019_lamington, Budget2018_lito_202223,",
+              " Budget2018_watr, Budget2019_watr no longer supported and will",
+              " be ignored.")
+    }
+    if (isTRUE(Budget2018_lamington) && is.null(offsets)) {
+      offsets <- set_offsets(set_offset(offset_1st = 200L,
+                                        thresholds = c(37000L, 
+                                                       48000L,
+                                                       90000L),
+                                        tapers = c(-0.03, 0, 0.015)),
+                             yr = yr)
+    }
+    if (isTRUE(Budget2018_watr) && is.null(offsets)) {
+      offsets <- set_offsets(set_offset(offset_1st = 350L,
+                                        thresholds = c(37000L, 
+                                                       48000L,
+                                                       90000L),
+                                        tapers = c(-0.0525, 0, 0.02625)),
+                             yr = yr)
+    }
+    if (isTRUE(Budget2019_watr) && is.null(offsets)) {
+      offsets <- set_offsets(set_offset(offset_1st = 350L,
+                                        thresholds = c(37000L, 
+                                                       48000L,
+                                                       90000L),
+                                        tapers = c((1080-350)/11000, 0, -0.03)),
+                             yr = yr)
+    }
+    if (isTRUE(Budget2018_lito_202223) && is.null(offsets)) {
+      offsets <- set_offsets(set_offset(offset_1st = 645L, 
+                                        tapers = c(0.065, 0.015), 
+                                        thresholds = c(37000L, 41000L)),
+                             yr = NULL)
+    }
+  }
+  
   arguments <- ls()
   argument_vals <- as.list(environment())
   return. <- match.arg(return.)
@@ -141,772 +184,69 @@ model_income_tax <- function(sample_file,
     }
   }
   
+  
+  
   stopifnot(is.data.table(sample_file))
-  sample_file <- copy(sample_file)
   max.length <- nrow(sample_file)
-  .dots.ATO <- sample_file
+  .dots.ATO <-  sample_file
   sample_file_noms <- copy(names(sample_file))
   
-  if (clear_tax_cols) {
-    if ("new_tax" %chin% sample_file_noms) {
-      sample_file[, "new_tax" := NULL]
-    }
-    if ("baseline_tax" %chin% sample_file_noms) {
-      sample_file[, "baseline_tax" := NULL]
-    }
+  .Offsets <- set_offsets(yr = yr, 
+                          lito_max_offset = lito_max_offset, 
+                          lito_taper = lito_taper,
+                          lito_min_bracket = lito_min_bracket)
+  if (!is.null(offsets)) {
+    .Offsets <- offsets
   }
   
   
-  s1213_noms <-
-    c(#"Gender",
-      # "age_range",
-      "Occ_code", "Partner_status", 
-      "Region", "Lodgment_method", "PHI_Ind", "Sw_amt", "Alow_ben_amt", 
-      "ETP_txbl_amt", "Grs_int_amt", "Aust_govt_pnsn_allw_amt", "Unfranked_Div_amt", 
-      "Frk_Div_amt", "Dividends_franking_cr_amt", "Net_rent_amt", "Gross_rent_amt", 
-      "Other_rent_ded_amt", "Rent_int_ded_amt", "Rent_cap_wks_amt", 
-      "Net_farm_management_amt", "Net_PP_BI_amt", "Net_NPP_BI_amt", 
-      "Total_PP_BI_amt", "Total_NPP_BI_amt", "Total_PP_BE_amt", "Total_NPP_BE_amt", 
-      "Net_CG_amt", "Tot_CY_CG_amt", "Net_PT_PP_dsn", "Net_PT_NPP_dsn", 
-      "Taxed_othr_pnsn_amt", "Untaxed_othr_pnsn_amt", "Other_foreign_inc_amt", 
-      "Other_inc_amt", "Tot_inc_amt", "WRE_car_amt", "WRE_trvl_amt", 
-      "WRE_uniform_amt", "WRE_self_amt", "WRE_other_amt", "Div_Ded_amt", 
-      "Intrst_Ded_amt", "Gift_amt", "Non_emp_spr_amt", "Cost_tax_affairs_amt", 
-      "Other_Ded_amt", "Tot_ded_amt", "PP_loss_claimed", "NPP_loss_claimed", 
-      "Rep_frng_ben_amt", # "Med_Exp_TO_amt", "Asbl_forgn_source_incm_amt", 
-      # "Spouse_adjusted_taxable_inc",
-      "Net_fincl_invstmt_lss_amt", "Rptbl_Empr_spr_cont_amt", 
-      "Cr_PAYG_ITI_amt", "TFN_amts_wheld_gr_intst_amt", "TFN_amts_wheld_divs_amt", 
-      "Hrs_to_prepare_BPI_cnt", "Taxable_Income", "Help_debt")
+  .System <-
+    System(ordinary_tax_thresholds = ordinary_tax_thresholds,
+           ordinary_tax_rates = ordinary_tax_rates,
+           yr = yr,
+           medicare_levy_taper = medicare_levy_taper,
+           medicare_levy_rate = medicare_levy_rate,
+           medicare_levy_lower_threshold = medicare_levy_lower_threshold,
+           medicare_levy_upper_threshold = medicare_levy_upper_threshold,
+           medicare_levy_lower_sapto_threshold = medicare_levy_lower_sapto_threshold,
+           medicare_levy_upper_sapto_threshold = medicare_levy_upper_sapto_threshold,
+           medicare_levy_lower_family_threshold = medicare_levy_lower_family_threshold,
+           medicare_levy_upper_family_threshold = medicare_levy_upper_family_threshold,
+           medicare_levy_lower_family_sapto_threshold = medicare_levy_lower_family_sapto_threshold,
+           medicare_levy_upper_family_sapto_threshold = medicare_levy_upper_family_sapto_threshold,
+           medicare_levy_lower_up_for_each_child = medicare_levy_lower_up_for_each_child,
+           Offsets = .Offsets,
+           sapto_max_offset = sapto_max_offset,
+           sapto_lower_threshold = sapto_lower_threshold,
+           sapto_taper = sapto_taper,
+           sapto_max_offset_married = sapto_max_offset_married,
+           sapto_lower_threshold_married = sapto_lower_threshold_married,
+           sapto_taper_married = sapto_taper_married, 
+           fix = 1L)
   
-  if (!all(s1213_noms %chin% sample_file_noms)) {
-    absent_cols <- setdiff(s1213_noms, sample_file_noms)
-    stop("`sample_file` lacked the following required columns:\n\t",
-         paste0(absent_cols, collapse = "\n\t"), ".\n")
+  if (hasName(.dots.ATO, "Taxable_Income") && !hasName(.dots.ATO, "ic_taxable_income_loss")) {
+    # for elasticity
+    .dots.ATO[, "ic_taxable_income_loss" := Taxable_Income]
   }
   
+  old_tax <- income_tax2(.dots.ATO = .dots.ATO,
+                         fy.year = baseline_fy)
   
-  income <- sample_file[["Taxable_Income"]]
-  max.length <- length(income)
-  prohibit_vector_recycling(income, n_dependants, baseline_fy)
-  
-  baseline_yr <- fy::fy2yr(baseline_fy)
-  
-  old_tax <- income_tax(income,
-                        fy.year = baseline_fy,
-                        .dots.ATO = .dots.ATO,
-                        n_dependants = n_dependants)
-  if (calc_baseline_tax && return. != "tax") {
-    set(sample_file,
-        j = "baseline_tax",
-        value = switch(return.,
-                       "sample_file" = old_tax,
-                       "sample_file.int" = as.integer(old_tax)))
+  set_cgt_rate(.dots.ATO, yr, cgt_discount_rate)
+  if (!is.null(sapto_eligible)) {
+    .dots.ATO[, "c_age_30_june" := fifelse(sapto_eligible, 67L, 42L)]
   }
+  .apply_elasticity(.dots.ATO, old_tax, baseline_fy, .System, elasticity_of_taxable_income)
   
-  # Recalculate the taxable income
-  # CG adjustment
-  if (!is.null(cgt_discount_rate)) {
-    if (length(cgt_discount_rate) != 1L) {
-      if (length(cgt_discount_rate) != max.length) {
-        stop("`length(cgt_discount_rate) = ", length(cgt_discount_rate), "`, ", 
-             "yet `nrow(sample_file) = ", max.length, "`. ",
-             "Ensure `cgt_discount_rate` has length one.")
-      }
-    }
-    
-    if (!is.numeric(cgt_discount_rate)) {
-      stop("`cgt_discount_rate` was type ", typeof(cgt_discount_rate), ", ",
-           "but must be numeric. Ensure `cgt_discount_rate`, if used, is numeric.")
-    }
-    
-    extra_Net_CG_amt <- function(DT,
-                                 new_rate = cgt_discount_rate,
-                                 old_rate = 0.5) {
-      # Return the extra amount of capital gains
-      # payable under `new_rate` compared to `old_rate`.
-      # That which will be added to both Net_CG_amt and Taxable_Income
-      # in the resultant sample file.
-      
-      
-      # Use this function to avoid copying
-      
-      Net_CG_amt. <- .subset2(DT, "Net_CG_amt")
-      Tot_CY_CG_amt. <- .subset2(DT, "Tot_CY_CG_amt")
-      income <- .subset2(DT, "Taxable_Income")
-      
-      # Assume a CGT discount is applicable 
-      
-      has_discount <-
-        if (min(Tot_CY_CG_amt.) == 0) {
-          Tot_CY_CG_amt. > Net_CG_amt.
-        } else {
-          and(Tot_CY_CG_amt. > Net_CG_amt.,
-              Tot_CY_CG_amt. > 0)
-        }
-      
-      out <- integer(max.length)
-      
-      out[has_discount] <-
-          as.integer(Net_CG_amt.[has_discount] * {{1 - new_rate} / {1 - old_rate} - 1})
-      
-      
-      
-      for (j in c("Net_CG_amt", "Tot_inc_amt", "Taxable_Income")) {
-        v <- .subset2(DT, j)
-        set(DT, 
-            j = j,
-            value = as.integer(v) + out)
-      }
-      
-      # Taxable Income cannot be negative
-      DT[, Taxable_Income := as.integer(pmax.int(Taxable_Income, 0L))]
-      
-      DT[]
-    }
-    extra_Net_CG_amt(sample_file)
-    # Need to update since the Taxable Income is now different.
-    income <- .subset2(sample_file, "Taxable_Income")
-  }
-  if2 <- function(cond, yes, no = NULL) {
-    if (cond) {
-      yes
-    } else {
-      no
-    }
-  }
-  yr <- baseline_yr
-  offsets <-
-    list(LITO = set_offset(offset_1st = lito_max_offset %||% LITO_MAX_OFFSET(yr),
-                           thresholds = lito_min_bracket %||% LITO_1ST_THRESH(yr),
-                           tapers = -(lito_taper %||% -LITO_1ST_TAPER(yr)), 
-                           refundable = FALSE),
-         LMITO = set_offset(offset_1st = LMITO_1ST_OFFSET(yr),
-                            thresholds = LMITO_THRESHS(yr), 
-                            tapers = LMITO_TAPERS(yr), 
-                            refundable = FALSE))
-    
-    
-  
-  newnewtax <-
-    tryCatch(income_tax2(income,
+  new_tax <- income_tax2(.dots.ATO = .dots.ATO,
                          fy.year = baseline_fy,
-                         .dots.ATO = .dots.ATO, 
-                         ordinary_tax_thresholds = ordinary_tax_thresholds,
-                         ordinary_tax_rates = ordinary_tax_rates,
-                         temp_levy_brack = if (baseline_fy %chin% c("2014-15", "2015-16", "2016-17")) 180e3L else .Machine$integer.max,
-                         temp_levy_rates = 0.02,
-                         medicare_levy_taper = medicare_levy_taper, 
-                         medicare_levy_rate = medicare_levy_rate,
-                         medicare_levy_lower_threshold = medicare_levy_lower_threshold,
-                         medicare_levy_lower_sapto_threshold = medicare_levy_lower_sapto_threshold,
-                         medicare_levy_lower_family_threshold = medicare_levy_lower_family_threshold,
-                         medicare_levy_lower_family_sapto_threshold = medicare_levy_lower_family_sapto_threshold,
-                         medicare_levy_lower_up_for_each_child = medicare_levy_lower_up_for_each_child,
-                         offsets = offsets,
-                         sbto_discount = sbto_discount,
-                         sapto_eligible = sapto_eligible,
-                         sapto_max_offset = sapto_max_offset,
-                         sapto_lower_threshold = sapto_lower_threshold,
-                         sapto_taper = sapto_taper,
-                         sapto_max_offset_married = sapto_max_offset_married,
-                         sapto_lower_threshold_married = sapto_lower_threshold_married,
-                         sapto_taper_married = sapto_taper_married),
-             error = function(e) {
-               # cat(deparse(lengths(list(income = income, fy.year = baseline_fy, .dots.ATO = .dots.ATO,
-               #               ordinary_tax_thresholds = ordinary_tax_thresholds,
-               #               ordinary_tax_rates = ordinary_tax_rates,
-               #               temp_levy_brack = if (baseline_fy %chin% c("2014-15", "2015-16", "2016-17")) 180e3L else .Machine$integer.max,
-               #               temp_levy_rates = 0.02,
-               #               medicare_levy_taper = medicare_levy_taper,
-               #               medicare_levy_rate = medicare_levy_rate,
-               #               medicare_levy_lower_threshold = medicare_levy_lower_threshold,
-               #               medicare_levy_lower_sapto_threshold = medicare_levy_lower_sapto_threshold,
-               #               medicare_levy_lower_family_threshold = medicare_levy_lower_family_threshold,
-               #               medicare_levy_lower_family_sapto_threshold = medicare_levy_lower_family_sapto_threshold,
-               #               medicare_levy_lower_up_for_each_child = medicare_levy_lower_up_for_each_child,
-               #               offsets = offsets,
-               #               sbto_discount = sbto_discount,
-               #               sapto_eligible = sapto_eligible,
-               #               sapto_max_offset = sapto_max_offset,
-               #               sapto_lower_threshold = sapto_lower_threshold,
-               #               sapto_taper = sapto_taper,
-               #               sapto_max_offset_married = sapto_max_offset_married,
-               #               sapto_lower_threshold_married = sapto_lower_threshold_married,
-               #               sapto_taper_married = sapto_taper_married))))
-               stop(e)
-             })
-  base_tax. <- temp_budget_repair_levy. <-  0
+                         System = .System)
   
-  if (is.null(sapto_eligible)) {
-    if ("age_range" %chin% names(sample_file)) {
-      sapto_eligible <- .subset2(sample_file, "age_range") <= 1L
-    } else {
-      warning("Assuming everyone is ineligible for SAPTO.")
-      sapto_eligible <- logical(max.length)
-    }
-  } else {
-    if (!is.logical(sapto_eligible)) {
-      stop("`sapto_eligible` was not a logical vector.")
-    }
-    if (length(sapto_eligible) != 1L && length(sapto_eligible) != max.length) {
-      stop("`sapto_eligible` was length ", length(sapto_eligible), ". ",
-           "Ensure `sapto_eligible` has length ",
-           max.length, "(i.e. nrow(sample_file)) or length one.")
-    }
-  }
-  
-  # Check base tax
-  
-  WEIGHTj <- which(names(.dots.ATO) == "WEIGHT")
-  if (!length(WEIGHTj)) {
-    WEIGHTj <- 0L
-  }
-  
-  # If .dots.ATO  is NULL, for loops over zero-length vector
-  # Use integers since that's what tax forms use.
-  for (j in which(vapply(.dots.ATO, FUN = is.double, logical(1)))) {
-    if (j != WEIGHTj) {
-      set(.dots.ATO, j = j, value = as.integer(.dots.ATO[[j]]))
-    }
-  }
-  mis_married <- logical(max.length)
-  if (is.null(.dots.ATO) ||
-      "Spouse_adjusted_taxable_inc" %notin% names(.dots.ATO)) {
-    the_spouse_income <- integer(max.length)
-  } else {
-    the_spouse_income <- .dots.ATO[["Spouse_adjusted_taxable_inc"]]
-    the_spouse_income[is.na(the_spouse_income)] <- 0L
-    if (hasName(.dots.ATO, "Partner_status")) {
-      mis_married <- .dots.ATO[["Partner_status"]]
-    } else if (hasName(.dots.ATO, "Marital_status")) {
-      mis_married <- .dots.ATO[["Marital_status"]]
-    }
-  }
-  
-  
-  # Check medicare levy
-  medicare_args <- mget(grep("^medicare_levy", arguments, perl = TRUE, value = TRUE))
-  
-  if (all(vapply(medicare_args, is.null, FALSE))) {
-    
-    medicare_levy. <- 
-      do_medicare_levy(income = income, 
-                       spouse_income = the_spouse_income,
-                       is_married = or(the_spouse_income > 0, mis_married),
-                       sapto_eligible = sapto_eligible,
-                       yr = baseline_yr,
-                       n_dependants = n_dependants)
-    
-  } else {
-    input <- data.table(fy_year = baseline_fy, SaptoEligible = sapto_eligible)
-    medicare_tbl_fy <- medicare_tbl[input, on = c("fy_year", "sapto==SaptoEligible")]
-    
-    if ("ordering" %chin% names(input)) {
-      setorderv(medicare_tbl_fy, "ordering")
-    }
-    
-    # When a parameter is selected it must satisfy the 
-    # conditions of the low-income area
-    
-    #    |                   .
-    #    |              .
-    # rb |         .
-    #    |       /
-    #    |      /
-    #    |-----/
-    #    0   a  b
-    # 
-    # t(b - a) = rb
-    #
-    
-    # Here, we test whether or not the conditions are so satisfied; 
-    # if not, we fix one of the parameters that is not specified to
-    # satisfy the relation, with a warning and a prayer to change
-    # the relevant the parameter.
-    
-    
-    # Individuals
-    ma <- medicare_levy_lower_threshold %|||% medicare_tbl_fy[["lower_threshold"]]
-    mb <- medicare_levy_upper_threshold %|||% medicare_tbl_fy[["upper_threshold"]]
-    mt <- medicare_levy_taper %|||% medicare_tbl_fy[["taper"]]
-    mr <- medicare_levy_rate  %|||% medicare_tbl_fy[["rate"]]
-    
-    # Individuals - SAPTO
-    # N.B. medicare_tbl_fy[["lower/upper_threshold"]] since the join above correctly identifies which ones
-    msa <- medicare_levy_lower_sapto_threshold %|||% medicare_tbl_fy[["lower_threshold"]]
-    msb <- medicare_levy_upper_sapto_threshold %|||% medicare_tbl_fy[["upper_threshold"]]
-    
-    ma <- as.integer(ma)
-    msa <- as.integer(msa)
-    mb <- as.integer(mb - 1)
-    msb <- as.integer(msb - 1)
-    
-    
-    # Families
-    mfa <- medicare_levy_lower_family_threshold %|||% medicare_tbl_fy[["lower_family_threshold"]]
-    mfb <- medicare_levy_upper_family_threshold %|||% medicare_tbl_fy[["upper_family_threshold"]]
-    
-    # Families - SAPTO
-    mfsa <- medicare_levy_lower_family_sapto_threshold %|||% medicare_tbl_fy[["lower_family_threshold"]]
-    mfsb <- medicare_levy_upper_family_sapto_threshold %|||% medicare_tbl_fy[["upper_family_threshold"]]
-    
-    mfa <- as.integer(mfa)
-    mfb <- as.integer(mfb - 1)
-    mfsa <- as.integer(mfsa)
-    mfsb <- as.integer(mfsb - 1)
-    
-    
-    medicare_parameter_roots <- 
-      if_else(sapto_eligible,
-              if_else(the_spouse_income > 0,
-                      abs(mt * (mfsb - mfsa) - mr * mfsb),
-                      abs(mt * (msb - msa) - mr * msb)),
-              if_else(the_spouse_income > 0,
-                      abs(mt * (mfb - mfa) - mr * mfb),
-                      abs(mt * (mb - ma) - mr * mb)))
-    
-    if (any(medicare_parameter_roots > 1)) {
-      # model is misspecified in respect of offsets etc
-      
-      warning_if_misspecified <- function(the_arg) {
-        se <- sapto_eligible
-        f. <- the_spouse_income > 0
-        nor <- function(x, y) and(!x, !y)
-        val <- switch(the_arg, 
-                      "medicare_levy_upper_threshold" = mb[nor(se, f.)], 
-                      "medicare_levy_lower_threshold" = ma[nor(se, f.)], 
-                      "medicare_levy_upper_sapto_threshold" = msb[se & !f.], 
-                      "medicare_levy_lower_sapto_threshold" = msa[se & !f.], 
-                      "medicare_levy_upper_family_threshold" = mfb[!se & f.], 
-                      "medicare_levy_lower_family_threshold" = mfa[!se & f.], 
-                      "medicare_levy_upper_family_sapto_threshold" = mfsb[se & f.], 
-                      "medicare_levy_lower_family_sapto_threshold" = mfsa[se & f.], 
-                      "medicare_levy_taper" = mt,
-                      "medicare_levy_rate" = mr)
-        
-        if (warn_upper_thresholds || !grepl("upper", the_arg)) {
-          if (uniqueN(val) == 1L) {
-            warning("`", the_arg, "` was not specified, ",
-                    "but its default value would be inconsistent with the parameters that were specified.\n", 
-                    "Its value has been set to:\n\t",
-                    the_arg, " = ", round(val[1], digits = if (val[1] < 1) 2 else 0),
-                    call. = FALSE)
-          } else {
-            warning("`", the_arg, "` was not specified, ",
-                    "but its default values would be inconsistent with the parameters that were specified.\n",
-                    "Its values have been set to: ",
-                    "\n\t", paste0(utils::head(unique(round(val), 5)), 
-                                   "...", 
-                                   utils::tail(unique(round(val), 5)),
-                                   collapse = "\n\t"),
-                    "\n\t\t (First and last five shown.)",
-                    call. = FALSE)
-          }
-        }
-      }
-      
-      # Could be a problem with the individual parameter changes, or 
-      # with the family ones. Do one at a time.
-      if (any(medicare_parameter_roots[the_spouse_income == 0L] > 1)) {
-        if (any(medicare_parameter_roots[and(the_spouse_income == 0L,
-                                             !sapto_eligible)] > 1)) {
-          # Individual thresholds
-          if (is.null(medicare_levy_upper_threshold)) {
-            mb <- mt * ma / (mt - mr)
-            warning_if_misspecified("medicare_levy_upper_threshold")
-            
-          } else {
-            
-            if (is.null(medicare_levy_lower_threshold)) {
-              ma <- mb * (mt - mr) / mt
-              warning_if_misspecified("medicare_levy_lower_threshold")
-              
-            } else {
-              
-              if (is.null(medicare_levy_taper)) {
-                mt <- mr * mb / (mb - ma)
-                warning_if_misspecified("medicare_levy_taper")
-                
-              } else {
-                
-                if (is.null(medicare_levy_rate)) {
-                  mr <- mt * (mb - ma) / mb
-                  warning_if_misspecified("medicare_levy_rate")
-                  # nocov start
-                  # alternative not reachable
-                } else stop("ERR # e59ed9845068f337d6653a7cc00401e1dbeeda7d. ",
-                            "Please contact `grattan` package maintainer.") 
-                # nocov end
-              }
-            }
-          }
-        }
-        
-        if (any(medicare_parameter_roots[and(the_spouse_income == 0L,
-                                             sapto_eligible)] > 1)) {
-          # SAPTO non-families
-          if (is.null(medicare_levy_upper_sapto_threshold)) {
-            msb <- mt * msa / (mt - mr)
-            warning_if_misspecified("medicare_levy_upper_sapto_threshold")
-            
-          } else {
-            
-            if (is.null(medicare_levy_lower_sapto_threshold)) {
-              msa <- msb * (mt - mr) / mt
-              warning_if_misspecified("medicare_levy_lower_sapto_threshold")
-              
-            } else {
-              medicare_levy_taper_stop <- 
-                round(mr * msb / (msb - msa), 3)
-              
-              stop("Medicare levy parameter mismatch could not be safely resolved.\n\n",
-                   "`medicare_levy_upper_sapto_threshold` and ",
-                   "`medicare_levy_lower_sapto_threshold` were both supplied, ",
-                   "but imply a Medicare taper rate of\n\t",
-                   if (uniqueN(medicare_levy_taper_stop) == 1L) {
-                     unique(medicare_levy_taper_stop)
-                   } else {
-                     paste0(paste0(utils::head(unique(medicare_levy_taper_stop)),
-                                   collapse = "\n\t"),
-                            " (first 6 shown)")
-                   },
-                   "\t (to 3 decimal places)\n",
-                   "Either supply Medicare levy parameters compatible with this taper rate, ",
-                   "or change `medicare_levy_taper` (which may force other parameters to", 
-                   " change too).")
-            }
-          }
-        }
-      }
-      
-      if (any(medicare_parameter_roots[the_spouse_income > 0L] > 1)) {
-        # Family thresholds only
-        if (any(medicare_parameter_roots[and(the_spouse_income > 0L,
-                                             !sapto_eligible)] > 1)) {
-          if (is.null(medicare_levy_upper_family_threshold)) {
-            mfb <- mt * mfa / (mt - mr)
-            warning_if_misspecified("medicare_levy_upper_family_threshold")
-            
-          } else {
-            
-            if (is.null(medicare_levy_lower_family_threshold)) {
-              mfa <- mfb * (mt - mr) / mt
-              warning_if_misspecified("medicare_levy_lower_family_threshold")
-              
-            } else {
-              medicare_levy_taper_stop <- 
-                round(mr * mfb / (mfb - mfa), 3)
-              stop("Medicare levy parameter mismatch could not be safely resolved.\n\n",
-                   "`medicare_levy_upper_family_threshold` and ",
-                   "`medicare_levy_lower_family_threshold` were both supplied, ",
-                   "but imply a Medicare taper rate of\n\t",
-                   if (uniqueN(medicare_levy_taper_stop) == 1L) {
-                     unique(medicare_levy_taper_stop)
-                   } else {
-                     paste0(paste0(utils::head(unique(medicare_levy_taper_stop)),
-                                   collapse = "\n\t"),
-                            " (first 6 shown)")
-                   }, "\t (to 3 decimal places)\n",
-                   "Either supply Medicare levy parameters compatible with this taper rate, ",
-                   "or change `medicare_levy_taper` (which may force other parameters to", 
-                   " change too).")
-            }
-          }
-        }
-        
-        # Family - SAPTO
-        if (any(medicare_parameter_roots[and(the_spouse_income > 0L,
-                                             sapto_eligible)] > 1)) {
-          if (is.null(medicare_levy_upper_family_sapto_threshold)) {
-            mfsb <- mt * mfsa / (mt - mr)
-            warning_if_misspecified("medicare_levy_upper_family_sapto_threshold")
-            
-          } else {
-            
-            if (is.null(medicare_levy_lower_family_sapto_threshold)) {
-              mfsa <- mfsb * (mt - mr) / mt
-              warning_if_misspecified("medicare_levy_lower_family_sapto_threshold")
-              
-            } else {
-              medicare_levy_taper_stop <- round(mr * mfsb / (mfsb - mfsa), 3)[sapto_eligible]
-              
-              stop("Medicare levy parameter mismatch could not be safely resolved.\n\n",
-                   "`medicare_levy_upper_family_sapto_threshold` and ",
-                   "`medicare_levy_lower_family_sapto_threshold` were both supplied, ",
-                   "but imply a Medicare taper rate of\n\t",
-                   if (uniqueN(medicare_levy_taper_stop) == 1L) {
-                     unique(medicare_levy_taper_stop)
-                   } else {
-                     paste0(paste0(utils::head(unique(medicare_levy_taper_stop)),
-                                   collapse = "\n\t"),
-                            " (first 6 shown)")
-                   }, "\t (to 3 decimal places)\n",
-                   "Either supply Medicare levy parameters compatible with this taper rate, ",
-                   "or change `medicare_levy_taper` (which may force other parameters to", 
-                   " change too).")
-            }
-          }
-          
-        }
-      }
-    }
-    
-    if (any(sapto_eligible)) {
-      ma[sapto_eligible] <- msa[sapto_eligible]
-      mb[sapto_eligible] <- msb[sapto_eligible]
-      mfa[sapto_eligible] <- mfsa[sapto_eligible]
-      mfb[sapto_eligible] <- mfsb[sapto_eligible]
-    }
-    
-    assign("mlf", 
-           list(income = income,
-                spouse_income = the_spouse_income, 
-                is_married = the_spouse_income > 0, 
-                n_dependants = if (length(n_dependants) == 1) rep_len(n_dependants, max.length) else n_dependants,
-                sapto_eligible = sapto_eligible, 
-                yr = NA_integer_, 
-                lwr_single = ma[1], 
-                lwr_family = mfa[1], 
-                lwr_single_sapto = msa[1],
-                lwr_family_sapto = mfsa[1], 
-                lwr_up_per_child = medicare_tbl[.(baseline_fy)][["lower_up_for_each_child"]][1],
-                rate = mr[1],
-                taper = mt[1]),
-           envir = parent.frame())
-    
-    medicare_levy. <-
-      do_medicare_levy(income,
-                       spouse_income = the_spouse_income, 
-                       is_married = the_spouse_income > 0, 
-                       n_dependants = if (length(n_dependants) == 1) rep_len(n_dependants, max.length) else n_dependants,
-                       sapto_eligible = sapto_eligible, 
-                       yr = NA_integer_, 
-                       lwr_single = ma[1], 
-                       lwr_family = mfa[1], 
-                       lwr_single_sapto = msa[1],
-                       lwr_family_sapto = mfsa[1], 
-                       lwr_up_per_child = first(medicare_levy_lower_up_for_each_child %||% 
-                                                  medicare_tbl[.(baseline_fy)][["lower_up_for_each_child"]]),
-                       rate = mr[1],
-                       taper = mt[1])
-  }
-  
-  lito_args <- mget(grep("^lito_", arguments, perl = TRUE, value = TRUE))
-  
-  if (F&&all(vapply(lito_args, is.null, FALSE))) {
-    setkeyv(input, "fy_year")
-    lito. <- .lito(input)
-  } else {
-    lito_fy <- lito_tbl[fy_year == baseline_fy]
-    lito. <- lito(income,
-                  max_lito = lito_max_offset %||% lito_fy[["max_lito"]],
-                  lito_taper = lito_taper %||% lito_fy[["lito_taper"]],
-                  min_bracket = lito_min_bracket %||% lito_fy[["min_bracket"]])
-  }
-  
-  
-  sapto. <- double(max.length)
-  if (any(sapto_eligible)) {
-    sapto_args <- mget(grep("^sapto_(?!eligible)", arguments, perl = TRUE, value = TRUE))
-    
-    .dASE <- .dots.ATO[(sapto_eligible),
-                       .SD, 
-                       .SDcols = intersect(c("Rptbl_Empr_spr_cont_amt", 
-                                             "Net_fincl_invstmt_lss_amt",
-                                             "sc_empl_cont",
-                                             "MCS_Emplr_Contr",
-                                             "ds_pers_super_cont",
-                                             "Non_emp_spr_amt",
-                                             "Net_rent_amt",
-                                             "Rep_frng_ben_amt"), 
-                                           copy(names(.dots.ATO)))]
-    rebate_income_over_eligible <-
-      do_rebate_income(rebateIncome = NULL, 
-                       ic_taxable_income_loss = income[sapto_eligible],
-                       it_rept_empl_super_cont = .dASE[["Rptbl_Empr_spr_cont_amt"]],
-                       it_invest_loss = .dASE[["Net_fincl_invstmt_lss_amt"]],
-                       is_net_rent    = .dASE[["Net_rent_amt"]],
-                       it_rept_fringe_benefit = .dASE[["Rep_frng_ben_amt"]],
-                       sc_empl_cont = (.dASE[["sc_empl_cont"]] %||% .dASE[["MCS_Emplr_Contr"]]) %||% integer(sum(sapto_eligible)),
-                       ds_pers_super_cont = (.dASE[["ds_pers_super_cont"]] %||% .dASE[["Non_emp_spr_amt"]]) %||% integer(sum(sapto_eligible)),
-                       yr = baseline_yr)
-    
-    if (all(vapply(sapto_args, is.null, FALSE))) {
-      sapto.[sapto_eligible] <-
-        do_sapto(rebate_income_over_eligible, 
-                 y = the_spouse_income[sapto_eligible],
-                 Age = rep(67L, sum(sapto_eligible)),
-                 isMarried = .dots.ATO[["Partner_status"]][sapto_eligible])
-    } else {
-      sapto. <-
-        do_sapto(income, 
-                 the_spouse_income, 
-                 Age = 42L + (67L - 42L) * sapto_eligible, 
-                 isMarried = as.logical(sample_file[["Partner_status"]]), 
-                 max_single = sapto_max_offset              %||% SAPTO_MAX_SINGLE(baseline_yr),
-                 max_couple = sapto_max_offset_married      %||% SAPTO_MAX_MARRIED(baseline_yr),
-                 lwr_single = sapto_lower_threshold         %||% SAPTO_LWR_SINGLE(baseline_yr),
-                 lwr_couple = sapto_lower_threshold_married %||% SAPTO_LWR_MARRIED(baseline_yr),
-                 taper      = sapto_taper                   %||% SAPTO_TAPER(baseline_yr)) 
-    }
-  }
-  
-  new_tax <-
-  {
-    if (baseline_fy == "2011-12") {
-      flood_levy. <- 0.005 * {pmaxC(income - 50e3, 0) + pmaxC(income - 100e3, 0)}
-    } else {
-      flood_levy. <- 0
-    }
-    
-    lamington_offset. <-
-      if  (Budget2018_lamington) {
-        lmito(income, fy.year = baseline_fy)
-        
-      } else if (coalesce(Budget2019_lamington, 
-                          baseline_fy %in% yr2fy(2018:2021))) {
-        lmito(income, 
-              fy.year = baseline_fy,
-              first_offset = 255,
-              thresholds = c(37e3, 48e3, 90e3, 126e3),
-              taper = c(0, 0.075, 0, -0.03))
-
-      }  else {
-          0
-      }
-    
-    watr. <- 
-      if (Budget2018_watr) {
-        watr(income)
-      } else if (Budget2019_watr) {
-        watr(income,
-             first_offset = 350,
-             thresholds = c(37e3, 48e3, 90e3, 126e3),
-             taper = c(0, (1080-350)/11000, 0, -0.03))
-      } else {
-        0
-      }
-    
-    if (!is.null(lito_multi)) {
-      if (!is.null(lito_max_offset)) {
-        stop("`lito_multi` is not NULL, yet neither is `lito_max_offset`. ",
-             "Either set `lito_max_offset` to NULL or `lito_multi`.")
-      }
-      if (!is.null(lito_taper)) {
-        stop("`lito_multi` is not NULL, yet neither is `lito_taper`. ",
-             "Either set `lito_taper` to NULL or `lito_multi`.")
-      }
-      if (!is.null(lito_min_bracket)) {
-        stop("`lito_multi` is not NULL, yet neither is `lito_min_bracket`. ",
-             "Either set `lito_min_bracket` to NULL or `lito_multi`.")
-      }
-      
-      if (!is.list(lito_multi)) {
-        stop("`lito_multi` had class ", class(lito_multi), ". Must be a list.")
-      }
-      if (!length(names(lito_multi))) {
-        stop("`lito_multi` had no names. ", 
-             "When `lito_multi` is set, it be a list with two elements named 'x' and 'y'.")
-      }
-      
-      if (!identical(names(lito_multi), c("x", "y"))) {
-        stop("`names(lito_multi) = ", paste0(names(lito_multi)[1:2], collapse = ","), "`. ", 
-             "Set the names as 'x' and 'y'.")
-      }
-      
-      lito_multi_x <- lito_multi[["x"]]
-      lito_multi_y <- lito_multi[["y"]]
-      
-      # Infinity should be permitted, but won't work with approxfun
-      lito_multi_x[which.min(lito_multi_x)] <- min(income)
-      lito_multi_x[which.max(lito_multi_x)] <- max(income)
-      
-      lito. <-
-        stats::approxfun(x = lito_multi_x, 
-                         y = lito_multi_y)(income)
-      
-    } else if (Budget2018_lito_202223) {
-      lito. <- 
-        pmax0(pmaxV(lito(income, max_lito = 645, lito_taper = 0.065, min_bracket = 37e3),
-                    lito(income, max_lito = 385, lito_taper = 0.015, min_bracket = 41e3)))
-    }
-    
-    
-    
-    # http://classic.austlii.edu.au/au/legis/cth/consol_act/itaa1997240/s4.10.html
-    S4.10_basic_income_tax_liability <-
-      pmaxC(base_tax. - lito. - lamington_offset. - watr. - sapto., 0)
-    
-    # SBTO can only be calculated off .dots.ATO
-    sbto. <-
-      small_business_tax_offset(taxable_income = income,
-                                basic_income_tax_liability = S4.10_basic_income_tax_liability,
-                                .dots.ATO = .dots.ATO,
-                                fy_year = if (is.null(sbto_discount)) baseline_fy,
-                                tax_discount = sbto_discount)
-    
-    new_tax <- 
-      pmaxC(S4.10_basic_income_tax_liability - sbto., 0) +
-      temp_budget_repair_levy. + 
-      medicare_levy. +
-      flood_levy.
-    
-    if (.debug) {
-      return(data.table(Ind = if ("Ind" %in% names(.dots.ATO)) .dots.ATO[["Ind"]] else -1L, 
-                        income, 
-                        old_tax,
-                        new_tax,
-                        base_tax., 
-                        lito.,
-                        lamington_offset.,
-                        sapto.,
-                        sbto.,
-                        medicare_levy.))
-    }
-    
-    new_tax  
-  }
-  # new_tax2 <<- new_tax
-  
-  # Elasticity of Taxable Income
-  ## 
-  if (!is.null(elasticity_of_taxable_income)) {
-    D_tax <- new_tax - old_tax
-    # Change in net income
-    new_taxable_income <-
-      income * (1 - elasticity_of_taxable_income * D_tax / (income - old_tax)) %>%
-      coalesce(0)
-    hutils::drop_col(sample_file, "new_taxable_income")
-    sample_file[, "new_taxable_income" := new_taxable_income]
-    
-    # nocov start
-    if (anyNA(new_taxable_income) || identical(as.double(new_taxable_income), as.double(income))) stop("NAs: ", sum(is.na(new_taxable_income)), call. = FALSE)
-    # nocov end
-    
-    new_argument_vals <-
-      argument_vals %>%
-      .[names(argument_vals) %notin% c("arguments",
-                                       "elasticity_of_taxable_income",
-                                       "sample_file",
-                                       "calc_baseline_tax",
-                                       "return.")]
-    
-    new_sample_file <- copy(sample_file)
-    new_sample_file[, "Taxable_Income" := as.double(new_taxable_income)]
-    
-    .model_income_tax <- function(...) {
-      model_income_tax(sample_file = new_sample_file,
-                       elasticity_of_taxable_income = NULL,
-                       return. = "tax",
-                       calc_baseline_tax = FALSE,
-                       ...)
-    }
-    
-    new_tax <- do.call(.model_income_tax, new_argument_vals)
-  }
-  
-  new_tax <- newnewtax
+  switch(return.,
+         "tax" = NULL,
+         "sample_file" = set(sample_file, j = "baseline_tax", value = old_tax),
+         "sample_file.int" = set(sample_file, j = "baseline_tax", value = as.integer(old_tax)))
+                         
   
   
   switch(return.,
@@ -914,6 +254,65 @@ model_income_tax <- function(sample_file,
          "sample_file" = set(sample_file, j = "new_tax", value = new_tax),
          "sample_file.int" = set(sample_file, j = "new_tax", value = as.integer(new_tax)))
   
+}
+
+.elast_income <- function(income, old_tax, new_tax, elasticity_of_taxable_income) {
+  D_tax <- new_tax - old_tax
+  # Change in net income
+  coalesce0(income * (1 - elasticity_of_taxable_income * D_tax / (income - old_tax)))
+  
+}
+
+.apply_elasticity <- function(.dots.ATO, old_tax, fy_year, System, elasticity_of_taxable_income) {
+  if (!is.numeric(elasticity_of_taxable_income)) {
+    return(invisible(.dots.ATO))
+  }
+  
+  stopifnot(hasName(.dots.ATO, "ic_taxable_income_loss"))
+  ic_taxable_income_loss <- .subset2(.dots.ATO, "ic_taxable_income_loss")
+  .dots.ATO[, "new_taxable_income" := copy(ic_taxable_income_loss)]
+  new_tax <- income_tax2(.dots.ATO = .dots.ATO, System = System, fy.year = fy_year)
+  D_tax <- new_tax - old_tax
+  i0 <- .subset2(.dots.ATO, "ic_taxable_income_loss")
+  i1 <- .elast_income(i0, old_tax, new_tax, elasticity_of_taxable_income)
+  
+  # Change in net income, coalesce0 due to likely NaNs
+  set(.dots.ATO, j = "ic_taxable_income_loss", value = i1)
+}
+
+set_cgt_rate <- function(.dots.ATO, yr, new_cgt_discount) {
+  stopifnot(is.data.table(.dots.ATO))
+  if (is.null(new_cgt_discount)) {
+    return(invisible(.dots.ATO))
+  }
+  if (!is.numeric(new_cgt_discount)) {
+    stop("`cgt_discount_rate` was type ", typeof(new_cgt_discount), ", ",
+         "but must be numeric. Ensure `cgt_discount_rate`, if used, is numeric.")
+  }
+  if (length(new_cgt_discount) != 1 && length(new_cgt_discount) != nrow(.dots.ATO)) {
+    stop("`length(cgt_discount_rate) = ", length(new_cgt_discount), "`, ", 
+         "yet `nrow(sample_file) = ", nrow(.dots.ATO), "`. ",
+         "Ensure `cgt_discount_rate` has length one.")
+  }
+  ic_taxable_income_loss <- 
+    .subset2(.dots.ATO, "ic_taxable_income_loss") %||%
+    .subset2(.dots.ATO, "Taxable_Income")
+  is_cg_net <- 
+    .subset2(.dots.ATO, "is_cg_net") %||%
+    .subset2(.dots.ATO, "Net_CG_amt")
+  if (is.null(is_cg_net)) {
+    return(invisible(.dots.ATO))
+  }
+  # isn_tot_current <-
+  #   .subset2(.dots.ATO, "isn_cg_tot_current") %||%
+  #   .subset2(.dots.ATO, "Tot_CY_CG_amt") %||%
+  #   is_cg_net
+  
+  # assume that every one with cg_event
+  tot_cg <- is_cg_net / (1 - CGT_DISCOUNT(yr))
+  new_cg_net <- ((1 - new_cgt_discount) * tot_cg)
+  new_taxable_income <- ic_taxable_income_loss +  new_cg_net - is_cg_net
+  set(.dots.ATO, j = "ic_taxable_income_loss", value = as.integer(new_taxable_income))
 }
 
 

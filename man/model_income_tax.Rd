@@ -7,7 +7,6 @@
 model_income_tax(
   sample_file,
   baseline_fy,
-  n_dependants = 0L,
   elasticity_of_taxable_income = NULL,
   ordinary_tax_thresholds = NULL,
   ordinary_tax_rates = NULL,
@@ -26,6 +25,7 @@ model_income_tax(
   lito_taper = NULL,
   lito_min_bracket = NULL,
   lito_multi = NULL,
+  offsets = NULL,
   Budget2018_lamington = FALSE,
   Budget2019_lamington = NA,
   Budget2018_lito_202223 = FALSE,
@@ -53,8 +53,6 @@ model_income_tax(
 \item{baseline_fy}{If a parameter is not selected, the parameter's value in this tax year is used.
 
 Must be a valid tax year and one for which \code{income_tax} has been programmed.}
-
-\item{n_dependants}{The number of dependants for each entry in \code{sample_file}.}
 
 \item{elasticity_of_taxable_income}{Either \code{NULL} (the default), or a numeric vector the same length of \code{sample_file} (or length-1) providing the elasticity of taxable income for each observation in \code{sample_file}; 
 \deqn{\frac{\Delta z / z}{\Delta \tau / (1 - \tau)}} 
@@ -89,26 +87,27 @@ Since the temporary budget repair levy was imposed on a discrete tax bracket whe
 
 \item{medicare_levy_lower_up_for_each_child}{The amount to add to the \code{_family_threshold}s for each dependant child.}
 
-\item{lito_max_offset}{The maximum offset available for low incomes.}
+\item{lito_max_offset}{(deprecated) The maximum offset available for low incomes.}
 
-\item{lito_taper}{The taper to apply beyond \code{lito_min_bracket}.}
+\item{lito_taper}{(deprecated) The taper to apply beyond \code{lito_min_bracket}.}
 
-\item{lito_min_bracket}{The taxable income at which the value of the offset starts to reduce (from \code{lito_max_offset}).}
+\item{lito_min_bracket}{(deprecated) The taxable income at which the value of the offset starts to reduce (from \code{lito_max_offset}).}
 
-\item{lito_multi}{A list of two components, named \code{x} and \code{y}, giving the value of a \emph{replacement} for \code{lito} at specified points, which will be linked by a piecewise linear curve between the points specified. For example, to mimic LITO in 2015-16 (when the offset was \$445 for incomes below \$37,000, and afterwards tapered off to \$66,667), one would use \code{lito_multi = list(x = c(-Inf, 37e3, 200e3/3, Inf), y = c(445, 445, 0, 0))}. The reason the argument ends with \code{multi} is that it is intended to extend the original parameters of LITO so that multiple kinks (including ones of positive and negative gradients) can be modelled.}
+\item{lito_multi}{No longer supported.}
 
-\item{Budget2018_lamington}{logical; default is `FALSE`. If set to `TRUE`, calculates the amount that taxpayers would be entitled to under the Low and Middle Income Tax Offset as contained in the 2018 Budget.}
+\item{offsets}{A list of lists created by \code{\link{set_offsets}}. If
+\code{NULL}, the default, the list is populated by the offsets
+in \code{baseline_fy}.}
 
-\item{Budget2019_lamington}{logical. If set to `TRUE`, calculates the amount that taxpayers would be entitled to under the Low and Middle Income Tax Offset as amended by the 2019 Budget.
+\item{Budget2018_lamington}{No longer supported}
 
-The default, `NA`, means `TRUE` if `baseline_fy` is set to a year where the LMITO
-is in effect, viz. 2017-18, 2018-19, 2019-20 or 2020-21, and `FALSE` otherwise.}
+\item{Budget2019_lamington}{No longer supported.}
 
-\item{Budget2018_lito_202223}{The LITO proposed to start in 2022-23 as announced in the 2018 Budget.}
+\item{Budget2018_lito_202223}{No longer supported.}
 
-\item{Budget2018_watr}{logical; default is `FALSE`. If set to `TRUE`, calculates the "Working Australian Tax Refund" as proposed in the Labor Opposition Leader's Budget Reply Speech 2018.}
+\item{Budget2018_watr}{No longer supported}
 
-\item{Budget2019_watr}{logical; default is `FALSE`. If set to `TRUE`, calculates the "Working Australian Tax Refund" as revised in the Labor Opposition Leader's Budget Reply Speech 2019.}
+\item{Budget2019_watr}{No longer supported.}
 
 \item{sapto_eligible}{Whether or not each taxpayer in \code{sample_file} is eligible for \code{SAPTO}. 
 If \code{NULL}, the default, then eligibility is determined by \code{age_range} in \code{sample_file};

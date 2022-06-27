@@ -1,7 +1,59 @@
+## 2.0.0.0
+
+### Breaking changes
+
+* `income_tax` no longer accepts `family_status`, `n_dependants`, 
+  `allow.forecasts` and `.debug`
+
+* `model_income_tax` Arguments prefixed `Budget_` and `lito_` are deprecated and
+  now `offsets = set_offsets` are preferred.  However, using `System` with
+  `income_tax` is likely to be just as convenient.
+  
+* `lito` and `lmito` no longer accept varying parameters, but `lmito` is now exported
+
+* `sapto_rcpp`, `income_tax_sapto`, `new_income_tax`, `new_medicare_levy`, 
+  and `new_sapto` have now been removed. Use `System`.
+
+* The transfer functions have been removed as they became unreliable / difficult to maintain.
+  See repository `hughparsonage/grattanTransfers` for possible future development
+  - `age_pension`
+  - `carer_payment`
+  - `child_care_subsidy`
+  - `energy_supplement`
+  - `family_tax_benefit`
+  - `model_child_care_subsidy`
+  - `model_rent_assistance`
+  - `newstart_allowance`
+  - `pension_supplement`
+  - `rent_assistance`
+  - `student_repayment`
+  - `unemployment_benefit`
+  - `youth_allowance`
+  - `youth_unemployment`
+  
+
+* The `grattan v2` package will be more focused on income tax with other elements
+  being spun off into other packages. In particular, `_inflator` functions
+  and related forecasting methods, functions essentially accessing ABS data,
+  and functions relating to tranfers will be put in other packages, and imported
+  later. Functions that are made available in the `grattan` NAMESPACE may have
+  changes to their API when this happens.
+
+### API changes
+
+* `income_tax` now uses `System` to define the tax system
+
+### Other changes
+
+* `model_income_tax` does not throw an error for incorrect specification
+  of `lito_` arguments (which are deprecated)
+* `age_grouper` now works with long vectors containing missing values
+
 ## 1.9.0.10
 
 * New data changes to 2022
 * `rent_assistance()` example no longer works because of outdated data.
+
 
 ### Breaking changes anticipated in 2.0.0.0
 

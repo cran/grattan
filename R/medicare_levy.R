@@ -108,14 +108,56 @@ medicare_levy <- function(income,
     }
   }
   
-  Spouse_income <- do_rN(Spouse_income, N)
-  n_dependants <- do_rN(n_dependants, N)
+  Spouse_income <- do_rN(Spouse_income, integer(N))
+  n_dependants <- do_rN(n_dependants, integer(N))
   
   do_medicare_levy(income = income, 
                    yr = fy2yr(fy.year),
                    spouse_income = Spouse_income, 
                    sapto_eligible = sapto.eligible,
                    is_married = is_married,
-                   n_dependants = n_dependants,
-                   sapto_const = hutilscpp::is_constant(sapto.eligible))
+                   n_dependants = n_dependants)
 }
+
+
+do_medicare_levy <- function(income, yr, spouse_income, sapto_eligible, is_married, n_dependants,
+                             sapto_const = FALSE,
+                             lwr_single = 21980,
+                             lwr_family = 37089,
+                             lwr_single_sapto = 34758,
+                             lwr_family_sapto = 48385,
+                             lwr_up_per_child = 2253,
+                             taper = 0.1,
+                             rate = 0.02) {
+  zero <- integer(length(income))
+  .Call("Cdo_medicare_levy", 
+        do_rN(income, zero),
+        yr, 
+        do_rN(spouse_income, zero),
+        do_rN(sapto_eligible, zero),
+        do_rN(is_married, zero),
+        do_rN(n_dependants, zero),
+        PACKAGE = packageName())
+}
+
+ML_LWR_THRESH <- function(yr, family = FALSE, sapto = FALSE) {
+  .Call("C_ml_lower_thresh", as.integer(yr), family, sapto, PACKAGE = packageName())
+}
+
+ML_UPR_THRESH <- function(yr, family = FALSE, sapto = FALSE) {
+  .Call("C_ml_upper_thresh", as.integer(yr), family, sapto, PACKAGE = packageName())
+}
+
+ML_CHILD_UPPER <- function(yr) {
+  .Call("Cml_child", as.integer(yr), PACKAGE = packageName())
+}
+
+ML_TAPER <- function(yr) {
+  .Call("C_ml_taper", as.integer(yr), PACKAGE = packageName())
+}
+
+ML_RATE <- function(yr) {
+  .Call("C_ml_rate", as.integer(yr), PACKAGE = packageName())
+}
+
+

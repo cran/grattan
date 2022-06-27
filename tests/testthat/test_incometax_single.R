@@ -107,3 +107,33 @@ test_that("income_tax always returns the length of its arguments", {
                LEN)
 })
 
+test_that("Budget Speech 2003-04", {
+  "A taxpayer on $45,000 will receive a tax cut of $208, a taxpayer on $55,000 will receive 
+  a tax cut of $448 and a taxpayer on $65,000 will receive a tax cut of $573"
+  tax_cut <- function(x) {
+    x <- as.integer(x)
+    income_tax(x, "2002-03") - income_tax(x, "2003-04")
+  }
+  expect_equal(tax_cut(45000), 208)
+  expect_equal(tax_cut(55000), 448)
+  expect_equal(tax_cut(65000), 573)
+})
+
+test_that("Previous years", {
+  skip_if_not_installed("hutilscpp")
+  List <-
+    lapply(1984:2030, function(yr) {
+      income_tax(1e3:151e3, fy::yr2fy(yr))
+    })
+  expect_true(all(vapply(List, hutilscpp::is_sorted, FUN.VALUE = NA)))
+  
+  List67 <-
+    lapply(1984:2030, function(yr) {
+      income_tax(1e3:151e3, 
+                 fy::yr2fy(yr),
+                 .dots.ATO = data.table(ic_taxable_income_loss = 1e3:151e3,
+                                        c_age_30_june = 67L))
+    })
+  expect_true(all(vapply(List, hutilscpp::is_sorted, FUN.VALUE = NA)))
+})
+

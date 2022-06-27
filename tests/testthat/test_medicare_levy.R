@@ -84,7 +84,6 @@ test_that("Medicare with dependants", {
 test_that("Agrees with Master tax guide", {
   expect_equal(medicare_levy(44000, fy.year = "2014-15", Spouse_income = 0, n_dependants = 2), 226.30)
   expect_lte(abs(medicare_levy(29000, fy.year = "2014-15", Spouse_income = 27000, n_dependants = 4) - 403.25), 0.05)
-  expect_lte(abs(MedicareLevySaptoYear(29000, 27000, 4, FALSE, 2015) - 403.25), 0.05)
   expect_lte(abs(medicare_levy(27000, fy.year = "2014-15", Spouse_income = 29000, n_dependants = 4) - 375.44), 0.05)
 })
 
@@ -94,50 +93,8 @@ test_that("Medicare error handling", {
 })
 
 
-test_that("new_medicare_levy matches", {
-  skip_if_not_installed("taxstats") 
-  skip_if_not_installed("dplyr")
-  library(dplyr)
-  library(taxstats)
-  sa <- sample_file_1314
-  par_tbl <- 
-    as.data.table(grattan:::medicare_tbl) %>%
-    .[fy_year == "2013-14"] %>%
-    setnames(old = "sapto", new = "switches")
-  
-  expect_equal(new_medicare_levy(par_tbl)(income = 23e3,
-                                          switch = FALSE, 
-                                          Spouse_income = 750,
-                                          n_dependants = 0), 
-               medicare_levy(income = 23e3,
-                             fy.year = "2015-16",
-                             sapto.eligible = TRUE,
-                             Spouse_income = 750,
-                             n_dependants = 0))
-  
-  expect_error(new_medicare_levy(parameter_table = as.data.frame(par_tbl)))
-  expect_error(new_medicare_levy(parameter_table = hutils::drop_cols(par_tbl, "taper")),
-               regexp = "parameter_table must contain certain columns")
-  
-  
-})
 
 
-test_that("Medicare levy C++ constant", {
-  expect_equal(MedicareLevySaptoYear(47900, 15e3, 1L, TRUE, 2017), 
-               medicare_levy(47900,
-                             fy.year = "2016-17",
-                             sapto.eligible = TRUE,
-                             Spouse_income = 15e3,
-                             n_dependants = 1L))
-  
-  expect_equal(MedicareLevySaptoYear(47900, 15e3, 1L, TRUE, 2019), 
-               medicare_levy(47900,
-                             fy.year = "2018-19",
-                             sapto.eligible = TRUE,
-                             Spouse_income = 15e3,
-                             n_dependants = 1L))
-})
 
 
 

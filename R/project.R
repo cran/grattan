@@ -70,17 +70,6 @@
 #' unless you need the superannuation variables, 
 #' as the latter suggests lower-than-recorded tax collections. 
 #' However, more recent data is of course preferable.
-#' @examples 
-#' # install_taxstats()
-#' if (requireNamespace("taxstats", quietly = TRUE) &&
-#'     requireNamespace("data.table", quietly = TRUE)) {
-#'   library(taxstats)
-#'   library(data.table)
-#'   sample_file <- copy(sample_file_1314)
-#'   sample_file_1617 <- project(sample_file,
-#'                               h = 3L, # to "2016-17"
-#'                               fy.year.of.sample.file = "2013-14")  
-#' }
 #' @export
 
 project <- function(sample_file, 
@@ -220,21 +209,23 @@ project <- function(sample_file,
   to.fy <- yr2fy(fy2yr(current.fy) + h)
   
   if (is.null(wage.series)){
-    wage.inflator <- wage_inflator(1, from_fy = current.fy, to_fy = to.fy)
+    wage.inflator <- wage_inflator(from = current.fy, to = to.fy)
   } else {
-    wage.inflator <- wage_inflator(1, from_fy = current.fy, to_fy = to.fy, 
-                                   forecast.series = "custom", wage.series = wage.series)
+    wage.inflator <- wage_inflator(from = current.fy, to = to.fy)
   }
   
   if (is.null(lf.series)) {
-    lf.inflator <- lf_inflator_fy(from_fy = current.fy, to_fy = to.fy)
+    lf.inflator <- lf_inflator(from = current.fy, to = to.fy)
   } else {
-    lf.inflator <- lf_inflator_fy(from_fy = current.fy, to_fy = to.fy, 
-                                  forecast.series = "custom", 
-                                  lf.series = lf.series)
+    if (is.data.table(lf.series)) {
+      stop("lf.series should be a series as defined by lf_inflator.")
+    }
+    
+    lf.inflator <- lf_inflator(from = current.fy, to = to.fy, 
+                               series = lf.series)
   }
   
-  cpi.inflator <- cpi_inflator(1, from_fy = current.fy, to_fy = to.fy)
+  cpi.inflator <- cpi_inflator(from = current.fy, to = to.fy)
   
   if (!is.logical(.recalculate.inflators)) {
     stop("`.recalculate.inflators` was type ", typeof(.recalculate.inflators), ", ",
@@ -439,12 +430,12 @@ project <- function(sample_file,
              "differential" = {
                if (is.null(wage.series)) {
                  differentially_uprate_wage(v, 
-                                            from_fy = current.fy,
-                                            to_fy = to.fy)
+                                            from = current.fy,
+                                            to = to.fy)
                } else {
                  differentially_uprate_wage(v, 
-                                            from_fy = current.fy,
-                                            to_fy = to.fy,
+                                            from = current.fy,
+                                            to = to.fy,
                                             forecast.series = "custom",
                                             wage.series = wage.series)
                }

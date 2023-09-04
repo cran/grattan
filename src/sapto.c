@@ -48,7 +48,58 @@ SEXP Sapto2Sexp(Sapto S) {
   return ans;
 }
 
-static double do_1_sapto_sf(int x, int y, int age, bool is_married, Sapto S) {
+static int smax_offset(Sapto S, unsigned int on_sapto_cd) {
+  switch(on_sapto_cd) {
+  case SAPTO_A:
+    return S.mxo_single;
+  case SAPTO_B:
+    return S.mxo_illness;
+  case SAPTO_C:
+    return S.mxo_illness;
+  case SAPTO_D:
+    return S.mxo_couple;
+  case SAPTO_E:
+    return S.mxo_couple;
+  default:
+    return S.mxo_single;
+  }
+}
+
+static int slwr_thresh(Sapto S, unsigned int on_sapto_cd) {
+  switch(on_sapto_cd) {
+  case SAPTO_A:
+    return S.lwr_single;
+  case SAPTO_B:
+    return S.lwr_illness;
+  case SAPTO_C:
+    return S.lwr_illness;
+  case SAPTO_D:
+    return S.lwr_couple;
+  case SAPTO_E:
+    return S.lwr_couple;
+  default:
+    return S.lwr_single;
+  }
+}
+
+static int supr_thresh(Sapto S, unsigned int on_sapto_cd) {
+  switch(on_sapto_cd) {
+  case SAPTO_A:
+    return S.upr_single;
+  case SAPTO_B:
+    return S.upr_illness;
+  case SAPTO_C:
+    return S.upr_illness;
+  case SAPTO_D:
+    return S.upr_couple;
+  case SAPTO_E:
+    return S.upr_couple;
+  default:
+    return S.upr_single;
+  }
+}
+
+static double do_1_sapto_sf(int x, int y, int age, unsigned int on_sapto_cd, Sapto S) {
   // x is rebate income
   // y is spouse rebate income
   if (age < S.pension_age) {
@@ -56,13 +107,27 @@ static double do_1_sapto_sf(int x, int y, int age, bool is_married, Sapto S) {
     return 0;
   }
   
+  int upr_thresh = supr_thresh(S, on_sapto_cd);
+  if (((x / 2) + (y / 2)) > upr_thresh) {
+    return 0;
+  }
   
-  int max_offset = is_married ? S.mxo_couple : S.mxo_single;
-  int lwr_thresh = is_married ? S.lwr_couple : S.lwr_single;
+  // on_sapto_cd
+  // A | single
+  // B | couple, both eligible lived apart, nursing home illness
+  // C | meets cond, partner doesn't, nursing home illness
+  // D | both elig, live together
+  // E | you elig, live together, spouse inelig
+  
+  bool is_married = on_sapto_cd != SAPTO_A;
+  bool spouse_elig = on_sapto_cd == SAPTO_B || on_sapto_cd == SAPTO_D;
+  int max_offset = smax_offset(S, on_sapto_cd);
+  int lwr_thresh = slwr_thresh(S, on_sapto_cd);
   double taper = S.taper;
   
   double o = x < lwr_thresh ? max_offset : dmax0(max_offset - taper * (x - lwr_thresh));
-  if (!is_married) {
+  
+  if (!spouse_elig) {
     return o;
   }
   
@@ -112,7 +177,7 @@ static double do_1_sapto_sf(int x, int y, int age, bool is_married, Sapto S) {
 }
 
 void apply_sapto(double * taxi, Person P, Sapto S) {
-  double sapto = do_1_sapto_sf(P.ri, P.yi, P.agei, P.is_married, S);
+  double sapto = do_1_sapto_sf(P.ri, P.yi, P.agei, P.on_sapto_cd, S);
   if (sapto >= *taxi) {
     *taxi = 0;
   } else {
@@ -133,26 +198,26 @@ int lwr_threshold(int mxo, int ord_thresh1, double ord_rate1, int max_lito) {
   return ceil(o); 
 }
 
-static bool valid_sapto_rel(int mxo, int lwr, int upr,
-                            int ord_thresh1, double ord_rate1,
-                            int max_lito, double taper) {
-  int expected_lwr = lwr_threshold(mxo, ord_thresh1, ord_rate1, max_lito);
-  if (expected_lwr != lwr) {
-    return false;
-  }
-  if (taper == 0.125) {
-    int expected_upr = lwr + (mxo << 3);
-    if (expected_upr != upr) {
-      return false;
-    }
-  } else {
-    int expected_upr = ceil(lwr + ((double)mxo) / taper);
-    if (expected_upr != upr) {
-      return false;
-    }
-  }
-  return true;
-}
+// static bool valid_sapto_rel(int mxo, int lwr, int upr,
+//                             int ord_thresh1, double ord_rate1,
+//                             int max_lito, double taper) {
+//   int expected_lwr = lwr_threshold(mxo, ord_thresh1, ord_rate1, max_lito);
+//   if (expected_lwr != lwr) {
+//     return false;
+//   }
+//   if (taper == 0.125) {
+//     int expected_upr = lwr + (mxo << 3);
+//     if (expected_upr != upr) {
+//       return false;
+//     }
+//   } else {
+//     int expected_upr = ceil(lwr + ((double)mxo) / taper);
+//     if (expected_upr != upr) {
+//       return false;
+//     }
+//   }
+//   return true;
+// }
 
 void validate_sapto(Sapto * S, int fix) {
   int year = S->year;
@@ -177,8 +242,8 @@ void validate_sapto(Sapto * S, int fix) {
     }
   }
   
-  int mxo_single = S->mxo_single;
-  int mxo_couple = S->mxo_couple;
+  // int mxo_single = S->mxo_single;
+  // int mxo_couple = S->mxo_couple;
   
   int lwr_single = S->lwr_single;
   int lwr_couple = S->lwr_couple;
@@ -226,6 +291,10 @@ void validate_sapto(Sapto * S, int fix) {
   double second_tax_rate = S->second_tax_rate;
   int tax_free_thresh = S->tax_free_thresh;
   int tax_2nd_thresh = S->tax_2nd_thresh;
+  if (tax_free_thresh > tax_2nd_thresh) {
+    error("(validate_sapto)tax_free_thresh > tax_2nd_thresh");
+  }
+  
   double lito_max_offset = S->lito_max_offset;
   double lito_1st_thresh = S->lito_1st_thresh;
   double lito_1st_taper = S->lito_1st_taper;
@@ -237,6 +306,16 @@ void validate_sapto(Sapto * S, int fix) {
   if (!bw01(first_tax_rate) || first_tax_rate > second_tax_rate) {
     error("(validate_sapto)Sapto.first_tax_rate must be between 0 and S.second_tax_rate");
   }
+  if (ISNAN(lito_max_offset)) {
+    error("(validate_sapto)Sapto.lito_max_offset is NaN.");
+  }
+  if (ISNAN(lito_1st_thresh)) {
+    error("(validate_sapto)Sapto.lito_1st_thresh is NaN.");
+  }
+  if (!bw01(lito_1st_taper)) {
+    error("(validate_sapto)Sapto.lito_1st_taper must be between 0 and 1.");
+  }
+  
   
   
   
@@ -250,8 +329,18 @@ static bool FamilyStatus_is_single(SEXP x, R_xlen_t i) {
 }
 
 static unsigned char code_OnSaptoCd(SEXP x, R_xlen_t i) {
-  const char * xi = CHAR(STRING_ELT(x, i));
-  return xi[0];
+  switch(TYPEOF(x)) {
+  case STRSXP: {
+    const char * xi = CHAR(STRING_ELT(x, i));
+    return xi[0];
+  }
+    break;
+  case RAWSXP:
+    return RAW_ELT(x, i);
+    break;
+  default:
+    return 0;
+  }
 }
 
 static void set_on_sapto_cd(unsigned char * on_sapto_cd, R_xlen_t N, 
@@ -265,20 +354,21 @@ static void set_on_sapto_cd(unsigned char * on_sapto_cd, R_xlen_t N,
                  " will be used.\n", (char)family_status0, (char)on_sapto_cd0,
                  (char)on_sapto_cd0);
     }
-    memset(on_sapto_cd, on_sapto_cd0, N);
+    
+    memset(on_sapto_cd, on_sapto_cd0 == 'A' ? SAPTO_A : SAPTO_D, N);
     return;
   }
   if (xlength(OnSaptoCd) == N) {
     int nThread = 1;
     FORLOOP({
-      on_sapto_cd[i] = code_OnSaptoCd(FamilyStatus, i);
+      on_sapto_cd[i] = code_OnSaptoCd(OnSaptoCd, i);
     })
       return;
   }
   if (xlength(FamilyStatus) == N) {
     int nThread = 1;
     FORLOOP({
-      on_sapto_cd[i] = FamilyStatus_is_single(FamilyStatus, i) ? 'A' : 'D';
+      on_sapto_cd[i] = FamilyStatus_is_single(FamilyStatus, i) ? SAPTO_A : SAPTO_D;
     })
     return;
   }
@@ -326,13 +416,59 @@ SEXP Csapto(SEXP RebateIncome, SEXP Yr, SEXP Fill,
     if (nse ? se[i] : se[0]) {
       ansp[i] = do_1_sapto_sf(xp[i],
                               (nsp ? sp[i] : sp[0]), 
-                              67,
-                              (on_sapto_cd[i] != 'A'),  // is married
+                              99,
+                              on_sapto_cd[i],  // is married
                               S);
     }
   })
     
   free(on_sapto_cd);
+  UNPROTECT(1);
+  return ans;
+}
+
+SEXP C_asraw_OnSaptoCd(SEXP x, SEXP nthreads) {
+  if (TYPEOF(x) == RAWSXP) {
+    return x;
+  }
+  if (!isString(x) && !isInteger(x)) {
+    error("x was type '%s' but must be either RAWSXP or integer or character.", type2char(TYPEOF(x)));
+  }
+  
+  int nThread = as_nThread(nthreads);
+  R_xlen_t N = xlength(x);
+  SEXP ans = PROTECT(allocVector(RAWSXP, N));
+  unsigned char * ansp = RAW(ans);
+  if (isInteger(x)) {
+    const int * xp = INTEGER(x);
+    FORLOOP({
+      ansp[i] = xp[i];
+    })
+    UNPROTECT(1);
+    return ans;
+  }
+  
+  FORLOOP({
+    ansp[i] = CHAR(STRING_ELT(x, i))[0];
+  })
+  UNPROTECT(1);
+  return ans;
+}
+
+SEXP C_sf2osc(SEXP Age, SEXP isMarried) {
+  R_xlen_t N = xlength(isMarried);
+  isEquiInt(Age, isMarried, "age");
+  const int * age = INTEGER(Age);
+  const int * is_married = INTEGER(isMarried);
+  SEXP ans = PROTECT(allocVector(RAWSXP, N));
+  unsigned char * restrict ansp = RAW(ans);
+  int nThread = 1;
+  FORLOOP({
+    ansp[i] = 0;
+    if (age[i] >= 65) {
+      ansp[i] = (is_married[i] == 0) ? SAPTO_A : SAPTO_D;
+    }
+  })
   UNPROTECT(1);
   return ans;
 }

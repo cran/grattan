@@ -1,9 +1,7 @@
 context("utils")
 
 test_that("unselect_", {
-  skip_if_not_installed("taxstats")
-  library(taxstats)
-  y <- sample_file_1314 %>% copy %>% unselect_(.dots = "Sw_amt")
+  y <- data.table(x = 1, Sw_amt = 2) %>% unselect_(.dots = "Sw_amt")
   expect_false("Sw_amt" %in% names(y))
 })
 
@@ -72,64 +70,10 @@ test_that("Switch", {
                c(1, 2, 13, 4))
 })
 
-test_that("Accelerate inputs", {
-  skip_on_cran()
-  set.seed(3713907)
-  yrs <- sample(1990:2010, size = 1e5, replace = TRUE)
-  fys <- yr2fy(yrs)
-  expect_identical(fys, 
-                   accel_repetitive_input(yrs, "yr2fy"))
-  expect_identical(fys, 
-                   accel_repetitive_input(yrs, yr2fy, THRESHOLD = 10L))
-  cpi15 <- function(x) {
-    cpi_inflator(from_fy = x, to_fy = "2015-16", adjustment = "none")
-  }
-  expect_identical(cpi_inflator(from_fy = fys, to_fy = "2015-16", adjustment = "none"), 
-                   accel_repetitive_input(fys, cpi15))
-  
-  expect_identical(cpi_inflator(from_fy = c("2015-16", "2015-16", "2015-16"), 
-                                to_fy = "2016-17"),
-                   accel_repetitive_input(c("2015-16", "2015-16", "2015-16"),
-                                          FUN = cpi_inflator,
-                                          from_nominal_price = 1,
-                                          to_fy = "2016-17",
-                                          THRESHOLD = 2L))
-  
-  y <- runif(1001)
-  expect_identical(accel_repetitive_input(y, log), 
-                   accel_repetitive_input(y, log, THRESHOLD = 2000L))
-  expect_identical(accel_repetitive_input(2, log), 
-                   log(2))
-  
-})
-
 test_that("getOption", {
   expect_equal(.getOption("grattan.sadfsdfsdfdfs", "abc"), "abc")
   expect_equal(getOption("width", "abc"), 
                .getOption("width", "abc"))
-})
-
-test_that("get_qtr", {
-  skip_if_not_installed("zoo")
-  DT2017 <- data.table(Dates = seq.Date(as.Date(c("2017-01-01")),
-                                        as.Date(c("2017-12-31")), 
-                                        by = "1 day"))
-  DT2017[, ZooQtr := zoo::as.yearqtr(Dates)]
-  DT2017[, GratQtr := get_qtr(Dates)]
-  DT2017z <- unique(DT2017, by = "ZooQtr")
-  DT2017g <- unique(DT2017, by = "GratQtr")
-  expect_equal(DT2017g, DT2017z)
-  
-  DT2017 <- DT2017z <- DT2017g <- NULL # to avoid continuation
-  # leap years
-  DT2000 <- data.table(Dates = seq.Date(as.Date(c("2000-01-01")),
-                                        as.Date(c("2000-12-31")), 
-                                        by = "1 day"))
-  DT2000[, ZooQtr := zoo::as.yearqtr(Dates)]
-  DT2000[, GratQtr := get_qtr(Dates)]
-  DT2000z <- unique(DT2000, by = "ZooQtr")
-  DT2000g <- unique(DT2000, by = "GratQtr")
-  expect_equal(DT2000g, DT2000z)
 })
 
 test_that("age2age_range", {
@@ -147,11 +91,11 @@ test_that("hasntName", {
 })
 
 
-test_that("seq.qtr", {
-  expect_equal(seq.qtr(from = "2020-Q1", length.out = 5),
+test_that("seq_qtr", {
+  expect_equal(seq_qtr(from = "2020-Q1", length.out = 5),
                c("2020-Q1", "2020-Q2", "2020-Q3", "2020-Q4", 
                  "2021-Q1"))
-  expect_equal(length(seq.qtr(from = "2010-Q4", length.out = 10)), 10)
+  expect_equal(length(seq_qtr(from = "2010-Q4", length.out = 10)), 10)
 })
 
 

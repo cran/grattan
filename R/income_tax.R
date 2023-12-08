@@ -15,6 +15,8 @@
 #' @param System A \code{tax-system} created by \code{System()} or \code{NULL}, the default,
 #' corresponding to the tax system of the given year.
 #' 
+#' @param nThread Number of threads to use.
+#' 
 #' @author Tim Cameron, Brendan Coates, Matthew Katzen, Hugh Parsonage, William Young
 #' @return The total personal income tax payable.
 #' @details The function is inflexible by design.
@@ -67,7 +69,8 @@ income_tax <- function(income,
                        age = NULL,
                        .dots.ATO = NULL,
                        System = NULL,
-                       return.mode = c("numeric", "integer")) {
+                       return.mode = c("numeric", "integer"),
+                       nThread = getOption("grattan.nThread", 1L)) {
   if (is.null(.dots.ATO)) {
     .dots.ATO <- data.table(ic_taxable_income_loss = income, 
                             sp_flag = FALSE,
@@ -76,7 +79,8 @@ income_tax <- function(income,
   ans <- income_tax2(income, 
                      fy.year = fy.year,
                      .dots.ATO = .dots.ATO,
-                     System = System)
+                     System = System, 
+                     nThread = nThread)
   if (match.arg(return.mode) == "integer") {
     ans <- as.integer(ans)
   }
@@ -216,6 +220,9 @@ income_tax2 <- function(income = NULL,
     s2("ds_pers_super_cont",
        "Non_emp_spr_amt")
   
+  i_frank_cr <-
+    s2("i_frank_cr")
+  
   # Want this to totally dictate sapto eligibility and rates
   on_sapto_cd <-
     if (is.data.table(.dots.ATO)) {
@@ -266,6 +273,7 @@ income_tax2 <- function(income = NULL,
                      is_married = rN(is_married),
                      n_dependants = rN(n_dependants),
                      on_sapto_cd = on_sapto_cd %||% charToRaw('A'),
+                     i_frank_cr = i_frank_cr %||% 0L,
                      spc_rebate_income = rN(spc_rebate_income))
     ans <- DT[, "tax" := .Call("Cincome_tax",
                                .BY[[1]],
@@ -276,6 +284,7 @@ income_tax2 <- function(income = NULL,
                                n_dependants,
                                spc_rebate_income,
                                on_sapto_cd,
+                               i_frank_cr,
                                System, # RSystem
                                1L,
                                PACKAGE = "grattan"),
@@ -292,6 +301,7 @@ income_tax2 <- function(income = NULL,
         rN(n_dependants),
         rN(spc_rebate_income),
         on_sapto_cd %||% rep.int(charToRaw('A'), N),
+        i_frank_cr,
         System, # RSystem
         nThread,
         PACKAGE = "grattan")

@@ -141,7 +141,8 @@ SEXP Cincome_tax(SEXP Yr,
                  SEXP OnSaptoCd,
                  SEXP iFrankCr,
                  SEXP RSystem,
-                 SEXP nthreads) {
+                 SEXP nthreads, 
+                 SEXP Summary) {
   if (xlength(Yr) != 1) {
     error("Yr must be length-one."); // # nocov
   }
@@ -149,6 +150,10 @@ SEXP Cincome_tax(SEXP Yr,
     error("RSystem was type '%s', but must be NULL or a list.", type2char(TYPEOF(RSystem)));
   }
   int nThread = as_nThread(nthreads);
+  if (!isInteger(Summary)) {
+    error("Internal error(Cincome_tax):`Summary` was type '%s' but must be integer.", type2char(TYPEOF(Summary)));
+  }
+  const int summary = asInteger(Summary);
     
   R_xlen_t N = xlength(IcTaxableIncome);
   isEquiInt(IcTaxableIncome, Age, "Age");
@@ -195,6 +200,7 @@ SEXP Cincome_tax(SEXP Yr,
     P.yi = ypi;
     PP[i] = P;
   })
+
     
   
   FORLOOP({
@@ -231,6 +237,21 @@ SEXP Cincome_tax(SEXP Yr,
     })
   }
   free(PP);
+
+  if (summary) {
+    double o = 0;
+    if (summary <= 2) {
+#pragma omp parallel for num_threads(nThread) reduction(+ : o)
+      for (R_xlen_t i = 0; i < N; ++i) {
+        o += ansp[i];
+      }
+      if (summary == 2) {
+        o /= (double)N;
+      }
+    }
+    UNPROTECT(1);
+    return ScalarReal(o);
+  }
   UNPROTECT(1);
   return ans;
 }

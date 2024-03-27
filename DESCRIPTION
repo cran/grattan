@@ -1,8 +1,8 @@
 Package: grattan
 Type: Package
 Title: Australian Tax Policy Analysis
-Version: 2024.0.0
-Date: 2023-12-21
+Version: 2024.1.1
+Date: 2024-03-27
 Authors@R: c(person("Hugh", "Parsonage", role = c("aut", "cre"), email = "hugh.parsonage@gmail.com"),
               person("Tim", "Cameron", role = "aut"),
               person("Brendan", "Coates", role = "aut"),
@@ -29,12 +29,12 @@ Imports: checkmate, data.table, grattanInflators (>= 0.4.0), hutils (>=
         forecast, fy (>= 0.2.0), assertthat (>= 0.1), magrittr (>=
         1.5), utils,
 RoxygenNote: 7.2.0
-Suggests: curl, fst (>= 0.8.4), knitr, rlang, rmarkdown, scales,
-        survey, testthat, tibble, yaml, withr, covr
+Suggests: curl, fst (>= 0.8.4), knitr, rlang, rmarkdown, survey,
+        testthat, tibble, yaml, withr, covr
 LazyData: true
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2023-12-20 22:39:39 UTC; hughp
+Packaged: 2024-03-27 05:07:03 UTC; hughp
 Author: Hugh Parsonage [aut, cre],
   Tim Cameron [aut],
   Brendan Coates [aut],
@@ -45,4 +45,4 @@ Author: Hugh Parsonage [aut, cre],
   M. Enrique Garcia [ctb],
   Matt Cowgill [aut]
 Repository: CRAN
-Date/Publication: 2023-12-21 00:50:02 UTC
+Date/Publication: 2024-03-27 13:10:05 UTC

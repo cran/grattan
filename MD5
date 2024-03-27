@@ -1,6 +1,6 @@
-6ea23a15d5ddfa66393cc499c7201291 *DESCRIPTION
+c0666e6fd0e87b6c6befce8d325ea745 *DESCRIPTION
 e939978312626233984c68876cf36065 *NAMESPACE
-42c150c98a482b12b92634315866069f *NEWS.md
+ff219c020dfca8d553d8fca6415d5b08 *NEWS.md
 411f1f5616a63a5db5f579c3e929ef8b *R/CG_inflator.R
 f4557bebf883231e950eacb988d31813 *R/LITO.R
 0192f42b9d8ffb1660fe7f0e612974e3 *R/ModellingSuperannuationChanges.R
@@ -47,7 +47,7 @@ ec3da08abdc15292762797eeb1bbe7b7 *R/next_fy.r
 027967171e88d7dd246370a50281d662 *R/prohibit_length0_vectors.R
 22a6c50c807193bd747ce42eb0165992 *R/prohibit_unequal_length_vectors.R
 ab82e0266711873916b545af023b711e *R/prohibit_vector_recycling.R
-1941a0c0c76a6c348490f931cfd5a465 *R/project.R
+fac59d1d25865b018787ba2de5cb7c8e *R/project.R
 2f6c17e880910056aa848a823b876990 *R/project_to.R
 bd8024b152cf27b1bd8053892f63111d *R/rN.R
 1b6eb802aa676051d6496612b87d83d7 *R/rebate_income.R
@@ -62,7 +62,7 @@ fa58bad857e05be5daabd181f04a95f8 *R/sapto.R
 a3ea0d38f16cb2593f1e1d687d958ddd *R/stop.R
 ec30cc5e38c9a8bb5f83e92753b56bc0 *R/sysdata.rda
 3334ca8510b5038967cdae4a605d4138 *R/utils-test.R
-53881de1c61d3cb8b8ed55cb444352f0 *R/utils.R
+761fe6583795a76834760116cd1cb2b9 *R/utils.R
 097e5d692c45126aa5accc64d1abc432 *R/validate_date.R
 3461d8f25957e816d1464cf79933c620 *R/validate_per.R
 c1011da8b04aeace56c86b52797306c2 *R/wage_inflator.R
@@ -109,7 +109,7 @@ f8119de6562a6f4e13263b67c0fa8207 *man/medicare_levy.Rd
 b9cf1af09ca81cdb45b3842084693b6d *man/progressivity.Rd
 5999dab7bbb0fbd6c19c54acdff01dee *man/prohibit_length0_vectors.Rd
 641ddca88f7b5d8d7dc91277954fab5e *man/prohibit_unequal_length_vectors.Rd
-e46b2017bf1116747c828f60aa8785a3 *man/project.Rd
+0b2492f70c54811c1cf7fbf3484ab8f6 *man/project.Rd
 31c6cecc9c14dc0423b4e43e1a67cda2 *man/project_to.Rd
 f285a3a18446ef4376639a7718973d27 *man/rebate_income.Rd
 f2202ef9b8dea56771584705def328f2 *man/reexports.Rd
@@ -160,17 +160,18 @@ d7da97da679e1e9c46bc929b80ada80c *src/2020.c
 2ba9ae169db7deb7d2a533c6e2c0f848 *src/2021.c
 13c20b6499714b6513434eaaa9be548c *src/2022.c
 cfbaa3f39022aa0c2924dabb16ffef1c *src/2023.c
-5e47235c587b8269098fd90aabc2158c *src/2024.c
+db13d414ffb9f72c80e6dc18889d19fb *src/2024.c
+01e34c3ffbfd399d98e37c024f7c3d77 *src/2025.c
 044777d7bef28c264338b833fd195612 *src/Cdecode_age_range.c
 20ff6a9064b8b77b6df0db7cac151af7 *src/Cdo_rn.c
 48d753e3d245dc7a39e52d53d899a64b *src/Cincome_tax.c
 bbf54dccdf3764fa020e632b9363e32e *src/Crebate_income.c
 95e3011e37d9dde0d75f3a3819b2acd3 *src/Makevars
-1d35179afdca679bf83b0a9c8a19976a *src/Offset.c
+78e5c376de3c72f810ed99e1c9cfaf36 *src/Offset.c
 15a45f3b0fe81958ef54b6d5af190430 *src/age.c
 4761c68230db6412693bc768d7531a1e *src/errif.c
 52d9a038299bdd9e244264962ba32e3f *src/getListElement.c
-7c146ff99993f2cb5c1911c08e504425 *src/grattan.h
+3a316c2978ba69e4f08e36412201e991 *src/grattan.h
 0701a911a38c4bf39c6fe1bc95425e68 *src/hazName.c
 47c8f920a9cb3981313ab7325cb28ab0 *src/init.c
 744b416204fe0bbba2d7d8dbfdb4b87f *src/isEquiInt.c
@@ -181,8 +182,8 @@ f204895b19e0cc22efccbe170102e888 *src/minmax.c
 2b868d63ee05e4ca1ccb9e3d6519a3d9 *src/sapto.c
 0a8b172f859838851bc97b4f94cb566b *src/starts_with_medicare.c
 b5037b5883369cfa83acf635dfa067e6 *src/starts_with_sapto.c
-1311c46f3a0960694932ce50ad2527eb *src/tax-system.c
-48ab932310b1f757334cd899148f9c2c *tests/testthat.R
+b0b75749f388ff42b812614a8d661781 *src/tax-system.c
+3fccd817654fd2573fc00ecc6450a5a8 *tests/testthat.R
 097fa498722e4c442c832805ef778b37 *tests/testthat/test-decode_age_range.R
 277a9a15783a0d9d0915811ca5cf52b1 *tests/testthat/test-income_tax2.R
 bac5f882458bb52f72418fb652e8ad23 *tests/testthat/test-marginal_rate.R
@@ -205,7 +206,7 @@ b83ea4600936d6fd7b2c00517cc3759f *tests/testthat/test_financialfunctions.R
 07a3ccf1d163f0eec484a59c93d64e86 *tests/testthat/test_incomeTaxCollections.R
 d81c0865fc7b6bfed8ba0a39bbaecf0e *tests/testthat/test_incometax_dotsATO.R
 5b17c3c4cb2341bdbf08f580326d3ba6 *tests/testthat/test_incometax_dotsATO_sfa.R
-f357ec09a5e6c1719f61786a1057069f *tests/testthat/test_incometax_single.R
+1d138491fb1c3ac0c1e37f9e65c6d957 *tests/testthat/test_incometax_single.R
 15668949532a3575dfbe9fcb509f24db *tests/testthat/test_inverse_average_rate.R
 a0fc7c94302bcec98f3a4b8f7bc5bcab *tests/testthat/test_inverse_income.R
 b5ca9aacc6058b8a0b850ac746487302 *tests/testthat/test_isfy.R
@@ -228,4 +229,4 @@ ab0e4450e72d17e5d844ecd9bf72e099 *tests/testthat/test_utils.R
 0fb75f052889502c9b24ff4ee825e0ce *tests/testthat/test_validate_fys.R
 629f5fa3a682ca489f86dfe3374255e8 *tests/testthat/test_validate_per.R
 e093a8cad50c4c7eb03c1a4280bb20e0 *tests/testthat/test_verify_date.R
-6350312eadc26ad2b6c748f61d4bfe5b *tests/testthat/test_zbenchmark.R
+12525e5059e9699a096f494242c76056 *tests/testthat/test_zbenchmark.R
